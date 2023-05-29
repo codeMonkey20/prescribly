@@ -12,13 +12,21 @@ import { Loader2 } from "lucide-react";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
-  if (session) {
-    return {
-      redirect: {
-        destination: `/${session?.user._id}`,
-        permanent: false,
-      },
-    };
+  if (session && !session.user.usertypeID) {
+    if (!session.user.usertypeID)
+      return {
+        redirect: {
+          destination: `/register/${session.user._id}`,
+          permanent: false,
+        },
+      };
+    else
+      return {
+        redirect: {
+          destination: `/`,
+          permanent: false,
+        },
+      };
   }
   return {
     props: {},
@@ -56,11 +64,11 @@ export default function Login() {
       return;
     }
 
-    // signIn("credentials", {
-    //   email: inputEmail,
-    //   password: inputPassword,
-    //   callbackUrl: `/patient/${user._id}`,
-    // });
+    signIn("credentials", {
+      email: inputEmail,
+      password: inputPassword,
+      callbackUrl: "/",
+    });
     return;
   };
 

@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/router";
 import { Loader2 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 export default function PatientRegister() {
   const skeletonSizes = [
@@ -46,6 +47,9 @@ export default function PatientRegister() {
 
   return (
     <main className="flex justify-center items-center h-screen bg-white">
+      <Button className="absolute top-0 right-0" onClick={() => signOut({ callbackUrl: "/login" })}>
+        Sign out
+      </Button>
       <form className="w-11/12 h-5/6 border-4 border-background rounded-3xl flex" onSubmit={handleSubmit}>
         <div className="w-2/5 px-6 flex flex-col justify-center gap-1">
           <h1 className="text-3xl font-bold">Register</h1>
