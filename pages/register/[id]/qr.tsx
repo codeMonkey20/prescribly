@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
@@ -12,14 +13,13 @@ export default function QRPage() {
   useEffect(() => {
     if ((idNumber === "" || idNumber === undefined) && query.id) {
       axios.get(`/api/patient/${query.id}`).then(({ data }) => {
-        console.log(query.id, data);
         setIdNumber(data.idNumber);
       });
     }
   }, [query, idNumber]);
 
   return (
-    <main className="h-screen p-8">
+    <main className="h-screen bg-primary p-8">
       <div className="bg-white rounded-3xl p-4 flex flex-col h-full">
         <h1 className="font-bold text-3xl">QR Code</h1>
         {idNumber === "" || idNumber === undefined ? (
@@ -46,7 +46,13 @@ export default function QRPage() {
               Please save a screenshot of your QR Code and present it everytime you visit the clinic
             </p>
             <div className="flex justify-end">
-              <Button variant="secondary" className="px-6">
+              <Button
+                variant="secondary"
+                className="px-6"
+                onClick={() => {
+                  signOut({ callbackUrl: "/" });
+                }}
+              >
                 EXIT
               </Button>
             </div>

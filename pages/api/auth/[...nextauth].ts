@@ -2,6 +2,8 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import User from "@/models/User";
+import Patient from "@/models/Patient";
+import Staff from "@/models/Staff";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -36,6 +38,16 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }: { session: any; token: any }) {
       const { _doc } = await User.findOne({ email: session.user.email });
       const { password, __v, ...user } = _doc;
+      switch (user.usertype) {
+        case "Patient":
+          user.usertypeData = await Patient.findOne({ userID: user._id });
+          break;
+        case "Admin":
+          break;
+        default:
+          user.usertypeData = await Staff.findOne({ userID: user._id });
+          break;
+      }
       return {
         ...session,
         user,

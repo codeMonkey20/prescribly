@@ -17,7 +17,7 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
   if (session) {
     return {
       redirect: {
-        destination: `/`,
+        destination: `/profile`,
         permanent: false,
       },
     };
@@ -89,7 +89,7 @@ export default function Register() {
         </div>
       </div>
       <div className="w-3/5 bg-white">
-        <div className="flex justify-center items-center h-full bg-background rounded-l-3xl">
+        <div className="flex justify-center items-center h-full bg-primary rounded-l-3xl">
           <Image src="/logo.png" alt="logo" width={150} height={150} className="w-auto" priority />
           <div>
             <div className="font-semibold text-5xl">PRESCRIBLY</div>

@@ -23,7 +23,7 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
     else
       return {
         redirect: {
-          destination: `/`,
+          destination: `/profile`,
           permanent: false,
         },
       };
@@ -75,7 +75,7 @@ export default function Login() {
   return (
     <main className="flex h-screen">
       <div className="w-3/5 bg-white">
-        <div className="flex justify-center items-center h-full bg-background rounded-r-3xl">
+        <div className="flex justify-center items-center h-full bg-primary rounded-r-3xl">
           <Image src="/logo.png" alt="logo" width={150} height={150} className="w-auto" priority />
           <div>
             <div className="font-semibold text-5xl">PRESCRIBLY</div>

@@ -47,10 +47,7 @@ export default function PatientRegister() {
 
   return (
     <main className="flex justify-center items-center h-screen bg-white">
-      <Button className="absolute top-0 right-0" onClick={() => signOut({ callbackUrl: "/login" })}>
-        Sign out
-      </Button>
-      <form className="w-11/12 h-5/6 border-4 border-background rounded-3xl flex" onSubmit={handleSubmit}>
+      <form className="w-11/12 h-5/6 border-4 border-primary rounded-3xl flex" onSubmit={handleSubmit}>
         <div className="w-2/5 px-6 flex flex-col justify-center gap-1">
           <h1 className="text-3xl font-bold">Register</h1>
           <p className="italic">Fill in the form with accurate information about you.</p>
@@ -63,7 +60,7 @@ export default function PatientRegister() {
               <InputLabel name="lastName" required>
                 Last Name
               </InputLabel>
-              <InputLabel name="initials" className="w-12">
+              <InputLabel name="middleInital" className="w-12">
                 Initals
               </InputLabel>
             </div>
@@ -73,7 +70,7 @@ export default function PatientRegister() {
               </InputLabel>
               <div className="grid grow items-center gap-1.5">
                 <Label>College</Label>
-                <Select name="college" required>
+                <Select name="college" defaultValue="College of Computer Studies">
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -100,7 +97,6 @@ export default function PatientRegister() {
               <InputLabel name="phone">Phone</InputLabel>
               <InputLabel
                 type="date"
-                defaultValue={currentdate}
                 name="birthdate"
                 onChange={(e) => {
                   const dob = new Date(e.target.value);
@@ -119,7 +115,7 @@ export default function PatientRegister() {
             <div className="flex gap-5">
               <div className="grid grow items-center gap-1.5">
                 <Label>Sex assigned at birth</Label>
-                <Select name="gender" required>
+                <Select name="gender" defaultValue="Male">
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -131,7 +127,7 @@ export default function PatientRegister() {
               </div>
               <div className="grid grow items-center gap-1.5">
                 <Label>Civil Status</Label>
-                <Select name="civilStatus" required>
+                <Select name="civilStatus" defaultValue="Single">
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -150,7 +146,7 @@ export default function PatientRegister() {
             </div>
           </div>
         </div>
-        <div className="grow bg-background p-4">
+        <div className="grow bg-primary rounded-r-2xl p-4">
           <div className="bg-white rounded-3xl px-5 py-3 h-full flex flex-col justify-center gap-2">
             <h2 className="text-xl font-semibold">Medical Information</h2>
             <div className="flex gap-4">
@@ -207,9 +203,19 @@ export default function PatientRegister() {
               </div>
               <h3 className="italic font-semibold">Enter your medical condition/s base on the given above.</h3>
               <Textarea name="medicalConditions" />
-              <Button className="w-fit self-end" disabled={buttonLoad}>
-                {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}PROCEED
-              </Button>
+              <div className="self-end">
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="w-fit mr-2"
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                >
+                  Sign out
+                </Button>
+                <Button className="w-fit" disabled={buttonLoad}>
+                  {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}PROCEED
+                </Button>
+              </div>
             </div>
           </div>
         </div>

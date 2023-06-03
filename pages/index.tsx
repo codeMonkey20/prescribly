@@ -1,11 +1,27 @@
 import { GetServerSidePropsContext } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { Button } from "@/components/ui/button";
-import { signOut } from "next-auth/react";
+import User from "@/models/User";
+import { UserDB } from "@/types/UserDB";
+import bcrypt from "bcrypt";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
+
+  // create default admin account
+  const adminUser = await User.findOne({ email: "admin" });
+  if (!adminUser) {
+    const hash = await bcrypt.hash("123123", 8);
+    const adminDetails: UserDB = {
+      email: "admin",
+      password: hash,
+      firstName: "admin",
+      lastName: "admin",
+      usertype: "Admin",
+    };
+    await User.create(adminDetails);
+  }
+
   if (!session) {
     return {
       redirect: {
@@ -13,7 +29,7 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
         permanent: false,
       },
     };
-  } else if (!session.user.usertypeID) {
+  } else if (!session.user.usertypeID && session.user.usertype !== "Admin") {
     return {
       redirect: {
         destination: `/register/${session.user._id}`,
@@ -22,14 +38,13 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
     };
   }
   return {
-    props: {},
+    redirect: {
+      destination: `/dashboard`,
+      permanent: false,
+    },
   };
 }
 
 export default function Home() {
-  return (
-    <main>
-      <Button onClick={() => signOut({ callbackUrl: "/login" })}>signout</Button>
-    </main>
-  );
+  return <></>;
 }
