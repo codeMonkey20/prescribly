@@ -1,35 +1,35 @@
+import { PatientDB } from "@/types/PatientDB";
 import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UserDB } from "@/types/UserDB";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SlOptions } from "react-icons/sl";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 
 type Props = {
-  users: UserDB[];
+  patients?: PatientDB[];
   loading?: boolean;
 };
 
-export default function UserTable({ users, loading }: Props) {
-  if (!loading)
+export default function PatientsTable({ patients, loading }: Props) {
+  if (!loading && patients)
     return (
       <>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Email</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead className="w-fit">Name</TableHead>
+              <TableHead>ID Number</TableHead>
+              <TableHead>College</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user._id}>
-                <TableCell className="font-medium">{user.email}</TableCell>
-                <TableCell>{`${user.firstName} ${user.lastName}`}</TableCell>
-                <TableCell>{user.usertype}</TableCell>
+            {patients.map((patient, i) => (
+              <TableRow key={`patient-${i}`}>
+                <TableCell className="font-medium">{`${patient.firstName} ${patient.lastName}`}</TableCell>
+                <TableCell>{patient.idNumber}</TableCell>
+                <TableCell>{patient.college}</TableCell>
                 <TableCell className="text-right w-10">
                   <Popover>
                     <PopoverTrigger>
@@ -51,7 +51,7 @@ export default function UserTable({ users, loading }: Props) {
             ))}
           </TableBody>
         </Table>
-        {users.length === 0 ? (
+        {patients.length === 0 ? (
           <div className="flex justify-center my-10 font-bold text-2xl text-slate-400/50">No Users</div>
         ) : (
           ""

@@ -124,7 +124,7 @@ export default function PrescribeDiagnosePage() {
 
               <Link
                 href="/prescribe"
-                className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200 bg-primary"
+                className="font-semibold text-lg text-center py-2 rounded-l-3xl transition-colors duration-200 bg-primary"
                 replace
               >
                 Prescribe

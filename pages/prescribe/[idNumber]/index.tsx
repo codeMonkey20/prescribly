@@ -102,7 +102,7 @@ export default function PrescribeIdNumberPage() {
 
               <Link
                 href="/prescribe"
-                className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200 bg-primary"
+                className="font-semibold text-lg text-center py-2 rounded-l-3xl transition-colors duration-200 bg-primary"
                 replace
               >
                 Prescribe
@@ -129,25 +129,25 @@ export default function PrescribeIdNumberPage() {
               <div className="bg-white flex grow rounded-3xl px-4 py-2">
                 <div className="flex flex-col w-full">
                   <h2 className="text-xl font-semibold my-6 mx-2">Patient Profile</h2>
+                  {/* <QRCode value={`${router.query.idNumber}`} size={80} /> */}
                   <div className="flex justify-between items-center gap-4">
-                    <QRCode value={`${router.query.idNumber}`} size={80} />
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="firstName">
                         First Name
                       </Label>
-                      <span>{patient?.firstName}</span>
+                      <span className="font-semibold">{patient?.firstName}</span>
                     </div>
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="lastName">
                         Last Name
                       </Label>
-                      <span>{patient?.lastName}</span>
+                      <span className="font-semibold">{patient?.lastName}</span>
                     </div>
                     <div className="flex flex-col m-2 w-16">
                       <Label className="italic text-md" htmlFor="middleInitial">
                         Initials
                       </Label>
-                      <span>{patient?.middleInitial ? patient?.middleInitial : "-"}</span>
+                      <span className="font-semibold">{patient?.middleInitial ? patient?.middleInitial : "-"}</span>
                     </div>
                   </div>
                   <div className="flex justify-between">
@@ -155,37 +155,37 @@ export default function PrescribeIdNumberPage() {
                       <Label className="italic text-md" htmlFor="birthdate">
                         Date of Birth
                       </Label>
-                      <span>{patient?.birthdate ? format(new Date(patient?.birthdate), "MMM dd, yyyy") : ""}</span>
+                      <span className="font-semibold">{patient?.birthdate ? format(new Date(patient?.birthdate), "MMM dd, yyyy") : ""}</span>
                     </div>
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="phone">
                         Phone Number
                       </Label>
-                      <span>{patient?.phone}</span>
+                      <span className="font-semibold">{patient?.phone}</span>
                     </div>
                   </div>
                   <div className="flex justify-between">
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md">ID Number</Label>
-                      <span>{patient?.idNumber}</span>
+                      <span className="font-semibold">{patient?.idNumber}</span>
                     </div>
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="phone">
                         College
                       </Label>
-                      <span>{patient?.college}</span>
+                      <span className="font-semibold">{patient?.college}</span>
                     </div>
                   </div>
                   <div className="flex justify-between">
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md">Sex</Label>
-                      <span>{patient?.gender}</span>
+                      <span className="font-semibold">{patient?.gender}</span>
                     </div>
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="phone">
                         Civil Status
                       </Label>
-                      <span>{patient?.civilStatus}</span>
+                      <span className="font-semibold">{patient?.civilStatus}</span>
                     </div>
                   </div>
                   <div className="flex justify-between">
@@ -193,7 +193,7 @@ export default function PrescribeIdNumberPage() {
                       <Label className="italic text-md" htmlFor="address">
                         Address
                       </Label>
-                      <span>{patient?.address}</span>
+                      <span className="font-semibold">{patient?.address}</span>
                     </div>
                   </div>
                 </div>
@@ -206,29 +206,29 @@ export default function PrescribeIdNumberPage() {
                         <Label className="italic text-md" htmlFor="email">
                           Smoke
                         </Label>
-                        <span>{patient?.smoke ? "Yes" : "No"}</span>
+                        <span className="font-semibold">{patient?.smoke ? "Yes" : "No"}</span>
                       </div>
                       <div className="flex flex-col m-2 grow">
                         <Label className="italic text-md" htmlFor="email">
                           Liquor/Alcohol
                         </Label>
-                        <span>{patient?.alcohol ? "Yes" : "No"}</span>
+                        <span className="font-semibold">{patient?.alcohol ? "Yes" : "No"}</span>
                       </div>
                     </div>
                     <div className="flex justify-between">
                       <div className="flex flex-col m-2 grow">
                         <Label className="italic text-md">Allergies</Label>
-                        <span>{patient?.allergies === "" ? "-" : patient?.allergies}</span>
+                        <span className="font-semibold">{patient?.allergies === "" ? "-" : patient?.allergies}</span>
                       </div>
                       <div className="flex flex-col m-2 grow">
                         <Label className="italic text-md">Medications</Label>
-                        <span>{patient?.medications === "" ? "-" : patient?.medications}</span>
+                        <span className="font-semibold">{patient?.medications === "" ? "-" : patient?.medications}</span>
                       </div>
                     </div>
                     <div className="flex justify-between">
                       <div className="flex flex-col m-2 grow">
                         <Label className="italic text-md">Medical Condition(s)</Label>
-                        <span>{patient?.medicalConditions === "" ? "-" : patient?.medicalConditions}</span>
+                        <span className="font-semibold">{patient?.medicalConditions === "" ? "-" : patient?.medicalConditions}</span>
                       </div>
                     </div>
                   </div>

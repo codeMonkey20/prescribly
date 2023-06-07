@@ -72,10 +72,10 @@ export default function PrescriptionTable({}: Props) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Purpose</TableHead>
                 <TableHead>Medication Name</TableHead>
                 <TableHead>Dosage</TableHead>
                 <TableHead>Form</TableHead>
-                <TableHead>Purpose</TableHead>
                 <TableHead>Route</TableHead>
                 <TableHead>Frequency</TableHead>
                 <TableHead>Dispense</TableHead>
@@ -86,6 +86,19 @@ export default function PrescriptionTable({}: Props) {
             <TableBody>
               {tableData?.map((e: Prescription, i) => (
                 <TableRow key={`userrow-${i}`}>
+                  <TableCell>
+                    <Input
+                      className="h-6"
+                      value={e.purpose}
+                      onChange={(input) => {
+                        setTableData((old) => {
+                          const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                          copy[i].purpose = input.target.value;
+                          return copy;
+                        });
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <Input
                       className="h-6"
@@ -120,19 +133,6 @@ export default function PrescriptionTable({}: Props) {
                         setTableData((old) => {
                           const copy: Prescription[] = JSON.parse(JSON.stringify(old));
                           copy[i].form = input.target.value;
-                          return copy;
-                        });
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      className="h-6"
-                      value={e.purpose}
-                      onChange={(input) => {
-                        setTableData((old) => {
-                          const copy: Prescription[] = JSON.parse(JSON.stringify(old));
-                          copy[i].purpose = input.target.value;
                           return copy;
                         });
                       }}

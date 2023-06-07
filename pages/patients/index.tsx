@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,9 +17,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import axios from "axios";
-import { QrScanner } from "@yudiel/react-qr-scanner";
+import PatientsTable from "@/components/tables/PatientsTable";
+import { PatientDB } from "@/types/PatientDB";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -43,26 +43,23 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
   };
 }
 
-export default function PrescribePage() {
+export default function PatientsPage() {
   const session = useSession();
+  const user = session.data?.user;
   const usertype = session.data?.user.usertype;
   const userData = session.data?.user.usertypeData;
   const router = useRouter();
-  const count = useRef(0);
 
-  const [idNumber, setIdNumber] = useState("");
-  const [name, setName] = useState("");
+  const [patients, setPatients] = useState<PatientDB[]>();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios.get(`/api/patient?idNumber=${idNumber}`).then(({ data }) => {
-      if (data.length === 0) {
-        setName("");
-        return;
-      }
-      const user = data[0];
-      setName(`${user.lastName}, ${user.firstName}`);
+    setLoading(true);
+    axios.get("/api/patient").then(({ data }) => {
+      setLoading(false);
+      setPatients(data);
     });
-  }, [idNumber]);
+  }, []);
 
   if (session.status === "authenticated")
     return (
@@ -93,7 +90,7 @@ export default function PrescribePage() {
               </Link>
               <Link
                 href="/patients"
-                className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
+                className="font-semibold text-lg text-center py-2 rounded-l-3xl transition-colors duration-200 bg-primary"
                 replace
               >
                 Patients
@@ -101,7 +98,7 @@ export default function PrescribePage() {
 
               <Link
                 href="/prescribe"
-                className="font-semibold text-lg text-center py-2 rounded-l-3xl transition-colors duration-200 bg-primary"
+                className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
                 replace
               >
                 Prescribe
@@ -123,35 +120,10 @@ export default function PrescribePage() {
             </header>
           </div>
           <div className="flex flex-col grow px-8 py-5">
-            <h1 className="text-4xl font-bold my-8 ml-3">Prescribe</h1>
+            <h1 className="text-4xl font-bold my-8 ml-3">Patients</h1>
             <div className="bg-white flex flex-col gap-2 items-center grow rounded-3xl px-4 py-2">
-              <h2 className="self-start font-semibold text-lg">Patient Identification</h2>
-              <p>Place the QR Code within the frame</p>
-              <div className="w-3/12">
-                <QrScanner
-                  onDecode={(result) => {
-                    // count.current = count.current + 1;
-                    // console.log(count.current);
-                    // if (count.current === 1) {
-                    setIdNumber(result);
-                    router.push(`/prescribe/${idNumber}`);
-                    // }
-                  }}
-                  scanDelay={2000}
-                  onError={(error) => console.log(error?.message)}
-                />
-              </div>
-              <p>or enter ID number to proceed</p>
-              <Input className="w-32" placeholder="0000-0000" onChange={(e) => setIdNumber(e.target.value)} />
-              <p className="font-bold text-xl">{name}</p>
-              <Button
-                onClick={() => {
-                  router.push(`/prescribe/${idNumber}`);
-                }}
-                disabled={name === ""}
-              >
-                Proceed
-              </Button>
+              <h2 className="text-lg font-semibold self-start">Patient Profile</h2>
+              <PatientsTable patients={patients} loading={loading} />
             </div>
           </div>
         </div>
