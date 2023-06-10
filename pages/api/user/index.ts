@@ -19,19 +19,31 @@ export default async function user(req: NextApiRequest, res: NextApiResponse) {
       return;
 
     case "GET":
-      const { withPassword, ...userQueries } = req.query;
-      const allUsers = await User.find(userQueries);
-      if (withPassword === "false" || withPassword === undefined) {
-        const allUsersWithoutPassword: any = [];
-        allUsers.forEach((user) => {
-          delete user._doc.password;
-          allUsersWithoutPassword.push(user);
-        });
-        res.status(200).json(allUsersWithoutPassword);
+      const { withPassword, today, ...userQueries } = req.query;
+      if (today === "true") {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const users = await User.find({
+          updatedAt: { $lte: new Date() },
+          usertype: { $in: ["Patient"] },
+        }).limit(3);
+        res.status(200).json(users);
+        res.end();
+        return;
       } else {
-        res.status(200).json(allUsers);
+        const allUsers = await User.find(userQueries);
+        if (withPassword === "false" || withPassword === undefined) {
+          const allUsersWithoutPassword: any = [];
+          allUsers.forEach((user) => {
+            delete user._doc.password;
+            allUsersWithoutPassword.push(user);
+          });
+          res.status(200).json(allUsersWithoutPassword);
+        } else {
+          res.status(200).json(allUsers);
+        }
+        return;
       }
-      return;
 
     default:
       res.status(405).json({ error: "Method Not Allowed" });

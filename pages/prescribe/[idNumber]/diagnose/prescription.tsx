@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
+import { FaPrescription } from "react-icons/fa";
 
 type Props = {};
 
@@ -28,7 +29,7 @@ export default function PrescriptionTable({}: Props) {
   return (
     <main className="bg-primary h-screen flex flex-col items-center justify-center p-10 gap-3">
       <h1 className="font-bold text-3xl self-start">Prescription</h1>
-      <div className="rounded-3xl bg-white w-full py-3 px-4 flex flex-col grow">
+      <div className="rounded-3xl bg-white w-full py-3 px-4 flex flex-col gap-2 grow">
         <div className="flex items-start justify-between">
           <div>
             <p className="italic font-bold">Current Health Condition(s:)</p>
@@ -36,35 +37,37 @@ export default function PrescriptionTable({}: Props) {
           </div>
           <div className="flex flex-col justify-center">
             <QRCode value={`${patient?.idNumber}`} size={80} />
-            <p className="w-20 h-20 text-center">{patient?.idNumber}</p>
+            <p className="w-20 text-center">{patient?.idNumber}</p>
           </div>
         </div>
-        <Button
-          className="self-end"
-          onClick={() => {
-            const prescrption: Prescription = {
-              dispense: "",
-              dosage: "",
-              form: "",
-              frequency: "",
-              given: "",
-              medicationName: "",
-              purpose: "",
-              remarks: "",
-              route: "",
-            };
-            setTableData((row) => {
-              if (row) {
-                return [...row, prescrption];
-              }
-              return [prescrption];
-            });
-          }}
-        >
-          Add Row
-        </Button>
+        <div className="flex justify-between">
+          <FaPrescription className="text-5xl" />
+          <Button
+            onClick={() => {
+              const prescrption: Prescription = {
+                dispense: "",
+                dosage: "",
+                form: "",
+                frequency: "",
+                given: "",
+                medicationName: "",
+                purpose: "",
+                remarks: "",
+                route: "",
+              };
+              setTableData((row) => {
+                if (row) {
+                  return [...row, prescrption];
+                }
+                return [prescrption];
+              });
+            }}
+          >
+            Add Row
+          </Button>
+        </div>
         <div className="grow">
-          <Table>
+          <Table className="max-h-96 overflow-y-auto">
             <TableHeader>
               <TableRow>
                 <TableHead>Purpose</TableHead>

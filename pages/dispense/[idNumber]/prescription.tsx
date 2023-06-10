@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
+import { FaPrescription } from "react-icons/fa";
 
 export default function DisposePrescription() {
   const router = useRouter();
@@ -35,11 +36,12 @@ export default function DisposePrescription() {
           </div>
           <div className="flex flex-col justify-center">
             <QRCode value={`${patient?.idNumber}`} size={80} />
-            <p className="w-20 h-20 text-center">{patient?.idNumber}</p>
+            <p className="w-20 text-center">{patient?.idNumber}</p>
           </div>
         </div>
+        <FaPrescription className="text-5xl" />
         <div className="grow">
-          <Table>
+          <Table className="overflow-y-auto">
             <TableHeader>
               <TableRow>
                 <TableHead>Purpose</TableHead>
@@ -95,7 +97,9 @@ export default function DisposePrescription() {
           </Table>
         </div>
         <div className="self-end justify-self-end">
-          <Button variant="link" onClick={() => router.back()}>BACK</Button>
+          <Button variant="link" onClick={() => router.back()}>
+            BACK
+          </Button>
           <Button
             onClick={async () => {
               if (tableData?.length === 0 || !tableData) return;
