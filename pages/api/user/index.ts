@@ -24,7 +24,7 @@ export default async function user(req: NextApiRequest, res: NextApiResponse) {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         const users = await User.find({
-          updatedAt: { $lte: new Date() },
+          updatedAt: { $gte: now },
           usertype: { $in: ["Patient"] },
         }).limit(3);
         res.status(200).json(users);

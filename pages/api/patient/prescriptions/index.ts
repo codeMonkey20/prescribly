@@ -10,7 +10,7 @@ export default async function prescriptionCount(req: NextApiRequest, res: NextAp
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         const patients = await Patient.find({
-          updatedAt: { $lte: new Date() },
+          updatedAt: { $gte: now },
         }).limit(3);
         const ids = patients.map((e) => {
           return e.userID;
