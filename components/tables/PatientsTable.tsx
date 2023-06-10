@@ -14,7 +14,7 @@ type Props = {
 export default function PatientsTable({ patients, loading }: Props) {
   if (!loading && patients)
     return (
-      <>
+      <div className="grow w-full">
         <Table>
           <TableHeader>
             <TableRow>
@@ -30,7 +30,7 @@ export default function PatientsTable({ patients, loading }: Props) {
                 <TableCell className="font-medium">{`${patient.firstName} ${patient.lastName}`}</TableCell>
                 <TableCell>{patient.idNumber}</TableCell>
                 <TableCell>{patient.college}</TableCell>
-                <TableCell className="text-right w-10">
+                <TableCell className="text-right w-10 flex">
                   <Popover>
                     <PopoverTrigger>
                       <div className="rounded-full hover:bg-slate-300/50 w-fit p-2">
@@ -56,22 +56,22 @@ export default function PatientsTable({ patients, loading }: Props) {
         ) : (
           ""
         )}
-      </>
+      </div>
     );
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Email</TableHead>
           <TableHead>Name</TableHead>
-          <TableHead>Role</TableHead>
+          <TableHead>ID Number</TableHead>
+          <TableHead>College</TableHead>
           <TableHead className="text-right"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {Array(3)
           .fill(0)
-          .map((e, i) => (
+          .map((_, i) => (
             <TableRow key={`userrow-${i}`}>
               <TableCell className="font-medium">
                 <Skeleton className="w-60 h-4" />

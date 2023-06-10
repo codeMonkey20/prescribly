@@ -6,6 +6,7 @@ export type UserDB = {
   password?: string;
   firstName?: string;
   lastName?: string;
+  fullName?: string;
   usertype?: "Patient" | "Doctor" | "Pharmacist" | "Admin";
   usertypeID?: string;
   usertypeData?: PatientDB;

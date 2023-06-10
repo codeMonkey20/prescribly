@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PatientDB } from "@/types/PatientDB";
 import { Prescription } from "@/types/Prescription";
-import { PrescriptionDB } from "@/types/PrescriptionDB";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/router";
@@ -16,16 +15,12 @@ export default function PrescriptionTable({}: Props) {
   const router = useRouter();
   const [patient, setPatient] = useState<PatientDB>();
   const [tableData, setTableData] = useState<Prescription[]>();
-  const [currPrescription, setCurrPrescription] = useState<PrescriptionDB>();
   const [buttonLoad, setButtonLoad] = useState(false);
 
   useEffect(() => {
-    if (router.query.idNumber && router.query.prescriptionID) {
+    if (router.query.idNumber) {
       axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(({ data }) => {
         setPatient(data[0]);
-      });
-      axios.get(`/api/prescription/${router.query.prescriptionID}`).then(({ data }) => {
-        setCurrPrescription(data);
       });
     }
   }, [router]);
@@ -37,7 +32,7 @@ export default function PrescriptionTable({}: Props) {
         <div className="flex items-start justify-between">
           <div>
             <p className="italic font-bold">Current Health Condition(s:)</p>
-            <p className="px-3">{currPrescription?.healthConditions}</p>
+            <p className="px-3">{patient?.healthConditions}</p>
           </div>
           <div className="flex flex-col justify-center">
             <QRCode value={`${patient?.idNumber}`} size={80} />
@@ -189,21 +184,15 @@ export default function PrescriptionTable({}: Props) {
           </Table>
         </div>
         <div className="self-end justify-self-end">
+          <Button onClick={() => router.back()} variant="link">
+            BACK
+          </Button>
           <Button
             onClick={async () => {
-              console.log(tableData);
-              if (tableData?.length === 0 || !tableData) return;
+              if (tableData?.length === 0) return;
               setButtonLoad(true);
-              const prescription: PrescriptionDB = {
-                prescriptions: tableData,
-                healthConditions: currPrescription?.healthConditions,
-                idNumber: currPrescription?.idNumber,
-                userID: currPrescription?.userID,
-              };
-              const res = await axios.put(`/api/prescription/${router.query.prescriptionID}`, prescription);
-              console.log(res.data);
-              setButtonLoad(false);
-              router.push("/patients");
+              await axios.put(`/api/patient/${patient?.userID}`, { ...patient, prescription: tableData });
+              router.replace("/patients");
             }}
             disabled={buttonLoad}
           >

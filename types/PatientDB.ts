@@ -1,8 +1,11 @@
+import { Prescription } from "./Prescription";
+
 export type PatientDB = {
   userID?: string;
   firstName?: string;
   lastName?: string;
   middleInitial?: string;
+  fullName?: string;
   idNumber?: string;
   college?: string;
   phone?: string;
@@ -15,4 +18,7 @@ export type PatientDB = {
   allergies?: string;
   medications?: string;
   medicalConditions?: string;
+  healthConditions?: string;
+  prescription?: Prescription[];
+  test?: string;
 };

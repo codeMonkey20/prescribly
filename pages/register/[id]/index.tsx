@@ -12,17 +12,18 @@ import Logo from "@/components/Logo";
 import { useRouter } from "next/router";
 import { Loader2 } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { UserDB } from "@/types/UserDB";
 
 export default function PatientRegister() {
   const skeletonSizes = [
     90, 64, 115, 73, 109, 54, 109, 90, 120, 120, 120, 96, 89, 57, 74, 103, 61, 115, 115, 90, 110, 65, 59, 65, 85, 58,
     83, 84, 70, 94, 98, 119, 71, 87, 66, 88,
   ];
-  const currentdate = date.format(new Date(), "YYYY-MM-DD");
   const { query, push } = useRouter();
   const [age, setAge] = useState(0);
   const [conditions, setConditions] = useState([]);
   const [buttonLoad, setButtonLoad] = useState(false);
+  const [user, setUser] = useState<UserDB>({});
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -34,16 +35,18 @@ export default function PatientRegister() {
       ...formDataJSON,
       smoke: formDataJSON.smoke === "yes",
       alcohol: formDataJSON.alcohol === "yes",
+      healthConditions: "",
+      prescriptions: [],
+      fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
     };
     await axios.post(`/api/patient/${query.id}`, newFormDataJSON);
     push(`/register/${query.id}/qr`);
   };
 
   useEffect(() => {
-    axios.get("/api/lists/medical-conditions").then(({ data }) => {
-      setConditions(data);
-    });
-  }, []);
+    axios.get("/api/lists/medical-conditions").then(({ data }) => setConditions(data));
+    if (query.id) axios.get(`/api/user/${query.id}`).then(({ data }) => setUser(data));
+  }, [query.id]);
 
   return (
     <main className="flex justify-center items-center h-screen bg-white">
@@ -54,10 +57,10 @@ export default function PatientRegister() {
           <h2 className="my-2 text-xl font-semibold">Patient Registration</h2>
           <div className="flex flex-col gap-3">
             <div className="flex gap-5">
-              <InputLabel name="firstName" required>
+              <InputLabel name="firstName" defaultValue={user.firstName} required>
                 First Name
               </InputLabel>
-              <InputLabel name="lastName" required>
+              <InputLabel name="lastName" defaultValue={user.lastName} required>
                 Last Name
               </InputLabel>
               <InputLabel name="middleInital" className="w-12">
@@ -65,7 +68,7 @@ export default function PatientRegister() {
               </InputLabel>
             </div>
             <div className="flex gap-5">
-              <InputLabel name="idNumber" required>
+              <InputLabel name="idNumber" placeholder="2018-2302" required>
                 ID Number
               </InputLabel>
               <div className="grid grow items-center gap-1.5">

@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { QrScanner } from "@yudiel/react-qr-scanner";
 import Header from "@/components/Header";
-import { Loader2 } from "lucide-react";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -34,13 +33,12 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
   };
 }
 
-export default function PrescribePage() {
+export default function DispensePage() {
   const session = useSession();
   const router = useRouter();
 
   const [idNumber, setIdNumber] = useState("");
   const [name, setName] = useState("");
-  const [buttonLoad, setButtonLoad] = useState(false);
 
   useEffect(() => {
     axios.get(`/api/patient?idNumber=${idNumber}`).then(({ data }) => {
@@ -61,7 +59,7 @@ export default function PrescribePage() {
             <Header />
           </div>
           <div className="flex flex-col grow px-8 py-5">
-            <h1 className="text-4xl font-bold my-8 ml-3">Prescribe</h1>
+            <h1 className="text-4xl font-bold my-8 ml-3">Dispense</h1>
             <div className="bg-white flex flex-col gap-2 items-center grow rounded-3xl px-4 py-2">
               <h2 className="self-start font-semibold text-lg">Patient Identification</h2>
               <p>Place the QR Code within the frame</p>
@@ -69,8 +67,7 @@ export default function PrescribePage() {
                 <QrScanner
                   onDecode={(result) => {
                     setIdNumber(result);
-                    setButtonLoad(true);
-                    router.push(`/prescribe/${idNumber}`);
+                    router.push(`/dispense/${idNumber}`);
                   }}
                   scanDelay={2000}
                   onError={(error) => console.log(error?.message)}
@@ -81,12 +78,10 @@ export default function PrescribePage() {
               <p className="font-bold text-xl">{name}</p>
               <Button
                 onClick={() => {
-                  setButtonLoad(true);
-                  router.push(`/prescribe/${idNumber}`);
+                  router.push(`/dispense/${idNumber}`);
                 }}
-                disabled={name === "" || buttonLoad}
+                disabled={name === ""}
               >
-                {buttonLoad ? <Loader2 className="animate-spin mr-1" /> : ""}
                 Proceed
               </Button>
             </div>

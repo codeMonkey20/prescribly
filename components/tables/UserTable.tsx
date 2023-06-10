@@ -14,7 +14,7 @@ type Props = {
 export default function UserTable({ users, loading }: Props) {
   if (!loading)
     return (
-      <>
+      <div className="grow">
         <Table>
           <TableHeader>
             <TableRow>
@@ -27,10 +27,10 @@ export default function UserTable({ users, loading }: Props) {
           <TableBody>
             {users.map((user) => (
               <TableRow key={user._id}>
-                <TableCell className="font-medium">{user.email}</TableCell>
-                <TableCell>{`${user.firstName} ${user.lastName}`}</TableCell>
-                <TableCell>{user.usertype}</TableCell>
-                <TableCell className="text-right w-10">
+                <TableCell className="font-medium py-2">{user.email}</TableCell>
+                <TableCell className="py-2">{`${user.firstName} ${user.lastName}`}</TableCell>
+                <TableCell className="py-2">{user.usertype}</TableCell>
+                <TableCell className="text-right w-10 py-2">
                   <Popover>
                     <PopoverTrigger>
                       <div className="rounded-full hover:bg-slate-300/50 w-fit p-2">
@@ -56,7 +56,7 @@ export default function UserTable({ users, loading }: Props) {
         ) : (
           ""
         )}
-      </>
+      </div>
     );
   return (
     <Table>
