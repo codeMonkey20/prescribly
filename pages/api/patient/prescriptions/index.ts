@@ -1,4 +1,5 @@
 import Patient from "@/models/Patient";
+import User from "@/models/User";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function prescriptionCount(req: NextApiRequest, res: NextApiResponse) {
@@ -11,7 +12,11 @@ export default async function prescriptionCount(req: NextApiRequest, res: NextAp
         const patients = await Patient.find({
           updatedAt: { $lte: new Date() },
         }).limit(3);
-        res.status(200).json(patients);
+        const ids = patients.map((e) => {
+          return e.userID;
+        });
+        const prescriptions = await User.find({ _id: { $in: ids } });
+        res.status(200).json(prescriptions);
         res.end();
         return;
       }

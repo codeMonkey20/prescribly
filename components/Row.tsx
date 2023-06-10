@@ -1,14 +1,13 @@
+import { UserDB } from "@/types/UserDB";
 import Link from "next/link";
 import React from "react";
 import { BsFillPersonFill } from "react-icons/bs";
 
 type Props = {
-  email?: string;
-  fullName?: string;
-  userID?: string;
+  data: UserDB;
 };
 
-export default function Row({ email, fullName, userID }: Props) {
+export default function Row({ data }: Props) {
   return (
     <div className="flex justify-between cursor-pointer hover:bg-muted p-2 rounded">
       <div className="flex gap-2">
@@ -16,8 +15,8 @@ export default function Row({ email, fullName, userID }: Props) {
           <BsFillPersonFill />
         </div>
         <div className="text-sm">
-          <p className="font-bold">{fullName}</p>
-          <p className="text-xs">{email}</p>
+          <p className="font-bold">{`${data.firstName} ${data.lastName}`}</p>
+          <p className="text-xs">{data.email}</p>
         </div>
       </div>
       <Link href={`/`} className="self-center mr-2 hover:underline">

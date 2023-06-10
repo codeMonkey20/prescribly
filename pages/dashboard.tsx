@@ -46,7 +46,7 @@ export default function DashboardPage() {
     axios.get("/api/patient/count").then(({ data }) => setPatientCount(data.count));
     axios.get("/api/patient/prescriptions/count?today=true").then(({ data }) => setPrescriptionCountToday(data.count));
     axios.get("/api/patient/prescriptions/count").then(({ data }) => setPrescriptionCount(data.count));
-    axios.get("/api/user?today=true").then(({ data }) => setRecentPrescriptions(data));
+    axios.get("/api/patient/prescriptions?today=true").then(({ data }) => setRecentPrescriptions(data));
   }, []);
 
   if (session.status === "authenticated")
@@ -106,7 +106,7 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="flex flex-col gap-2">
                   {recentPrescriptions.map((e, i) => (
-                    <Row key={i} email={e.email} userID={e._id} fullName={e.fullName} />
+                    <Row key={i} data={e} />
                   ))}
                 </CardContent>
               </Card>
