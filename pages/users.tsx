@@ -71,21 +71,20 @@ export default function UsersPage() {
     await axios.post(`/api/staff/${data._id}`, formJSON);
     setButtonLoad(false);
     setOpen(false);
+    setUsers((oldUsers) => [...oldUsers, data]);
   };
 
   useEffect(() => {
     setTabLoad(true);
-    axios.get("/api/user/nonpatients?page=1").then(({ data }) => {
+    axios.get("/api/user/staff?page=1").then(({ data }) => {
       setTabLoad(false);
       setUsers(data);
     });
   }, []);
 
   useEffect(() => {
-    console.log(`/api/user/nonpatients?search=${search}&page=${page.active}`);
-    axios.get(`/api/user/nonpatients?search=${search}&page=${page.active}`).then(({ data }) => {
-      setUsers(data);
-    });
+    axios.get(`/api/user/staff?search=${search}&page=${page.active}`).then(({ data }) => setUsers(data));
+    axios.get("/api/staff/count").then(({ data }) => setLength(data.count));
   }, [search, page.active]);
 
   if (session.status === "authenticated")
@@ -169,7 +168,7 @@ export default function UsersPage() {
                     </DialogContent>
                   </Dialog>
                 </div>
-                <UserTable users={users} loading={tabLoad} />
+                <UserTable users={users} setUsers={setUsers} loading={tabLoad} />
                 <div className="self-end select-none">
                   <Button variant="secondary" className="mr-2" onClick={page.previous} disabled={page.active === 1}>
                     Prev

@@ -17,5 +17,10 @@ export default async function staffDynamic(req: NextApiRequest, res: NextApiResp
       const patient = await Staff.findOne({ userID: req.query.id });
       res.status(200).json(patient);
       return;
+    case "DELETE":
+      const deletedStaff = await Staff.findOneAndDelete({ userID: req.query.id });
+      await User.findByIdAndDelete(req.query.id);
+      res.status(200).json(deletedStaff);
+      return;
   }
 }

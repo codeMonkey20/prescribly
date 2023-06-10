@@ -10,7 +10,7 @@ export default async function patient(req: NextApiRequest, res: NextApiResponse)
       if (search) {
         const regex = new RegExp(`.*${search}.*`, "i");
         allUsers = await Patient.find({
-          $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }, { fullName: { $regex: regex } }],
+          $or: [{ idNumber: { $regex: regex } }, { college: { $regex: regex } }, { fullName: { $regex: regex } }],
         });
       } else allUsers = await Patient.find(query);
 
