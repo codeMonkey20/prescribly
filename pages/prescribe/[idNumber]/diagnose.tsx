@@ -53,7 +53,7 @@ export default function PrescribeDiagnosePage() {
     const formData = new FormData(e.target);
     const formDataJSON = Object.fromEntries(formData.entries());
     await axios.put(`/api/patient/${patient?.userID}`, formDataJSON);
-    router.push(`/prescribe/${router.query.idNumber}/diagnose/prescription`);
+    router.push(`/prescription/${router.query.idNumber}`);
   };
 
   useEffect(() => {

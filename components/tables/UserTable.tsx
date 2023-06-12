@@ -52,6 +52,13 @@ export default function UserTable({ users, setUsers, loading }: Props) {
     });
   }, []);
 
+  useEffect(() => {
+    axios.get("/api/staff").then(({ data }) => {
+      setStaffLoad(false);
+      staffs.current = data;
+    });
+  }, [users]);
+
   if (!loading && !staffLoad)
     return (
       <div className="grow">
@@ -100,7 +107,7 @@ export default function UserTable({ users, setUsers, loading }: Props) {
                                 <InputLabel name="lastName" defaultValue={user.lastName} required>
                                   Last Name
                                 </InputLabel>
-                                <InputLabel name="middleInitial" className="w-14" defaultValue={staff.middleInitial}>
+                                <InputLabel name="middleInitial" className="w-14" defaultValue={staff?.middleInitial}>
                                   Initials
                                 </InputLabel>
                               </div>
@@ -108,17 +115,17 @@ export default function UserTable({ users, setUsers, loading }: Props) {
                                 <InputLabel
                                   type="date"
                                   name="birthdate"
-                                  defaultValue={format(new Date(staff.birthdate), "yyyy-MM-dd")}
+                                  defaultValue={staff ? format(new Date(staff?.birthdate), "yyyy-MM-dd") : ""}
                                   required
                                 >
                                   Date of Birth
                                 </InputLabel>
-                                <InputLabel name="phone" defaultValue={staff.phone}>
+                                <InputLabel name="phone" defaultValue={staff?.phone}>
                                   Phone
                                 </InputLabel>
                               </div>
                               <div className="flex gap-2">
-                                <InputLabel name="address" defaultValue={staff.address}>
+                                <InputLabel name="address" defaultValue={staff?.address}>
                                   Address
                                 </InputLabel>
                                 <div>
@@ -135,6 +142,11 @@ export default function UserTable({ users, setUsers, loading }: Props) {
                                     </SelectContent>
                                   </Select>
                                 </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <InputLabel name="license" defaultValue={staff?.license} required>
+                                  License Number
+                                </InputLabel>
                               </div>
                               <div className="flex gap-2">
                                 <InputLabel type="email" name="email" defaultValue={user.email} required>

@@ -36,22 +36,25 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }: { session: any; token: any }) {
-      const { _doc } = await User.findOne({ email: session.user.email });
-      const { password, __v, ...user } = _doc;
-      switch (user.usertype) {
-        case "Patient":
-          user.usertypeData = await Patient.findOne({ userID: user._id });
-          break;
-        case "Admin":
-          break;
-        default:
-          user.usertypeData = await Staff.findOne({ userID: user._id });
-          break;
+      if (session) {
+        const { _doc } = await User.findOne({ email: session.user.email });
+        const { password, __v, ...user } = _doc;
+        switch (user.usertype) {
+          case "Patient":
+            user.usertypeData = await Patient.findOne({ userID: user._id });
+            break;
+          case "Admin":
+            break;
+          default:
+            user.usertypeData = await Staff.findOne({ userID: user._id });
+            break;
+        }
+        return {
+          ...session,
+          user,
+        };
       }
-      return {
-        ...session,
-        user,
-      };
+      return session;
     },
   },
   pages: {

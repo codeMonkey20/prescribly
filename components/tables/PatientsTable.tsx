@@ -2,9 +2,7 @@ import { PatientDB } from "@/types/PatientDB";
 import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SlOptions } from "react-icons/sl";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type Props = {
   patients?: PatientDB[];
@@ -30,22 +28,10 @@ export default function PatientsTable({ patients, loading }: Props) {
                 <TableCell className="font-medium">{`${patient.firstName} ${patient.lastName}`}</TableCell>
                 <TableCell>{patient.idNumber}</TableCell>
                 <TableCell>{patient.college}</TableCell>
-                <TableCell className="text-right w-10 flex">
-                  <Popover>
-                    <PopoverTrigger>
-                      <div className="rounded-full hover:bg-slate-300/50 w-fit p-2">
-                        <SlOptions />
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-fit p-1 flex flex-col gap-1 cursor-pointer">
-                      <Button variant="ghost">
-                        <div className="flex w-full">Edit</div>
-                      </Button>
-                      <Button variant="ghost">
-                        <div className="flex w-full">Delete</div>
-                      </Button>
-                    </PopoverContent>
-                  </Popover>
+                <TableCell className="text-right flex">
+                  <Link href={`/prescription/${patient.idNumber}`} className="self-center mr-2 hover:underline">
+                    View Prescription
+                  </Link>
                 </TableCell>
               </TableRow>
             ))}

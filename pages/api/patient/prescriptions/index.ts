@@ -15,7 +15,7 @@ export default async function prescriptionCount(req: NextApiRequest, res: NextAp
         const ids = patients.map((e) => {
           return e.userID;
         });
-        const prescriptions = await User.find({ _id: { $in: ids } });
+        const prescriptions = await User.find({ _id: { $in: ids } }).sort({ updatedAt: -1 });
         res.status(200).json(prescriptions);
         res.end();
         return;

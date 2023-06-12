@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import usePagination from "@/hooks/usePagination";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -50,6 +51,7 @@ const LIMIT = 4;
 
 export default function UsersPage() {
   const session = useSession();
+  const router = useRouter();
 
   const [buttonLoad, setButtonLoad] = useState(false);
   const [tabLoad, setTabLoad] = useState(false);
@@ -66,12 +68,16 @@ export default function UsersPage() {
     setButtonLoad(true);
     const form = new FormData(e.target);
     const formJSON = Object.fromEntries(form.entries());
+    if (formJSON.middleInitial) {
+      formJSON.fullName = `${formJSON.firstName} ${formJSON.middleInitial} ${formJSON.lastName}`;
+    } else formJSON.fullName = `${formJSON.firstName} ${formJSON.lastName}`;
     const { data } = await axios.post("/api/user", formJSON);
     delete formJSON.email;
     await axios.post(`/api/staff/${data._id}`, formJSON);
     setButtonLoad(false);
     setOpen(false);
     setUsers((oldUsers) => [...oldUsers, data]);
+    router.reload();
   };
 
   useEffect(() => {
@@ -148,6 +154,11 @@ export default function UsersPage() {
                               </SelectContent>
                             </Select>
                           </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <InputLabel name="license" required>
+                            License Number
+                          </InputLabel>
                         </div>
                         <div className="flex gap-2">
                           <InputLabel type="email" name="email" required>

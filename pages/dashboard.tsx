@@ -66,7 +66,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="font-semibold">Total Patients</div>
                   <div className="font-bold text-3xl">
-                    {patientCount ? patientCount : <Skeleton className="w-full h-8" />}
+                    {patientCount !== undefined ? patientCount : <Skeleton className="w-full h-8" />}
                   </div>
                 </div>
               </Card>
@@ -77,7 +77,11 @@ export default function DashboardPage() {
                 <div>
                   <div className="font-semibold">Total Prescriptions Today</div>
                   <div className="font-bold text-3xl">
-                    {prescriptionCountToday ? prescriptionCountToday : <Skeleton className="w-full h-8" />}
+                    {prescriptionCountToday !== undefined ? (
+                      prescriptionCountToday
+                    ) : (
+                      <Skeleton className="w-full h-8" />
+                    )}
                   </div>
                 </div>
               </Card>
@@ -88,7 +92,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="font-semibold">Total Prescriptions</div>
                   <div className="font-bold text-3xl">
-                    {prescriptionCount ? prescriptionCount : <Skeleton className="w-full h-8" />}
+                    {prescriptionCount !== undefined ? prescriptionCount : <Skeleton className="w-full h-8" />}
                   </div>
                 </div>
               </Card>

@@ -1,6 +1,7 @@
 import { UserDB } from "@/types/UserDB";
+import axios from "axios";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BsFillPersonFill } from "react-icons/bs";
 
 type Props = {
@@ -8,6 +9,12 @@ type Props = {
 };
 
 export default function Row({ data }: Props) {
+  const [idNumber, setIdNumber] = useState("");
+
+  useEffect(() => {
+    axios.get(`/api/patient/${data._id}`).then(({ data }) => setIdNumber(data.idNumber));
+  }, [data._id]);
+
   return (
     <div className="flex justify-between cursor-pointer hover:bg-muted p-2 rounded">
       <div className="flex gap-2">
@@ -19,7 +26,7 @@ export default function Row({ data }: Props) {
           <p className="text-xs">{data.email}</p>
         </div>
       </div>
-      <Link href={`/`} className="self-center mr-2 hover:underline">
+      <Link href={`/prescription/${idNumber}`} className="self-center mr-2 hover:underline">
         View Prescription
       </Link>
     </div>

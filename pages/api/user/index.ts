@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 export default async function user(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case "POST":
-      const { email, password, firstName, lastName, usertype } =
+      const { email, password, firstName, lastName, usertype, fullName } =
         typeof req.body === "string" ? JSON.parse(req.body) : req.body;
       const hash = await bcrypt.hash(password, 8);
       const user = await User.create({
@@ -14,6 +14,7 @@ export default async function user(req: NextApiRequest, res: NextApiResponse) {
         firstName,
         lastName,
         usertype,
+        fullName,
       });
       res.status(200).json(user);
       return;
@@ -26,7 +27,9 @@ export default async function user(req: NextApiRequest, res: NextApiResponse) {
         const users = await User.find({
           updatedAt: { $gte: now },
           usertype: { $in: ["Patient"] },
-        }).limit(3);
+        })
+          .limit(3)
+          .sort({ updatedAt: -1 });
         res.status(200).json(users);
         res.end();
         return;

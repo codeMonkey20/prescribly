@@ -10,7 +10,7 @@ const schema = new mongoose.Schema(
     phone: { type: String },
     birthdate: { type: Date },
     address: { type: String },
-    license: { type: String },
+    license: { type: String, required: true },
     expire: { type: Date },
     signature: { type: String },
   },
