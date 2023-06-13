@@ -110,12 +110,12 @@ export default function PrescriptionPage() {
                     dispense: "",
                     dosage: "",
                     form: "",
-                    frequency: "",
+                    frequency: "b.i.d.",
                     given: "",
                     medicationName: "",
                     purpose: "",
                     remarks: "",
-                    route: "",
+                    route: "oral",
                   };
                   setTableData((row) => {
                     if (row) {
@@ -284,19 +284,8 @@ export default function PrescriptionPage() {
                       </div>
                     </TableCell>
                     <TableCell className="p-1 border-r">
-                      {/* <Input
-                        value={e.route}
-                        disabled={user.usertype === "Pharmacist"}
-                        onChange={(input) => {
-                          setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
-                            copy[i].route = input.target.value;
-                            return copy;
-                          });
-                        }}
-                      /> */}
                       <Select
-                        defaultValue={!newPrescription ? e.route : "oral"}
+                        value={e.route !== "" ? e.route : "oral"}
                         disabled={user.usertype === "Pharmacist"}
                         onValueChange={(input) => {
                           setTableData((old) => {
@@ -330,20 +319,9 @@ export default function PrescriptionPage() {
                       </Select>
                     </TableCell>
                     <TableCell className="p-1 border-r">
-                      {/* <Input
-                        value={e.frequency}
-                        disabled={user.usertype === "Pharmacist"}
-                        onChange={(input) => {
-                          setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
-                            copy[i].frequency = input.target.value;
-                            return copy;
-                          });
-                        }}
-                      /> */}
                       <Select
-                        defaultValue={!newPrescription? e.frequency : "b.i.d."}
                         disabled={user.usertype === "Pharmacist"}
+                        value={e.frequency !== "" ? e.frequency : "b.i.d."}
                         onValueChange={(input) => {
                           setTableData((old) => {
                             const copy = JSON.parse(JSON.stringify(old));
@@ -396,6 +374,12 @@ export default function PrescriptionPage() {
                             copy[i].given = input.target.value;
                             return copy;
                           });
+                          setTableData((old) => {
+                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                            if (copy[i].given.includes("0")) copy[i].remarks = "Out of stock";
+                            else if (copy[i].given.includes(copy[i].dosage.split(" ")[0])) copy[i].remarks = "Complete";
+                            return copy;
+                          });
                         }}
                       />
                     </TableCell>
@@ -419,7 +403,10 @@ export default function PrescriptionPage() {
           </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             <p className="font-bold">
-              {`Dr. ${user.usertype === "Doctor" && newPrescription ? user.fullName : `${staff?.firstName} ${staff?.lastName}`}`} <br />
+              {`Dr. ${
+                user.usertype === "Doctor" && newPrescription ? user.fullName : `${staff?.firstName} ${staff?.lastName}`
+              }`}{" "}
+              <br />
               {staff?.license ? staff?.license : "00-XXXXX-00"} <br />
               {staff?.phone ? staff?.phone : "N/A"} <br />
               MSU-IIT Clinic
@@ -429,13 +416,6 @@ export default function PrescriptionPage() {
               <Button onClick={() => router.back()} variant="link">
                 BACK
               </Button>
-              {!newPrescription ? (
-                <Button onClick={() => window.print()} className="bg-[#DA812E] hover:bg-[#DA812E]/80">
-                  PRINT
-                </Button>
-              ) : (
-                ""
-              )}
               {user.usertype === "Doctor" || user.usertype === "Pharmacist" ? (
                 <Button
                   onClick={async () => {

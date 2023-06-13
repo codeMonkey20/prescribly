@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import { GetServerSidePropsContext } from "next";
 import { getServerSession } from "next-auth";
@@ -46,6 +46,8 @@ export default function LandingPage() {
 
   const [profileUpdateMode, setProfileUpdateMode] = useState(false);
   const [buttonLoad, setButtonLoad] = useState(false);
+  const [password, setPassword] = useState("");
+  const [invalidPass, setInvalidPass] = useState(false);
 
   const handleProfileUpdate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,6 +65,14 @@ export default function LandingPage() {
     await axios.put("/api/profile", { ...formJSON, usertype, userID });
     router.reload();
   };
+
+  useEffect(() => {
+    if (password === "" || password === undefined) setInvalidPass(false);
+    else {
+      const passwordregex = /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+      setInvalidPass(!passwordregex.test(password));
+    }
+  }, [password]);
 
   if (session.status === "authenticated")
     return (
@@ -132,7 +142,35 @@ export default function LandingPage() {
                     {profileUpdateMode ? (
                       <Input name="phone" id="phone" defaultValue={userData?.phone} />
                     ) : (
-                      <span>{userData?.phone}</span>
+                      <span>{userData?.phone ? userData.phone : "-"}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <div className="flex flex-col m-2 grow">
+                    <Label className="italic text-md" htmlFor="expire">
+                      Expiry Date
+                    </Label>
+                    {profileUpdateMode ? (
+                      <Input
+                        type="date"
+                        name="expire"
+                        id="expire"
+                        defaultValue={userData?.expire ? format(new Date(userData?.expire + ""), "yyyy-MM-dd") : ""}
+                        required
+                      />
+                    ) : (
+                      <span>{userData?.expire ? format(new Date(userData?.expire + ""), "yyyy-MM-dd") : "-"}</span>
+                    )}
+                  </div>
+                  <div className="flex flex-col m-2 grow">
+                    <Label className="italic text-md" htmlFor="license">
+                      License Number
+                    </Label>
+                    {profileUpdateMode ? (
+                      <Input name="license" id="license" defaultValue={userData?.license} required />
+                    ) : (
+                      <span>{userData?.license ? userData?.license : "-"}</span>
                     )}
                   </div>
                 </div>
@@ -144,7 +182,7 @@ export default function LandingPage() {
                     {profileUpdateMode ? (
                       <Textarea name="address" id="address" defaultValue={userData?.address} />
                     ) : (
-                      <span>{userData?.address}</span>
+                      <span>{userData?.address ? userData?.address : "-"}</span>
                     )}
                   </div>
                 </div>
@@ -173,7 +211,22 @@ export default function LandingPage() {
                             <Label className="italic text-md" htmlFor="password">
                               Password
                             </Label>
-                            <Input type="password" name="password" id="password" required />
+                            <Input
+                              type="password"
+                              name="password"
+                              id="password"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              className={invalidPass ? "border border-destructive" : ""}
+                              required
+                            />
+                            {invalidPass ? (
+                              <p className="text-xs italic text-destructive">
+                                Must contain at least 8 characters with special characters and 1 uppercase letter
+                              </p>
+                            ) : (
+                              ""
+                            )}
                           </div>
                           <div className="grow">
                             <Label className="italic text-md" htmlFor="repassword">
@@ -197,7 +250,7 @@ export default function LandingPage() {
                       <Button variant="secondary" type="button" onClick={() => setProfileUpdateMode((state) => !state)}>
                         CANCEL
                       </Button>
-                      <Button disabled={buttonLoad}>
+                      <Button disabled={buttonLoad || invalidPass}>
                         {buttonLoad ? <Loader2 className="animate-spin w-4 h-4 mr-1" /> : ""} SAVE
                       </Button>
                     </>

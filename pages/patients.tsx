@@ -76,7 +76,7 @@ export default function PatientsPage() {
               <div className="self-end w-96">
                 <Input placeholder="Search Patients" value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
-              <PatientsTable patients={patients} loading={loading} />
+              <PatientsTable patients={patients} setPatients={setPatients} loading={loading} />
               <div className="self-end select-none">
                 <Button variant="secondary" className="mr-2" onClick={page.previous} disabled={page.active === 1}>
                   Prev

@@ -10,22 +10,22 @@ export default async function profileUpdate(req: NextApiRequest, res: NextApiRes
     return;
   }
 
-  const { email, password, firstName, lastName, usertype, birthdate, phone, address, userID, middleInital } = req.body;
+  const { usertype, password, userID, ...requestBody } = req.body;
   const hash = await bcrypt.hash(password, 8);
-  await User.findByIdAndUpdate(userID, { email, firstName, lastName, password: hash });
+  await User.findByIdAndUpdate(userID, { password: hash, ...requestBody });
   switch (usertype) {
     case "Patient":
-      await Patient.findOneAndUpdate({ userID }, { firstName, lastName, birthdate, phone, address, middleInital });
+      await Patient.findOneAndUpdate({ userID }, requestBody);
       break;
 
     case "Admin":
       break;
 
     default:
-      await Staff.findOneAndUpdate({ userID }, { firstName, lastName, birthdate, phone, address, middleInital });
+      await Staff.findOneAndUpdate({ userID }, requestBody);
       break;
   }
-  res.json({ firstName, lastName, birthdate, phone, address, email });
+  res.json(requestBody);
   res.end();
   return;
 }

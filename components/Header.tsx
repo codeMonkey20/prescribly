@@ -102,6 +102,18 @@ export default function Header({}: Props) {
         ) : (
           ""
         )}
+        {usertype === "Admin" ? (
+          <Link
+            href="/mims"
+            className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
+            style={{ backgroundColor: url.includes("mims") ? "hsl(var(--primary))" : "" }}
+            replace
+          >
+            MIMS
+          </Link>
+        ) : (
+          ""
+        )}
         <Dialog>
           <DialogTrigger className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200">
             Logout

@@ -10,25 +10,31 @@ type Props = {
 
 export default function Row({ data }: Props) {
   const [idNumber, setIdNumber] = useState("");
+  const [healthConditions, setHealthConditions] = useState("");
 
   useEffect(() => {
-    axios.get(`/api/patient/${data._id}`).then(({ data }) => setIdNumber(data.idNumber));
+    axios.get(`/api/patient/${data._id}`).then(({ data }) => {
+      setIdNumber(data.idNumber);
+      setHealthConditions(data.healthConditions);
+    });
   }, [data._id]);
 
-  return (
-    <div className="flex justify-between cursor-pointer hover:bg-muted p-2 rounded">
-      <div className="flex gap-2">
-        <div className="w-fit h-fit rounded-full bg-muted/50 p-2 self-center">
-          <BsFillPersonFill />
+  if (idNumber !== "")
+    return (
+      <div className="flex justify-between cursor-pointer hover:bg-muted p-2 rounded">
+        <div className="flex gap-2">
+          <div className="w-fit h-fit rounded-full bg-muted/50 p-2 self-center">
+            <BsFillPersonFill />
+          </div>
+          <div className="text-sm">
+            <p className="font-bold">{`${data.firstName} ${data.lastName}`}</p>
+            <p className="text-xs italic">{healthConditions ? healthConditions : "No Health Conditions"}</p>
+          </div>
         </div>
-        <div className="text-sm">
-          <p className="font-bold">{`${data.firstName} ${data.lastName}`}</p>
-          <p className="text-xs">{data.email}</p>
-        </div>
+        <Link href={`/prescription/${idNumber}/view`} className="self-center mr-2 hover:underline">
+          View Prescription
+        </Link>
       </div>
-      <Link href={`/prescription/${idNumber}`} className="self-center mr-2 hover:underline">
-        View Prescription
-      </Link>
-    </div>
-  );
+    );
+  return <></>;
 }

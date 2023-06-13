@@ -10,6 +10,7 @@ export default async function prescriptionCount(req: NextApiRequest, res: NextAp
         now.setHours(0, 0, 0, 0);
         const patients = await Patient.find({
           updatedAt: { $gte: now },
+          prescription: { $ne: [] },
         });
         const count = patients.length;
         res.status(200).json({ count });

@@ -1,4 +1,5 @@
 import { PatientDB } from "./PatientDB";
+import { StaffDB } from "./StaffDB";
 
 export type UserDB = {
   _id?: string;
@@ -9,5 +10,5 @@ export type UserDB = {
   fullName?: string;
   usertype?: "Patient" | "Doctor" | "Pharmacist" | "Admin";
   usertypeID?: string;
-  usertypeData?: PatientDB;
+  usertypeData?: PatientDB & StaffDB;
 };

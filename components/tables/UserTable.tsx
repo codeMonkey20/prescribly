@@ -144,11 +144,6 @@ export default function UserTable({ users, setUsers, loading }: Props) {
                                 </div>
                               </div>
                               <div className="flex gap-2">
-                                <InputLabel name="license" defaultValue={staff?.license} required>
-                                  License Number
-                                </InputLabel>
-                              </div>
-                              <div className="flex gap-2">
                                 <InputLabel type="email" name="email" defaultValue={user.email} required>
                                   Email
                                 </InputLabel>

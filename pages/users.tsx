@@ -71,6 +71,10 @@ export default function UsersPage() {
     if (formJSON.middleInitial) {
       formJSON.fullName = `${formJSON.firstName} ${formJSON.middleInitial} ${formJSON.lastName}`;
     } else formJSON.fullName = `${formJSON.firstName} ${formJSON.lastName}`;
+    const yearToday = new Date().getFullYear();
+    const password = `@${formJSON.firstName}${formJSON.lastName}_${yearToday}`;
+    console.log(password);
+    formJSON.password = password;
     const { data } = await axios.post("/api/user", formJSON);
     delete formJSON.email;
     await axios.post(`/api/staff/${data._id}`, formJSON);
@@ -156,23 +160,13 @@ export default function UsersPage() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <InputLabel name="license" required>
-                            License Number
-                          </InputLabel>
-                        </div>
-                        <div className="flex gap-2">
                           <InputLabel type="email" name="email" required>
                             Email
                           </InputLabel>
                         </div>
-                        <div className="flex gap-2">
-                          <InputLabel type="password" name="password" required>
-                            Password
-                          </InputLabel>
-                        </div>
                         <DialogFooter>
                           <Button type="submit" disabled={buttonLoad}>
-                            {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}Save changes
+                            {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}Add User
                           </Button>
                         </DialogFooter>
                       </form>

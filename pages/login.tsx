@@ -96,9 +96,9 @@ export default function Login() {
             </Button>
           </form>
           <div className="text-center">
-            {"Don't have an account yet?"}{" "}
+            Are you a student? {" "}
             <Link href="/register">
-              <span className="italic underline">Create here!</span>
+              <span className="italic underline">Register here!</span>
             </Link>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-mongoose.connect("mongodb://127.0.0.1:27017/prescribly");
+mongoose.connect(process.env.DB_URI ? process.env.DB_URI : "");
 const prescription = new mongoose.Schema({
   medicationName: { type: String },
   dosage: { type: String },

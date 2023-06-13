@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-mongoose.connect("mongodb://127.0.0.1:27017/prescribly");
+mongoose.connect(process.env.DB_URI ? process.env.DB_URI : "");
 const schema = new mongoose.Schema(
   {
     userID: { type: Schema.Types.ObjectId, ref: "users", required: true },
@@ -10,7 +10,7 @@ const schema = new mongoose.Schema(
     phone: { type: String },
     birthdate: { type: Date },
     address: { type: String },
-    license: { type: String, required: true },
+    license: { type: String },
     expire: { type: Date },
     signature: { type: String },
   },

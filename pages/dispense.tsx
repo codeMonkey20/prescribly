@@ -78,7 +78,7 @@ export default function DispensePage() {
               <p className="font-bold text-xl">{name}</p>
               <Button
                 onClick={() => {
-                  router.push(`/dispense/${idNumber}`);
+                  router.push(`/prescription/${idNumber}`);
                 }}
                 disabled={name === ""}
               >

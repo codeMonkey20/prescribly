@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-mongoose.connect("mongodb://127.0.0.1:27017/prescribly");
+mongoose.connect(process.env.DB_URI ? process.env.DB_URI : "");
 const schema = new mongoose.Schema(
   {
     email: { type: String, unique: true },

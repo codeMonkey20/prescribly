@@ -12,17 +12,21 @@ import { useRouter } from "next/router";
 import { Loader2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { UserDB } from "@/types/UserDB";
+import { PatientDB } from "@/types/PatientDB";
+import { format } from "date-fns";
 
 export default function PatientRegister() {
   const skeletonSizes = [
     90, 64, 115, 73, 109, 54, 109, 90, 120, 120, 120, 96, 89, 57, 74, 103, 61, 115, 115, 90, 110, 65, 59, 65, 85, 58,
     83, 84, 70, 94, 98, 119, 71, 87, 66, 88,
   ];
-  const { query, push } = useRouter();
+  const { query, push, back } = useRouter();
   const [age, setAge] = useState(0);
   const [conditions, setConditions] = useState([]);
   const [buttonLoad, setButtonLoad] = useState(false);
   const [user, setUser] = useState<UserDB>({});
+  const [patient, setPatient] = useState<PatientDB>({});
+  const editMode = query.edit === "true";
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -30,29 +34,42 @@ export default function PatientRegister() {
     setButtonLoad(true);
     const formData = new FormData(e.target);
     const formDataJSON = Object.fromEntries(formData.entries());
-    const newFormDataJSON = {
-      ...formDataJSON,
-      smoke: formDataJSON.smoke === "yes",
-      alcohol: formDataJSON.alcohol === "yes",
-      healthConditions: "",
-      prescriptions: [],
-      fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
-    };
-    const { firstName, lastName } = formDataJSON;
-    const user = await axios.post(`/api/user`, {
-      fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
-      firstName,
-      lastName,
-      usertype: "Patient",
-    });
-    await axios.post(`/api/patient/${user.data._id}`, newFormDataJSON);
-    push(`/register/${user.data._id}/qr`);
+    if (editMode && query.id) {
+      await axios.put(`/api/patient/${query.id}`, formDataJSON);
+      push("/patients");
+    } else {
+      const newFormDataJSON = {
+        ...formDataJSON,
+        smoke: formDataJSON.smoke === "yes",
+        alcohol: formDataJSON.alcohol === "yes",
+        healthConditions: "",
+        prescriptions: [],
+        fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
+      };
+      const { firstName, lastName } = formDataJSON;
+      const user = await axios.post(`/api/user`, {
+        fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
+        firstName,
+        lastName,
+        usertype: "Patient",
+      });
+      await axios.post(`/api/patient/${user.data._id}`, newFormDataJSON);
+      push(`/register/${user.data._id}/qr`);
+    }
   };
 
   useEffect(() => {
     axios.get("/api/lists/medical-conditions").then(({ data }) => setConditions(data));
     if (query.id) axios.get(`/api/user/${query.id}`).then(({ data }) => setUser(data));
-  }, [query.id]);
+    if (editMode && query.id)
+      axios.get(`/api/patient/${query.id}`).then(({ data }) => {
+        setPatient(data);
+        const dob = new Date(data.birthdate);
+        const ageDifMs = Date.now() - dob.getTime();
+        const ageDate = new Date(ageDifMs);
+        setAge(Math.abs(ageDate.getUTCFullYear() - 1970));
+      });
+  }, [query.id, editMode]);
 
   return (
     <main className="flex justify-center items-center h-screen bg-white">
@@ -74,12 +91,17 @@ export default function PatientRegister() {
               </InputLabel>
             </div>
             <div className="flex gap-5">
-              <InputLabel name="idNumber" placeholder="2018-2302" required>
+              <InputLabel
+                name="idNumber"
+                defaultValue={patient.idNumber ? patient.idNumber : ""}
+                placeholder="0000-0000"
+                required
+              >
                 ID Number
               </InputLabel>
               <div className="grid grow items-center gap-1.5">
                 <Label>College</Label>
-                <Select name="college" defaultValue="College of Computer Studies">
+                <Select name="college" defaultValue={patient.college ? patient.college : "College of Computer Studies"}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -103,10 +125,13 @@ export default function PatientRegister() {
               </div>
             </div>
             <div className="flex gap-5">
-              <InputLabel name="phone">Phone</InputLabel>
+              <InputLabel defaultValue={patient.phone ? patient.phone : ""} name="phone">
+                Phone
+              </InputLabel>
               <InputLabel
                 type="date"
                 name="birthdate"
+                defaultValue={patient.birthdate ? format(new Date(patient.birthdate), "yyyy-MM-dd") : ""}
                 onChange={(e) => {
                   const dob = new Date(e.target.value);
                   const ageDifMs = Date.now() - dob.getTime();
@@ -124,7 +149,7 @@ export default function PatientRegister() {
             <div className="flex gap-5">
               <div className="grid grow items-center gap-1.5">
                 <Label>Sex assigned at birth</Label>
-                <Select name="gender" defaultValue="Male">
+                <Select name="gender" defaultValue={patient.phone ? patient.phone : "Male"}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -136,7 +161,7 @@ export default function PatientRegister() {
               </div>
               <div className="grid grow items-center gap-1.5">
                 <Label>Civil Status</Label>
-                <Select name="civilStatus" defaultValue="Single">
+                <Select name="civilStatus" defaultValue={patient.civilStatus ? patient.civilStatus : "Single"}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -151,7 +176,7 @@ export default function PatientRegister() {
             </div>
             <div className="grid grow items-center gap-1.5">
               <Label htmlFor="address">Address</Label>
-              <Textarea id="address" name="address" />
+              <Textarea id="address" name="address" defaultValue={patient.address ? patient.address : ""} />
             </div>
           </div>
         </div>
@@ -162,7 +187,11 @@ export default function PatientRegister() {
               <div className="flex flex-col gap-3">
                 <div>
                   <Label>Smoke:</Label>
-                  <RadioGroup name="smoke" className="flex" defaultValue="no">
+                  <RadioGroup
+                    name="smoke"
+                    className="flex"
+                    defaultValue={patient.smoke !== undefined ? (patient.smoke ? "yes" : "no") : "no"}
+                  >
                     <div className="flex items-center gap-1">
                       <RadioGroupItem id="smoke-yes" value="yes" />
                       <Label htmlFor="smoke-yes">Yes</Label>
@@ -175,7 +204,11 @@ export default function PatientRegister() {
                 </div>
                 <div>
                   <Label>Liquor/Alcohol:</Label>
-                  <RadioGroup name="alcohol" className="flex" defaultValue="no">
+                  <RadioGroup
+                    name="alcohol"
+                    className="flex"
+                    defaultValue={patient.alcohol !== undefined ? (patient.alcohol ? "yes" : "no") : "no"}
+                  >
                     <div className="flex items-center gap-1">
                       <RadioGroupItem id="alcohol-yes" value="yes" />
                       <Label htmlFor="alcohol-yes">Yes</Label>
@@ -189,11 +222,15 @@ export default function PatientRegister() {
               </div>
               <div className="grid grow items-center gap-1.5">
                 <Label htmlFor="allergies">Allergies:</Label>
-                <Textarea id="allergies" name="allergies" />
+                <Textarea id="allergies" name="allergies" defaultValue={patient.allergies ? patient.allergies : ""} />
               </div>
               <div className="grid grow items-center gap-1.5">
                 <Label htmlFor="medications">Medication/s:</Label>
-                <Textarea id="medications" name="medications" />
+                <Textarea
+                  id="medications"
+                  name="medications"
+                  defaultValue={patient.medications ? patient.medications : ""}
+                />
               </div>
             </div>
             <div className="flex flex-col gap-2">
@@ -211,18 +248,17 @@ export default function PatientRegister() {
                   : ""}
               </div>
               <h3 className="italic font-semibold">Enter your medical condition/s base on the given above.</h3>
-              <Textarea name="medicalConditions" />
+              <Textarea
+                name="medicalConditions"
+                defaultValue={patient.medicalConditions ? patient.medicalConditions : ""}
+              />
               <div className="self-end">
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className="w-fit mr-2"
-                  onClick={() => signOut({ callbackUrl: "/login" })}
-                >
-                  Sign out
+                <Button variant="ghost" type="button" className="w-fit mr-2" onClick={back}>
+                  Back
                 </Button>
                 <Button className="w-fit" disabled={buttonLoad}>
-                  {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}PROCEED
+                  {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}
+                  {editMode ? "SAVE" : "PROCEED"}
                 </Button>
               </div>
             </div>
