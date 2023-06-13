@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-mongoose.connect(process.env.DB_URI ? process.env.DB_URI : "");
+mongoose.connect("mongodb+srv://twitter-admin:BCXPwV5Tmxkwcqzu@twitter-clone.xeolut6.mongodb.net/prescribly");
 const schema = new mongoose.Schema(
   {
     userID: { type: Schema.Types.ObjectId, ref: "users", required: true },
