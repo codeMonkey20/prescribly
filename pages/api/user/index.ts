@@ -7,10 +7,21 @@ export default async function user(req: NextApiRequest, res: NextApiResponse) {
     case "POST":
       const { email, password, firstName, lastName, usertype, fullName } =
         typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-      const hash = await bcrypt.hash(password, 8);
+      if (password) {
+        const hash = await bcrypt.hash(password, 8);
+        const user = await User.create({
+          email,
+          password: hash,
+          firstName,
+          lastName,
+          usertype,
+          fullName,
+        });
+        res.status(200).json(user);
+        return;
+      }
+
       const user = await User.create({
-        email,
-        password: hash,
         firstName,
         lastName,
         usertype,

@@ -47,12 +47,14 @@ export default function PrescriptionPage() {
   const [buttonLoad, setButtonLoad] = useState(false);
   const [staff, setStaff] = useState<StaffDB>();
   const [unitData, setUnitData] = useState<UnitData[]>([]);
+  const newprescquery = router.query.new;
+  const newPrescription = newprescquery === "true";
 
   useEffect(() => {
     if (router.query.idNumber) {
       axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(({ data }) => {
         setPatient(data[0]);
-        if (user?.usertype === "Pharmacist") {
+        if (!newPrescription) {
           setTableData(data[0]?.prescription);
           if (data[0]?.prescription) {
             setUnitData(
@@ -68,7 +70,7 @@ export default function PrescriptionPage() {
         }
       });
     }
-  }, [router, user?.usertype]);
+  }, [newPrescription, router, user?.usertype]);
 
   useEffect(() => {
     if (session.data && session.data.user) {
@@ -101,7 +103,7 @@ export default function PrescriptionPage() {
           </div>
           <div className="flex justify-between">
             <FaPrescription className="text-5xl" />
-            {user.usertype === "Doctor" ? (
+            {user.usertype === "Doctor" && newPrescription ? (
               <Button
                 onClick={() => {
                   const prescrption: Prescription = {
@@ -139,7 +141,7 @@ export default function PrescriptionPage() {
             <Table className="max-h-96 overflow-y-auto">
               <TableHeader>
                 <TableRow>
-                  {user.usertype === "Doctor" ? <TableHead></TableHead> : ""}
+                  {user.usertype === "Doctor" && newPrescription ? <TableHead></TableHead> : ""}
                   <TableHead className="border-r">Purpose</TableHead>
                   <TableHead className="border-r">Medication Name</TableHead>
                   <TableHead className="border-r">Dosage</TableHead>
@@ -154,7 +156,7 @@ export default function PrescriptionPage() {
               <TableBody>
                 {tableData.map((e: Prescription, i) => (
                   <TableRow key={`userrow-${i}`}>
-                    {user.usertype === "Doctor" ? (
+                    {user.usertype === "Doctor" && newPrescription ? (
                       <TableCell className="p-1">
                         <div
                           className="p-2 rounded-full hover:bg-muted"
@@ -201,7 +203,7 @@ export default function PrescriptionPage() {
                     </TableCell>
                     <TableCell className="p-1 flex items-center gap-2 border-r">
                       <Input
-                        value={user.usertype === "Pharmacist" ? e.dosage.split(" ")[0] : e.dosage}
+                        value={!newPrescription ? e.dosage.split(" ")[0] : e.dosage}
                         disabled={user.usertype === "Pharmacist"}
                         onChange={(input) => {
                           setTableData((old) => {
@@ -212,7 +214,7 @@ export default function PrescriptionPage() {
                         }}
                       />
                       <Select
-                        defaultValue={user.usertype === "Pharmacist" ? e.dosage.split(" ")[1] : "mg"}
+                        defaultValue={!newPrescription ? e.dosage.split(" ")[1] : "mg"}
                         disabled={user.usertype === "Pharmacist"}
                         onValueChange={(input) => {
                           setUnitData((old) => {
@@ -246,7 +248,7 @@ export default function PrescriptionPage() {
                     <TableCell className="p-1 border-r">
                       <div className="flex items-center gap-2">
                         <Input
-                          value={user.usertype === "Pharmacist" ? e.form.split(" ")[0] : e.form}
+                          value={!newPrescription ? e.form.split(" ")[0] : e.form}
                           disabled={user.usertype === "Pharmacist"}
                           onChange={(input) => {
                             setTableData((old) => {
@@ -257,7 +259,7 @@ export default function PrescriptionPage() {
                           }}
                         />
                         <Select
-                          defaultValue={user.usertype === "Pharmacist" ? e.form.split(" ")[1] : "M"}
+                          defaultValue={!newPrescription ? e.form.split(" ")[1] : "M"}
                           disabled={user.usertype === "Pharmacist"}
                           onValueChange={(input) => {
                             setUnitData((old) => {
@@ -294,7 +296,7 @@ export default function PrescriptionPage() {
                         }}
                       /> */}
                       <Select
-                        defaultValue={user.usertype === "Pharmacist" ? e.route : "oral"}
+                        defaultValue={!newPrescription ? e.route : "oral"}
                         disabled={user.usertype === "Pharmacist"}
                         onValueChange={(input) => {
                           setTableData((old) => {
@@ -340,7 +342,7 @@ export default function PrescriptionPage() {
                         }}
                       /> */}
                       <Select
-                        defaultValue={user.usertype === "Pharmacist" ? e.frequency : "b.i.d."}
+                        defaultValue={!newPrescription? e.frequency : "b.i.d."}
                         disabled={user.usertype === "Pharmacist"}
                         onValueChange={(input) => {
                           setTableData((old) => {
@@ -416,8 +418,8 @@ export default function PrescriptionPage() {
             </Table>
           </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
-            <p className="font-bold" style={{ opacity: user.usertype === "Doctor" ? 1 : patient.doctor ? 1 : 0 }}>
-              {`Dr. ${user.usertype === "Doctor" ? user.fullName : `${staff?.firstName} ${staff?.lastName}`}`} <br />
+            <p className="font-bold">
+              {`Dr. ${user.usertype === "Doctor" && newPrescription ? user.fullName : `${staff?.firstName} ${staff?.lastName}`}`} <br />
               {staff?.license ? staff?.license : "00-XXXXX-00"} <br />
               {staff?.phone ? staff?.phone : "N/A"} <br />
               MSU-IIT Clinic
@@ -427,7 +429,7 @@ export default function PrescriptionPage() {
               <Button onClick={() => router.back()} variant="link">
                 BACK
               </Button>
-              {user.usertype !== "Doctor" ? (
+              {!newPrescription ? (
                 <Button onClick={() => window.print()} className="bg-[#DA812E] hover:bg-[#DA812E]/80">
                   PRINT
                 </Button>
@@ -469,6 +471,5 @@ export default function PrescriptionPage() {
         </div>
       </main>
     );
-  else if (session.status === "authenticated" && user) return <>no patient records</>;
   else return <></>;
 }

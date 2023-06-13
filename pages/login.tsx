@@ -16,7 +16,7 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
     if (!session.user.usertypeID)
       return {
         redirect: {
-          destination: `/register/${session.user._id}`,
+          destination: `/register?id=${session.user._id}`,
           permanent: false,
         },
       };

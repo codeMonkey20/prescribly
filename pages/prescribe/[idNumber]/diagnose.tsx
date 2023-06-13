@@ -28,7 +28,7 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
   } else if (!session.user.usertypeID && session.user.usertype !== "Admin") {
     return {
       redirect: {
-        destination: `/register/${session.user._id}`,
+        destination: `/register?id=${session.user._id}`,
         permanent: false,
       },
     };
@@ -53,7 +53,7 @@ export default function PrescribeDiagnosePage() {
     const formData = new FormData(e.target);
     const formDataJSON = Object.fromEntries(formData.entries());
     await axios.put(`/api/patient/${patient?.userID}`, formDataJSON);
-    router.push(`/prescription/${router.query.idNumber}`);
+    router.push(`/prescription/${router.query.idNumber}?new=true`);
   };
 
   useEffect(() => {

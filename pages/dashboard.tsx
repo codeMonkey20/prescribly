@@ -25,7 +25,7 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
   } else if (!session.user.usertypeID && session.user.usertype !== "Admin") {
     return {
       redirect: {
-        destination: `/register/${session.user._id}`,
+        destination: `/register?id=${session.user._id}`,
         permanent: false,
       },
     };
