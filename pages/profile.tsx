@@ -48,13 +48,23 @@ export default function LandingPage() {
   const [buttonLoad, setButtonLoad] = useState(false);
   const [password, setPassword] = useState("");
   const [invalidPass, setInvalidPass] = useState(false);
+  const [sign, setSign] = useState("");
 
   const handleProfileUpdate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!(e.target instanceof HTMLFormElement)) return;
     setButtonLoad(true);
     const form = new FormData(e.target);
-    const formJSON = Object.fromEntries(form.entries());
+    const {signature, ...formJSON} = Object.fromEntries(form.entries());
+    const reader = new FileReader();
+    reader.onload = async function () {
+      const data = reader.result?.toString().replace("data:", "").replace(/^.+,/, "");
+      setSign(data + "");
+      await axios.post(`/api/upload/${user?._id}`, { file: data });
+    };
+    const file: any = signature;
+    reader.readAsDataURL(file);
+
     if (formJSON.password !== formJSON.repassword) {
       alert("Password does not match");
       setButtonLoad(false);
@@ -74,6 +84,10 @@ export default function LandingPage() {
     }
   }, [password]);
 
+  useEffect(() => {
+    if (user) axios.get(`/api/staff/${user?._id}`).then(({ data }) => setSign(data.signature));
+  }, [user]);
+
   if (session.status === "authenticated")
     return (
       <main className="flex justify-center items-center h-screen">
@@ -84,120 +98,146 @@ export default function LandingPage() {
           <div className="flex flex-col grow px-8 py-5">
             <h1 className="text-4xl font-bold my-8 ml-3">Profile</h1>
             <form className="bg-white flex grow rounded-3xl px-4 py-2" onSubmit={handleProfileUpdate}>
-              <div className="flex flex-col w-full">
-                <h2 className="text-xl font-semibold my-6 mx-2">Personal Information</h2>
-                <div className="flex justify-between">
-                  <div className="flex flex-col m-2 grow">
-                    <Label className="italic text-md" htmlFor="firstName">
-                      First Name
-                    </Label>
-                    {profileUpdateMode ? (
-                      <Input name="firstName" id="firstName" defaultValue={userData?.firstName} required />
-                    ) : (
-                      <span>{userData?.firstName}</span>
-                    )}
+              {usertype !== "Admin" ? (
+                <>
+                  <div className="flex flex-col w-full">
+                    <h2 className="text-xl font-semibold my-6 mx-2">Personal Information</h2>
+                    <div className="flex justify-between">
+                      <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="firstName">
+                          First Name
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Input name="firstName" id="firstName" defaultValue={userData?.firstName} required />
+                        ) : (
+                          <span>{userData?.firstName}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="lastName">
+                          Last Name
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Input name="lastName" id="lastName" defaultValue={userData?.lastName} required />
+                        ) : (
+                          <span>{userData?.lastName}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col m-2 w-16">
+                        <Label className="italic text-md" htmlFor="middleInitial">
+                          Initials
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Input name="middleInitial" id="middleInitial" defaultValue={userData?.middleInitial} />
+                        ) : (
+                          <span>{userData?.middleInitial ? userData?.middleInitial : "-"}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="birthdate">
+                          Date of Birth
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Input
+                            type="date"
+                            name="birthdate"
+                            id="birthdate"
+                            defaultValue={format(new Date(userData?.birthdate + ""), "yyyy-MM-dd")}
+                            required
+                          />
+                        ) : (
+                          <span>
+                            {userData?.birthdate ? format(new Date(userData?.birthdate), "MMM dd, yyyy") : ""}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="phone">
+                          Phone Number
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Input name="phone" id="phone" defaultValue={userData?.phone} />
+                        ) : (
+                          <span>{userData?.phone ? userData.phone : "-"}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="expire">
+                          Expiry Date
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Input
+                            type="date"
+                            name="expire"
+                            id="expire"
+                            defaultValue={userData?.expire ? format(new Date(userData?.expire + ""), "yyyy-MM-dd") : ""}
+                            required
+                          />
+                        ) : (
+                          <span>{userData?.expire ? format(new Date(userData?.expire + ""), "yyyy-MM-dd") : "-"}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="license">
+                          License Number
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Input name="license" id="license" defaultValue={userData?.license} required />
+                        ) : (
+                          <span>{userData?.license ? userData?.license : "-"}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="address">
+                          Address
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Textarea name="address" id="address" defaultValue={userData?.address} />
+                        ) : (
+                          <span>{userData?.address ? userData?.address : "-"}</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-col m-2 grow">
-                    <Label className="italic text-md" htmlFor="lastName">
-                      Last Name
-                    </Label>
-                    {profileUpdateMode ? (
-                      <Input name="lastName" id="lastName" defaultValue={userData?.lastName} required />
-                    ) : (
-                      <span>{userData?.lastName}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col m-2 w-16">
-                    <Label className="italic text-md" htmlFor="middleInitial">
-                      Initials
-                    </Label>
-                    {profileUpdateMode ? (
-                      <Input name="middleInitial" id="middleInitial" defaultValue={userData?.middleInitial} />
-                    ) : (
-                      <span>{userData?.middleInitial ? userData?.middleInitial : "-"}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="flex flex-col m-2 grow">
-                    <Label className="italic text-md" htmlFor="birthdate">
-                      Date of Birth
-                    </Label>
-                    {profileUpdateMode ? (
-                      <Input
-                        type="date"
-                        name="birthdate"
-                        id="birthdate"
-                        defaultValue={format(new Date(userData?.birthdate + ""), "yyyy-MM-dd")}
-                        required
-                      />
-                    ) : (
-                      <span>{userData?.birthdate ? format(new Date(userData?.birthdate), "MMM dd, yyyy") : ""}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col m-2 grow">
-                    <Label className="italic text-md" htmlFor="phone">
-                      Phone Number
-                    </Label>
-                    {profileUpdateMode ? (
-                      <Input name="phone" id="phone" defaultValue={userData?.phone} />
-                    ) : (
-                      <span>{userData?.phone ? userData.phone : "-"}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="flex flex-col m-2 grow">
-                    <Label className="italic text-md" htmlFor="expire">
-                      Expiry Date
-                    </Label>
-                    {profileUpdateMode ? (
-                      <Input
-                        type="date"
-                        name="expire"
-                        id="expire"
-                        defaultValue={userData?.expire ? format(new Date(userData?.expire + ""), "yyyy-MM-dd") : ""}
-                        required
-                      />
-                    ) : (
-                      <span>{userData?.expire ? format(new Date(userData?.expire + ""), "yyyy-MM-dd") : "-"}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col m-2 grow">
-                    <Label className="italic text-md" htmlFor="license">
-                      License Number
-                    </Label>
-                    {profileUpdateMode ? (
-                      <Input name="license" id="license" defaultValue={userData?.license} required />
-                    ) : (
-                      <span>{userData?.license ? userData?.license : "-"}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="flex flex-col m-2 grow">
-                    <Label className="italic text-md" htmlFor="address">
-                      Address
-                    </Label>
-                    {profileUpdateMode ? (
-                      <Textarea name="address" id="address" defaultValue={userData?.address} />
-                    ) : (
-                      <span>{userData?.address ? userData?.address : "-"}</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <Separator orientation="vertical" className="mx-4 h-auto my-2" />
+                  <Separator orientation="vertical" className="mx-4 h-auto my-2" />
+                </>
+              ) : (
+                ""
+              )}
               <div className="w-full flex flex-col">
                 <h2 className="text-xl font-semibold my-6 mx-2">Account Information</h2>
                 <div className="flex flex-col grow">
+                  <div className="flex justify-between">
+                    <div className="flex flex-col m-2 grow">
+                      <Label className="italic text-md" htmlFor="signature">
+                        Signature
+                      </Label>
+                      {profileUpdateMode ? (
+                        <Input name="signature" id="signature" type="file" />
+                      ) : (
+                        <Image src={"data:image/png;base64," + sign} alt="sign" width={80} height={80} />
+                      )}
+                    </div>
+                  </div>
                   <div className="flex justify-between">
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="email">
                         Email
                       </Label>
                       {profileUpdateMode ? (
-                        <Input name="email" id="email" defaultValue={user?.email} required />
+                        <Input
+                          name="email"
+                          id="email"
+                          defaultValue={user?.email}
+                          disabled={usertype === "Admin"}
+                          required
+                        />
                       ) : (
                         <span>{user?.email}</span>
                       )}

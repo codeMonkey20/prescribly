@@ -1,14 +1,11 @@
-import fs from "fs";
+import Staff from "@/models/Staff";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default function upload(req: NextApiRequest, res: NextApiResponse) {
+export default async function upload(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
+    const id = req.query.id;
     const file = req.body.file;
-    const filePath = `//${file.name}`;
-    // console.log(__dirname);
-
-    // Save the file to the local file system
-    // fs.writeFileSync(filePath, file.data);
+    await Staff.findOneAndUpdate({ userID: id }, { signature: file });
 
     res.status(200).json({ message: "File uploaded successfully" });
   } else {

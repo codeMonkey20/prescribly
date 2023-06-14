@@ -105,7 +105,7 @@ export default function DashboardPage() {
                 <CardHeader className="font-bold text-lg">
                   Recent Prescriptions
                   <p className="text-gray-400 text-sm font-normal">
-                    You made {recentPrescriptions.length} prescription(s) this day.
+                    Doctors made {prescriptionCountToday} prescription(s) this day.
                   </p>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-2">

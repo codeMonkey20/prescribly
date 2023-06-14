@@ -15,6 +15,7 @@ import { authOptions } from "../api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { StaffDB } from "@/types/StaffDB";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Image from "next/image";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -403,6 +404,7 @@ export default function PrescriptionPage() {
           </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             <p className="font-bold">
+              <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
               {`Dr. ${
                 user.usertype === "Doctor" && newPrescription ? user.fullName : `${staff?.firstName} ${staff?.lastName}`
               }`}{" "}

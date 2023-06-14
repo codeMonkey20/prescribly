@@ -12,6 +12,7 @@ import { GetServerSidePropsContext } from "next";
 import { authOptions } from "../../api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { StaffDB } from "@/types/StaffDB";
+import Image from "next/image";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -105,6 +106,7 @@ export default function PrescriptionPageView() {
           </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             <p className="font-bold">
+              <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
               {`Dr. ${staff?.firstName} ${staff?.lastName}`}
               <br />
               {staff?.license ? staff?.license : "00-XXXXX-00"} <br />

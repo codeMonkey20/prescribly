@@ -1,3 +1,4 @@
+import truncate from "@/lib/truncate";
 import { UserDB } from "@/types/UserDB";
 import axios from "axios";
 import Link from "next/link";
@@ -28,10 +29,10 @@ export default function Row({ data }: Props) {
           </div>
           <div className="text-sm">
             <p className="font-bold">{`${data.firstName} ${data.lastName}`}</p>
-            <p className="text-xs italic">{healthConditions ? healthConditions : "No Health Conditions"}</p>
+            <p className="text-xs italic">{healthConditions ? truncate(healthConditions, 50) : "No Health Conditions"}</p>
           </div>
         </div>
-        <Link href={`/prescription/${idNumber}/view`} className="self-center mr-2 hover:underline">
+        <Link href={`/prescription/${idNumber}/view`} className="self-center mr-2 hover:underline whitespace-nowrap">
           View Prescription
         </Link>
       </div>

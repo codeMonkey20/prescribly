@@ -42,7 +42,7 @@ export default function Header({}: Props) {
         >
           Dashboard
         </Link>
-        {usertype !== "Admin" ? (
+        {/* {usertype !== "Admin" ? ( */}
           <Link
             href="/profile"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
@@ -51,9 +51,9 @@ export default function Header({}: Props) {
           >
             Profile
           </Link>
-        ) : (
+        {/* ) : (
           ""
-        )}
+        )} */}
         {usertype === "Admin" ? (
           <Link
             href="/users"
