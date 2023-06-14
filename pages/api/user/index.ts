@@ -21,12 +21,7 @@ export default async function user(req: NextApiRequest, res: NextApiResponse) {
         return;
       }
 
-      const user = await User.create({
-        firstName,
-        lastName,
-        usertype,
-        fullName,
-      });
+      const user = await User.create(req.body);
       res.status(200).json(user);
       return;
 

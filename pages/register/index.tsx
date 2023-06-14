@@ -47,6 +47,12 @@ export default function PatientRegister() {
         fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
       };
       const { firstName, lastName } = formDataJSON;
+      console.log({
+        fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
+        firstName,
+        lastName,
+        usertype: "Patient",
+      });
       const user = await axios.post(`/api/user`, {
         fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
         firstName,
