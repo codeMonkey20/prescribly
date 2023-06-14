@@ -3,7 +3,7 @@ export type PatientRegistration = {
   password: string;
   firstName: string;
   lastName: string;
-  initals?: string;
+  initials?: string;
   idNumber: string;
   college?:
     | "College of Computer Studies"

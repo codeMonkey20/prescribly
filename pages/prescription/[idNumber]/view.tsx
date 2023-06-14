@@ -13,6 +13,7 @@ import { authOptions } from "../../api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { StaffDB } from "@/types/StaffDB";
 import Image from "next/image";
+import { format } from "date-fns";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -82,9 +83,11 @@ export default function PrescriptionPageView() {
                   <TableHead className="border-r">Form</TableHead>
                   <TableHead className="border-r">Route</TableHead>
                   <TableHead className="border-r">Frequency</TableHead>
-                  <TableHead className="border-r">Dispense</TableHead>
-                  <TableHead className="border-r">Given</TableHead>
-                  <TableHead>Remarks</TableHead>
+                  <TableHead className="border-r">Duration of TX</TableHead>
+                  <TableHead className="border-r w-10">Dispensed Meds</TableHead>
+                  <TableHead className="border-r w-10">Given</TableHead>
+                  <TableHead className="border-r">Remarks</TableHead>
+                  <TableHead>Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -96,9 +99,11 @@ export default function PrescriptionPageView() {
                     <TableCell className="p-1 border-r">{e.form}</TableCell>
                     <TableCell className="p-1 border-r">{e.route}</TableCell>
                     <TableCell className="p-1 border-r">{e.frequency}</TableCell>
+                    <TableCell className="p-1 border-r">{e.duration}</TableCell>
                     <TableCell className="p-1 border-r">{e.dispense}</TableCell>
                     <TableCell className="p-1 border-r">{e.given}</TableCell>
-                    <TableCell className="p-1">{e.remarks}</TableCell>
+                    <TableCell className="p-1 border-r">{e.remarks}</TableCell>
+                    <TableCell className="p-1">{format(new Date(e.updatedAt + ""), "MM/dd/yyyy")}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -106,8 +111,12 @@ export default function PrescriptionPageView() {
           </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             <p className="font-bold">
-              <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
-              {`Dr. ${staff?.firstName} ${staff?.lastName}`}
+              {staff?.signature ? (
+                <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
+              ) : (
+                ""
+              )}
+              {staff ? `Dr. ${staff?.firstName} ${staff?.lastName}` : ""}
               <br />
               {staff?.license ? staff?.license : "00-XXXXX-00"} <br />
               {staff?.phone ? staff?.phone : "N/A"} <br />

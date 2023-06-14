@@ -148,7 +148,7 @@ export default function PrescribeDiagnosePage() {
                     <div className="flex justify-between">
                       <div className="flex flex-col m-2 grow">
                         <Label className="italic text-md" htmlFor="healthConditions">
-                          Current Health Condition(s)
+                          History of Present Illness/es:
                         </Label>
                         <Textarea name="healthConditions" id="healthConditions" />
                       </div>

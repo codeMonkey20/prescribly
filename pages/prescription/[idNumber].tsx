@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { PatientDB } from "@/types/PatientDB";
 import { Prescription } from "@/types/Prescription";
 import axios from "axios";
-import { Loader2, Trash2 } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, Loader2, Trash2 } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
@@ -16,6 +16,9 @@ import { getServerSession } from "next-auth";
 import { StaffDB } from "@/types/StaffDB";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
+import { SelectArrow, SelectScrollDownButton, SelectScrollUpButton, SelectViewport } from "@radix-ui/react-select";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -36,7 +39,6 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
 
 type UnitData = {
   dosage: string;
-  form: string;
 };
 
 export default function PrescriptionPage() {
@@ -110,13 +112,15 @@ export default function PrescriptionPage() {
                   const prescrption: Prescription = {
                     dispense: "",
                     dosage: "",
-                    form: "",
+                    form: "tab",
                     frequency: "b.i.d.",
                     given: "",
                     medicationName: "",
                     purpose: "",
                     remarks: "",
                     route: "oral",
+                    duration: "",
+                    updatedAt: format(new Date(), "yyyy-MM-dd"),
                   };
                   setTableData((row) => {
                     if (row) {
@@ -126,9 +130,9 @@ export default function PrescriptionPage() {
                   });
                   setUnitData((row) => {
                     if (row) {
-                      return [...row, { dosage: "mg", form: "M" }];
+                      return [...row, { dosage: "mg" }];
                     }
-                    return [{ dosage: "mg", form: "M" }];
+                    return [{ dosage: "mg" }];
                   });
                 }}
               >
@@ -143,15 +147,17 @@ export default function PrescriptionPage() {
               <TableHeader>
                 <TableRow>
                   {user.usertype === "Doctor" && newPrescription ? <TableHead></TableHead> : ""}
-                  <TableHead className="border-r">Purpose</TableHead>
-                  <TableHead className="border-r">Medication Name</TableHead>
-                  <TableHead className="border-r">Dosage</TableHead>
-                  <TableHead className="border-r">Form</TableHead>
-                  <TableHead className="border-r">Route</TableHead>
-                  <TableHead className="border-r">Frequency</TableHead>
-                  <TableHead className="border-r">Dispense</TableHead>
-                  <TableHead className="border-r">Given</TableHead>
-                  <TableHead>Remarks</TableHead>
+                  <TableHead className="border-r w-fit">Purpose</TableHead>
+                  <TableHead className="border-r w-fit">Medication Name</TableHead>
+                  <TableHead className="border-r w-fit">Dosage</TableHead>
+                  <TableHead className="border-r w-fit">Form</TableHead>
+                  <TableHead className="border-r w-fit">Route</TableHead>
+                  <TableHead className="border-r w-fit">Frequency</TableHead>
+                  <TableHead className="border-r w-fit">Duration of TX</TableHead>
+                  <TableHead className="border-r w-10">Dispensed Meds</TableHead>
+                  <TableHead className="border-r w-10">Given</TableHead>
+                  <TableHead className="border-r w-fit">Remarks</TableHead>
+                  <TableHead>Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -202,7 +208,7 @@ export default function PrescriptionPage() {
                         }}
                       />
                     </TableCell>
-                    <TableCell className="p-1 flex items-center gap-2 border-r">
+                    <TableCell className="px-1 flex items-center gap-2 border-r">
                       <Input
                         value={!newPrescription ? e.dosage.split(" ")[0] : e.dosage}
                         disabled={user.usertype === "Pharmacist"}
@@ -215,8 +221,8 @@ export default function PrescriptionPage() {
                         }}
                       />
                       <Select
-                        defaultValue={!newPrescription ? e.dosage.split(" ")[1] : "mg"}
                         disabled={user.usertype === "Pharmacist"}
+                        value={!newPrescription ? e.dosage.split(" ")[1] : unitData[i].dosage}
                         onValueChange={(input) => {
                           setUnitData((old) => {
                             const copy = JSON.parse(JSON.stringify(old));
@@ -230,7 +236,7 @@ export default function PrescriptionPage() {
                             <SelectValue />
                           </div>
                         </SelectTrigger>
-                        <SelectContent className="h-60 overflow-y-auto">
+                        <SelectContent className="h-60 overflow-y-hidden">
                           <SelectItem value="kg">kg</SelectItem>
                           <SelectItem value="Lf">Lf</SelectItem>
                           <SelectItem value="L">L</SelectItem>
@@ -248,24 +254,14 @@ export default function PrescriptionPage() {
                     </TableCell>
                     <TableCell className="p-1 border-r">
                       <div className="flex items-center gap-2">
-                        <Input
-                          value={!newPrescription ? e.form.split(" ")[0] : e.form}
-                          disabled={user.usertype === "Pharmacist"}
-                          onChange={(input) => {
-                            setTableData((old) => {
-                              const copy = JSON.parse(JSON.stringify(old));
-                              copy[i].form = input.target.value;
-                              return copy;
-                            });
-                          }}
-                        />
                         <Select
-                          defaultValue={!newPrescription ? e.form.split(" ")[1] : "M"}
+                          value={e.form}
                           disabled={user.usertype === "Pharmacist"}
                           onValueChange={(input) => {
-                            setUnitData((old) => {
-                              old[i].form = input;
-                              return old;
+                            setTableData((old) => {
+                              const copy = JSON.parse(JSON.stringify(old));
+                              copy[i].form = input;
+                              return copy;
                             });
                           }}
                         >
@@ -286,7 +282,7 @@ export default function PrescriptionPage() {
                     </TableCell>
                     <TableCell className="p-1 border-r">
                       <Select
-                        value={e.route !== "" ? e.route : "oral"}
+                        value={e.route}
                         disabled={user.usertype === "Pharmacist"}
                         onValueChange={(input) => {
                           setTableData((old) => {
@@ -322,7 +318,7 @@ export default function PrescriptionPage() {
                     <TableCell className="p-1 border-r">
                       <Select
                         disabled={user.usertype === "Pharmacist"}
-                        value={e.frequency !== "" ? e.frequency : "b.i.d."}
+                        value={e.frequency}
                         onValueChange={(input) => {
                           setTableData((old) => {
                             const copy = JSON.parse(JSON.stringify(old));
@@ -349,6 +345,29 @@ export default function PrescriptionPage() {
                           <SelectItem value="q.t.t.">q.t.t.</SelectItem>
                           <SelectItem value="a.c.">a.c.</SelectItem>
                           <SelectItem value="p.c.">p.c.</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="p-1 border-r">
+                      <Select
+                        disabled={user.usertype === "Pharmacist"}
+                        value={e.duration}
+                        onValueChange={(input) => {
+                          setTableData((old) => {
+                            const copy = JSON.parse(JSON.stringify(old));
+                            copy[i].duration = input;
+                            return copy;
+                          });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <div className="w-fit">
+                            <SelectValue />
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent className="h-60 overflow-y-auto">
+                          <SelectItem value=""></SelectItem>
+                          <SelectItem value=""></SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -384,7 +403,7 @@ export default function PrescriptionPage() {
                         }}
                       />
                     </TableCell>
-                    <TableCell className="p-1">
+                    <TableCell className="p-1 border-r">
                       <Input
                         value={e.remarks}
                         disabled={user.usertype === "Doctor"}
@@ -397,6 +416,20 @@ export default function PrescriptionPage() {
                         }}
                       />
                     </TableCell>
+                    <TableCell className="p-1">
+                      <Input
+                        type="date"
+                        disabled
+                        value={e.updatedAt?.toString()}
+                        // onChange={(input) => {
+                        //   setTableData((old) => {
+                        //     const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                        //     copy[i].date = new Date(input.target.value);
+                        //     return copy;
+                        //   });
+                        // }}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -404,12 +437,22 @@ export default function PrescriptionPage() {
           </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             <p className="font-bold">
-              <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
+              {staff?.signature ? (
+                <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
+              ) : (
+                ""
+              )}
               {`Dr. ${
                 user.usertype === "Doctor" && newPrescription ? user.fullName : `${staff?.firstName} ${staff?.lastName}`
-              }`}{" "}
+              }`}
               <br />
-              {staff?.license ? staff?.license : "00-XXXXX-00"} <br />
+              {staff?.license ? (
+                <>
+                  {staff?.license} <br />
+                </>
+              ) : (
+                <Skeleton className="w-28 h-6" />
+              )}
               {staff?.phone ? staff?.phone : "N/A"} <br />
               MSU-IIT Clinic
             </p>
@@ -426,7 +469,7 @@ export default function PrescriptionPage() {
                     const prescription: Prescription[] = JSON.parse(JSON.stringify(tableData));
                     for (let i = 0; i < tableData.length; i++) {
                       prescription[i].dosage = `${prescription[i].dosage.split(" ")[0]} ${unitData[i].dosage}`;
-                      prescription[i].form = `${prescription[i].form.split(" ")[0]} ${unitData[i].form}`;
+                      delete prescription[i].updatedAt;
                     }
                     console.log(prescription);
                     if (user.usertype === "Doctor") {

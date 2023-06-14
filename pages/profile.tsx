@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import axios from "axios";
 import Header from "@/components/Header";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -55,7 +56,7 @@ export default function LandingPage() {
     if (!(e.target instanceof HTMLFormElement)) return;
     setButtonLoad(true);
     const form = new FormData(e.target);
-    const {signature, ...formJSON} = Object.fromEntries(form.entries());
+    const { signature, ...formJSON } = Object.fromEntries(form.entries());
     const reader = new FileReader();
     reader.onload = async function () {
       const data = reader.result?.toString().replace("data:", "").replace(/^.+,/, "");
@@ -166,6 +167,16 @@ export default function LandingPage() {
                     </div>
                     <div className="flex justify-between">
                       <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="license">
+                          License Number
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Input name="license" id="license" defaultValue={userData?.license} required />
+                        ) : (
+                          <span>{userData?.license ? userData?.license : "-"}</span>
+                        )}
+                      </div>
+                      <div className="flex flex-col m-2 grow">
                         <Label className="italic text-md" htmlFor="expire">
                           Expiry Date
                         </Label>
@@ -179,16 +190,6 @@ export default function LandingPage() {
                           />
                         ) : (
                           <span>{userData?.expire ? format(new Date(userData?.expire + ""), "yyyy-MM-dd") : "-"}</span>
-                        )}
-                      </div>
-                      <div className="flex flex-col m-2 grow">
-                        <Label className="italic text-md" htmlFor="license">
-                          License Number
-                        </Label>
-                        {profileUpdateMode ? (
-                          <Input name="license" id="license" defaultValue={userData?.license} required />
-                        ) : (
-                          <span>{userData?.license ? userData?.license : "-"}</span>
                         )}
                       </div>
                     </div>
@@ -213,18 +214,24 @@ export default function LandingPage() {
               <div className="w-full flex flex-col">
                 <h2 className="text-xl font-semibold my-6 mx-2">Account Information</h2>
                 <div className="flex flex-col grow">
-                  <div className="flex justify-between">
-                    <div className="flex flex-col m-2 grow">
-                      <Label className="italic text-md" htmlFor="signature">
-                        Signature
-                      </Label>
-                      {profileUpdateMode ? (
-                        <Input name="signature" id="signature" type="file" />
-                      ) : (
-                        <Image src={"data:image/png;base64," + sign} alt="sign" width={80} height={80} />
-                      )}
+                  {usertype === "Doctor" ? (
+                    <div className="flex justify-between">
+                      <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="signature">
+                          Signature
+                        </Label>
+                        {profileUpdateMode ? (
+                          <Input name="signature" id="signature" type="file" required />
+                        ) : sign !== "" || sign ? (
+                          <Image src={"data:image/png;base64," + sign} alt="sign" width={80} height={80} />
+                        ) : (
+                          <Skeleton className="w-20 h-20 rounded-full" />
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    ""
+                  )}
                   <div className="flex justify-between">
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="email">

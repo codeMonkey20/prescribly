@@ -11,7 +11,7 @@ export default function medicalConditionsList(req: NextApiRequest, res: NextApiR
     .json([
       "Allergies",
       "Amoebiasis",
-      "Anemic",
+      "Anemia",
       "Arthritis",
       "Back and Joint Pains",
       "Bone Fracture",

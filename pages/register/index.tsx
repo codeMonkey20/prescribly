@@ -92,8 +92,8 @@ export default function PatientRegister() {
               <InputLabel name="lastName" defaultValue={user.lastName} required>
                 Last Name
               </InputLabel>
-              <InputLabel name="middleInital" className="w-12">
-                Initals
+              <InputLabel name="middleInitial" className="w-12">
+                Initials
               </InputLabel>
             </div>
             <div className="flex gap-5">
@@ -253,7 +253,7 @@ export default function PatientRegister() {
                     ))
                   : ""}
               </div>
-              <h3 className="italic font-semibold">Enter your medical condition/s base on the given above.</h3>
+              <h3 className="italic font-semibold">Enter your medical condition/s based on the given above.</h3>
               <Textarea
                 name="medicalConditions"
                 defaultValue={patient.medicalConditions ? patient.medicalConditions : ""}

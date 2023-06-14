@@ -8,7 +8,7 @@ import { authOptions } from "./api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { signIn } from "next-auth/react";
 import axios from "axios";
-import { Loader2 } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -36,6 +36,7 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
 export default function Login() {
   const [buttonLoad, setButtonLoad] = useState(false);
   const [loginError, setLoginError] = useState(false);
+  const [show, setShow] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -89,14 +90,21 @@ export default function Login() {
           <form className="py-4 px-16 flex flex-col gap-5" onSubmit={handleSubmit}>
             {loginError ? <p className="text-destructive font-thin">Incorrect Email or Password</p> : ""}
             <Input name="email" placeholder="Email" required />
-            <Input type="password" name="password" placeholder="Password" required />
+            <div className="relative border">
+              <Input type={show ? "text" : "password"} name="password" placeholder="Password" required />
+              {show ? (
+                <EyeOffIcon onClick={() => setShow((tog) => !tog)} className="absolute w-10 right-2 top-2" />
+              ) : (
+                <EyeIcon onClick={() => setShow((tog) => !tog)} className="absolute w-10 right-2 top-2" />
+              )}
+            </div>
             <Button className="px-10 py-6 rounded-lg" disabled={buttonLoad}>
               {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}
               LOGIN
             </Button>
           </form>
           <div className="text-center">
-            Are you a student? {" "}
+            Are you a student?{" "}
             <Link href="/register">
               <span className="italic underline">Register here!</span>
             </Link>

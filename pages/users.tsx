@@ -71,10 +71,7 @@ export default function UsersPage() {
     if (formJSON.middleInitial) {
       formJSON.fullName = `${formJSON.firstName} ${formJSON.middleInitial} ${formJSON.lastName}`;
     } else formJSON.fullName = `${formJSON.firstName} ${formJSON.lastName}`;
-    const yearToday = new Date().getFullYear();
-    const password = `@${formJSON.firstName}${formJSON.lastName}_${yearToday}`;
-    console.log(password);
-    formJSON.password = password;
+    formJSON.password = "1234";
     const { data } = await axios.post("/api/user", formJSON);
     delete formJSON.email;
     await axios.post(`/api/staff/${data._id}`, formJSON);

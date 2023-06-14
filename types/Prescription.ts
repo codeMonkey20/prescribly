@@ -8,4 +8,7 @@ export type Prescription = {
   dispense: string;
   given: string;
   remarks: string;
+  duration: string;
+  updatedAt?: string | Date;
+  createdAt?: string | Date;
 };
