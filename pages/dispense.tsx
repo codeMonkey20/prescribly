@@ -67,7 +67,7 @@ export default function DispensePage() {
                 <QrScanner
                   onDecode={(result) => {
                     setIdNumber(result);
-                    router.push(`/dispense/${idNumber}`);
+                    router.push(`/prescription/${result}`);
                   }}
                   scanDelay={2000}
                   onError={(error) => console.log(error?.message)}

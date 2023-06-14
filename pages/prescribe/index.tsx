@@ -70,7 +70,7 @@ export default function PrescribePage() {
                   onDecode={(result) => {
                     setIdNumber(result);
                     setButtonLoad(true);
-                    router.push(`/prescribe/${idNumber}`);
+                    router.push(`/prescribe/${result}`);
                   }}
                   scanDelay={2000}
                   onError={(error) => console.log(error?.message)}
