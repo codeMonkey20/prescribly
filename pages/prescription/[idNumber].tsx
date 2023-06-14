@@ -376,8 +376,8 @@ export default function PrescriptionPage() {
                           });
                           setTableData((old) => {
                             const copy: Prescription[] = JSON.parse(JSON.stringify(old));
-                            if (copy[i].given.includes("0")) copy[i].remarks = "Out of stock";
-                            else if (copy[i].given.includes(copy[i].dosage.split(" ")[0])) copy[i].remarks = "Complete";
+                            if (copy[i].given === "0") copy[i].remarks = "Out of stock";
+                            else if (copy[i].given === copy[i].dosage.split(" ")[0]) copy[i].remarks = "Complete";
                             return copy;
                           });
                         }}
