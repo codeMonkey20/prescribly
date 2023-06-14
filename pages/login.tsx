@@ -90,7 +90,7 @@ export default function Login() {
           <form className="py-4 px-16 flex flex-col gap-5" onSubmit={handleSubmit}>
             {loginError ? <p className="text-destructive font-thin">Incorrect Email or Password</p> : ""}
             <Input name="email" placeholder="Email" required />
-            <div className="relative border">
+            <div className="relative">
               <Input type={show ? "text" : "password"} name="password" placeholder="Password" required />
               {show ? (
                 <EyeOffIcon onClick={() => setShow((tog) => !tog)} className="absolute w-10 right-2 top-2" />

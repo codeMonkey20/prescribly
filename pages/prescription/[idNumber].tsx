@@ -420,7 +420,11 @@ export default function PrescriptionPage() {
                       <Input
                         type="date"
                         disabled
-                        value={e.updatedAt?.toString()}
+                        value={
+                          user.usertype === "Pharmacist"
+                            ? format(new Date(e.updatedAt + ""), "yyyy-MM-dd")
+                            : e.updatedAt + ""
+                        }
                         // onChange={(input) => {
                         //   setTableData((old) => {
                         //     const copy: Prescription[] = JSON.parse(JSON.stringify(old));
