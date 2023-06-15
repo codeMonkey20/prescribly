@@ -14,6 +14,7 @@ import { signOut } from "next-auth/react";
 import { UserDB } from "@/types/UserDB";
 import { PatientDB } from "@/types/PatientDB";
 import { format } from "date-fns";
+import ageDate from "@/lib/ageDate";
 
 export default function PatientRegister() {
   const skeletonSizes = [
@@ -70,10 +71,7 @@ export default function PatientRegister() {
     if (editMode && query.id)
       axios.get(`/api/patient/${query.id}`).then(({ data }) => {
         setPatient(data);
-        const dob = new Date(data.birthdate);
-        const ageDifMs = Date.now() - dob.getTime();
-        const ageDate = new Date(ageDifMs);
-        setAge(Math.abs(ageDate.getUTCFullYear() - 1970));
+        setAge(ageDate(data.birthdate));
       });
   }, [query.id, editMode]);
 

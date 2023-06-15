@@ -18,7 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import { SelectArrow, SelectScrollDownButton, SelectScrollUpButton, SelectViewport } from "@radix-ui/react-select";
+import useAutocomplete from "@mui/base/useAutocomplete";
+import ageDate from "@/lib/ageDate";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -52,6 +53,9 @@ export default function PrescriptionPage() {
   const [unitData, setUnitData] = useState<UnitData[]>([]);
   const newprescquery = router.query.new;
   const newPrescription = newprescquery === "true";
+  // const { getRootProps, getInputProps, getListboxProps, getOptionProps, groupedOptions } = useAutocomplete({
+  //   options: ["test", "shet"],
+  // });
 
   useEffect(() => {
     if (router.query.idNumber) {
@@ -100,8 +104,18 @@ export default function PrescriptionPage() {
               <p className="px-3">{patient?.healthConditions}</p>
             </div>
             <div className="flex flex-col justify-center">
-              <QRCode value={`${patient?.idNumber}`} size={80} />
-              <p className="w-20 text-center">{patient?.idNumber}</p>
+              <div className="flex">
+                <div className="text-right mr-6 font-semibold">
+                  <p>{format(new Date(patient.createdAt + ""), "MM/dd/yyyy")}</p>
+                  <p>{patient.fullName}</p>
+                  <p>{ageDate(patient.birthdate + "")}</p>
+                  <p>{patient.gender}</p>
+                </div>
+                <div>
+                  <QRCode value={`${patient?.idNumber}`} size={80} />
+                  <p className="w-20 self-end whitespace-nowrap">{patient?.idNumber}</p>
+                </div>
+              </div>
             </div>
           </div>
           <div className="flex justify-between">
@@ -425,13 +439,6 @@ export default function PrescriptionPage() {
                             ? format(new Date(e.updatedAt + ""), "yyyy-MM-dd")
                             : e.updatedAt + ""
                         }
-                        // onChange={(input) => {
-                        //   setTableData((old) => {
-                        //     const copy: Prescription[] = JSON.parse(JSON.stringify(old));
-                        //     copy[i].date = new Date(input.target.value);
-                        //     return copy;
-                        //   });
-                        // }}
                       />
                     </TableCell>
                   </TableRow>

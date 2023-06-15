@@ -21,5 +21,7 @@ export type PatientDB = {
   healthConditions?: string;
   prescription?: Prescription[];
   doctor?: string;
+  createdAt?: string;
+  updatedAt?: string;
   test?: string;
 };
