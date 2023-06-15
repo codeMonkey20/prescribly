@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import useAutocomplete from "@mui/base/useAutocomplete";
 import ageDate from "@/lib/ageDate";
+import { MimsDB } from "@/types/MimsDB";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -52,11 +53,12 @@ export default function PrescriptionPage() {
   const [buttonLoad, setButtonLoad] = useState(false);
   const [staff, setStaff] = useState<StaffDB>();
   const [unitData, setUnitData] = useState<UnitData[]>([]);
+  const [medicationName, setMedicationName] = useState<string[]>([]);
   const newprescquery = router.query.new;
   const newPrescription = newprescquery === "true";
-  // const { getRootProps, getInputProps, getListboxProps, getOptionProps, groupedOptions } = useAutocomplete({
-  //   options: ["test", "shet"],
-  // });
+  const { getRootProps, getInputProps, getListboxProps, getOptionProps, groupedOptions } = useAutocomplete({
+    options: medicationName,
+  });
 
   useEffect(() => {
     if (router.query.idNumber) {
@@ -76,6 +78,10 @@ export default function PrescriptionPage() {
             );
           }
         }
+      });
+
+      axios.get("/api/mims?type=medicine").then(({ data }) => {
+        setMedicationName(data.map((e: MimsDB) => e.name));
       });
     }
   }, [newPrescription, router, user?.usertype]);

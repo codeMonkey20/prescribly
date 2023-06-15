@@ -5,7 +5,7 @@ import axios from "axios";
 import { GetServerSidePropsContext } from "next";
 import { getServerSession } from "next-auth";
 import { useRouter } from "next/router";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { useSession } from "next-auth/react";
 import Header from "@/components/Header";
@@ -26,6 +26,8 @@ import { InputLabel } from "@/components/InputLabel";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import usePagination from "@/hooks/usePagination";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -49,11 +51,68 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
   };
 }
 
+const LIMIT = 4;
+
 export default function MimsPage() {
   const router = useRouter();
   const session = useSession();
 
   const [mims, setMims] = useState<MimsDB[]>([]);
+  const [type, setType] = useState("medicine");
+  const [length, setLength] = useState(0);
+  const [search, setSearch] = useState("");
+  const page = usePagination({ total: length });
+  const addMedicineForm = useRef<HTMLFormElement>(null);
+  const editMedicineForm = useRef<HTMLFormElement>(null);
+  const addDosageForm = useRef<HTMLFormElement>(null);
+  const editDosageForm = useRef<HTMLFormElement>(null);
+  const addFormForm = useRef<HTMLFormElement>(null);
+  const editFormForm = useRef<HTMLFormElement>(null);
+  const addFreqForm = useRef<HTMLFormElement>(null);
+  const editFreqForm = useRef<HTMLFormElement>(null);
+
+  const handleAdd = async () => {
+    const formElem =
+      type === "medicine"
+        ? addMedicineForm.current
+        : type === "dosage"
+        ? addDosageForm.current
+        : type === "form"
+        ? addFormForm.current
+        : addFreqForm.current;
+    if (!(formElem instanceof HTMLFormElement)) return;
+    const formData = new FormData(formElem);
+    const formJSON = Object.fromEntries(formData.entries());
+    formJSON.type = "medicine";
+    const { data } = await axios.post("/api/mims", formJSON);
+    setMims((old) => [data, ...old]);
+  };
+
+  const handleEdit = async () => {
+    const formElem =
+      type === "medicine"
+        ? editMedicineForm.current
+        : type === "dosage"
+        ? editDosageForm.current
+        : type === "form"
+        ? editFormForm.current
+        : editFreqForm.current;
+    if (!(formElem instanceof HTMLFormElement)) return;
+    const formData = new FormData(formElem);
+    const { id, ...formJSON } = Object.fromEntries(formData.entries());
+    await axios.put(`/api/mims/${id}`, formJSON);
+    router.reload();
+  };
+
+  useEffect(() => {
+    axios.get("/api/mims?type=medicine").then(({ data }) => setMims(data));
+    axios.get("/api/mims/count?type=medicine").then(({ data }) => setLength(data.count));
+  }, []);
+
+  useEffect(() => {
+    axios.get(`/api/mims?type=${type}&search=${search}&page=${page.active}`).then(({ data }) => setMims(data));
+    axios.get(`/api/mims/count?type=${type}`).then(({ data }) => setLength(data.count));
+  }, [type, search, page.active]);
 
   if (session.status === "authenticated")
     return (
@@ -64,257 +123,467 @@ export default function MimsPage() {
           </div>
           <div className="flex flex-col grow px-8 py-5">
             <h1 className="text-4xl font-bold my-8 ml-3">MIMS</h1>
-            <div className="bg-white flex flex-col gap-2 items-center grow rounded-3xl px-4 py-2">
-              <div className="flex justify-between w-full">
-                <Input placeholder="Search Medicine" className="w-80" />
-                <Dialog>
-                  <DialogTrigger>
-                    <Button>Add Medicine</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add Medicine</DialogTitle>
-                      <DialogDescription>{"Add medicine here. Click save when you're done."}</DialogDescription>
-                    </DialogHeader>
-                    <form className="grid gap-4 py-4">
-                      <div className="flex gap-2">
-                        <InputLabel required>Medicine Name</InputLabel>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label>Dosage</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="h-60 overflow-y-auto">
-                              <SelectItem value="" className="h-8"></SelectItem>
-                              <SelectItem value="kg">kg</SelectItem>
-                              <SelectItem value="Lf">Lf</SelectItem>
-                              <SelectItem value="L">L</SelectItem>
-                              <SelectItem value="uCi">uCi</SelectItem>
-                              <SelectItem value="ug">ug</SelectItem>
-                              <SelectItem value="umol">umol</SelectItem>
-                              <SelectItem value="um">um</SelectItem>
-                              <SelectItem value="mCi">mCi</SelectItem>
-                              <SelectItem value="meq">meq</SelectItem>
-                              <SelectItem value="mg">mg</SelectItem>
-                              <SelectItem value="mL">mL</SelectItem>
-                              <SelectItem value="mm">mm</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label>Form</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="" className="h-8"></SelectItem>
-                              <SelectItem value="M">M</SelectItem>
-                              <SelectItem value="sol">sol</SelectItem>
-                              <SelectItem value="syr">syr</SelectItem>
-                              <SelectItem value="tab">tab</SelectItem>
-                              <SelectItem value="caps">caps</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label>Route</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="h-60 overflow-y-auto">
-                              <SelectItem value="" className="h-8"></SelectItem>
-                              <SelectItem value="oral">oral</SelectItem>
-                              <SelectItem value="sublingual">sublingual</SelectItem>
-                              <SelectItem value="buccal">buccal</SelectItem>
-                              <SelectItem value="intravenous">intravenous</SelectItem>
-                              <SelectItem value="intramuscular">intramuscular</SelectItem>
-                              <SelectItem value="subcutaneous">subcutaneous</SelectItem>
-                              <SelectItem value="inhalation">inhalation</SelectItem>
-                              <SelectItem value="nasal">nasal</SelectItem>
-                              <SelectItem value="rectal">rectal</SelectItem>
-                              <SelectItem value="vaginal">vaginal</SelectItem>
-                              <SelectItem value="cutaneous">cutaneous</SelectItem>
-                              <SelectItem value="otic">otic</SelectItem>
-                              <SelectItem value="ocular">ocular</SelectItem>
-                              <SelectItem value="transdermal">transdermal</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label>Frequency</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="h-60 overflow-y-auto">
-                              <SelectItem value="" className="h-8"></SelectItem>
-                              <SelectItem value="b.i.d.">b.i.d.</SelectItem>
-                              <SelectItem value="t.i.d.">t.i.d.</SelectItem>
-                              <SelectItem value="q.i.d.">q.i.d.</SelectItem>
-                              <SelectItem value="q.h.s.">q.h.s.</SelectItem>
-                              <SelectItem value="5X a day">5X a day</SelectItem>
-                              <SelectItem value="q.4h">q.4h</SelectItem>
-                              <SelectItem value="q.6h">q.6h</SelectItem>
-                              <SelectItem value="q.o.d.">q.o.d.</SelectItem>
-                              <SelectItem value="prn.">prn.</SelectItem>
-                              <SelectItem value="q.t.t.">q.t.t.</SelectItem>
-                              <SelectItem value="a.c.">a.c.</SelectItem>
-                              <SelectItem value="p.c.">p.c.</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <DialogClose className="px-4 py-2 bg-foreground text-white rounded-lg">
-                          Save changes
-                        </DialogClose>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
+            <div className="bg-white grow rounded-3xl p-4">
+              <div className="relative flex flex-col gap-2 items-center">
+                <Tabs
+                  defaultValue="medicine"
+                  className="self-start"
+                  onValueChange={(type) => {
+                    page.first();
+                    setType(type);
+                  }}
+                >
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="medicine">Medicine</TabsTrigger>
+                    <TabsTrigger value="dosage">Dosage</TabsTrigger>
+                    <TabsTrigger value="form">Form</TabsTrigger>
+                    <TabsTrigger value="frequency">Frequency</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="medicine" className="absolute w-full">
+                    <div className="flex justify-between w-full mb-3">
+                      <Input
+                        placeholder="Search Medicine"
+                        className="w-80"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button>Add Medicine</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Add Medicine</DialogTitle>
+                            <DialogDescription>{"Add medicine here. Click save when you're done."}</DialogDescription>
+                          </DialogHeader>
+                          <form
+                            ref={addMedicineForm}
+                            className="grid gap-4 py-4"
+                            onSubmit={(e) => {
+                              console.log(e);
+                            }}
+                          >
+                            <div className="flex gap-2">
+                              <InputLabel name="name" required>
+                                Medicine Name
+                              </InputLabel>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose
+                                onClick={handleAdd}
+                                className="px-4 py-2 bg-foreground text-white rounded-lg"
+                              >
+                                ADD
+                              </DialogClose>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <Table>
+                      <TableHeader className="border-b">
+                        <TableHead className="border-r">Medicine Name</TableHead>
+                        <TableHead className="w-20"></TableHead>
+                      </TableHeader>
+                      <TableBody>
+                        {mims.map((e, i) => (
+                          <TableRow key={`mims-${i}`}>
+                            <TableCell>{e.name}</TableCell>
+                            <TableCell className="flex gap-2 p-1 w-fit">
+                              <div className="rounded-full p-3 hover:bg-muted">
+                                <Dialog>
+                                  <DialogTrigger>
+                                    <Edit2Icon size={18} />
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Edit Medicine</DialogTitle>
+                                      <DialogDescription>
+                                        {"Edit medicine here. Click save when you're done."}
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <form ref={editMedicineForm} className="grid gap-4 py-4">
+                                      <input type="hidden" name="id" value={e._id} />
+                                      <div className="flex gap-2">
+                                        <InputLabel name="name" defaultValue={e.name ? e.name : ""} required>
+                                          Medicine Name
+                                        </InputLabel>
+                                      </div>
+                                      <DialogFooter>
+                                        <DialogClose
+                                          onClick={handleEdit}
+                                          className="px-4 py-2 bg-foreground text-white rounded-lg"
+                                        >
+                                          Save changes
+                                        </DialogClose>
+                                      </DialogFooter>
+                                    </form>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                              <div className="rounded-full p-3 hover:bg-muted">
+                                <Dialog>
+                                  <DialogTrigger>
+                                    <Trash2Icon size={18} />
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Delete Medicine</DialogTitle>
+                                      <DialogDescription>{"Are you sure to delete this medicine?"}</DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                      <DialogClose
+                                        onClick={() =>
+                                          axios
+                                            .delete(`/api/mims/${e._id}`)
+                                            .then(() => setMims((old) => old.filter((meds) => meds._id !== e._id)))
+                                        }
+                                        className="px-4 py-2 bg-destructive text-white rounded-lg"
+                                      >
+                                        DELETE
+                                      </DialogClose>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  <TabsContent value="dosage" className="absolute w-full">
+                    <div className="flex justify-between w-full mb-3">
+                      <Input
+                        placeholder="Search Dosage"
+                        className="w-80"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button>Add Dosage</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Add Dosage</DialogTitle>
+                            <DialogDescription>{"Add dosage here. Click save when you're done."}</DialogDescription>
+                          </DialogHeader>
+                          <form ref={addDosageForm} className="grid gap-4 py-4">
+                            <div className="flex gap-2">
+                              <InputLabel name="name" required>
+                                Dosage Name
+                              </InputLabel>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose
+                                onClick={handleAdd}
+                                className="px-4 py-2 bg-foreground text-white rounded-lg"
+                              >
+                                ADD
+                              </DialogClose>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <Table>
+                      <TableHeader className="border-b">
+                        <TableHead className="border-r">Dosage Name</TableHead>
+                        <TableHead className="w-20"></TableHead>
+                      </TableHeader>
+                      <TableBody>
+                        {mims.map((e, i) => (
+                          <TableRow key={`mims-${i}`}>
+                            <TableCell>{e.name}</TableCell>
+                            <TableCell className="flex gap-2 p-1 w-fit">
+                              <div className="rounded-full p-3 hover:bg-muted">
+                                <Dialog>
+                                  <DialogTrigger>
+                                    <Edit2Icon size={18} />
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Edit Dosage</DialogTitle>
+                                      <DialogDescription>
+                                        {"Edit dosage here. Click save when you're done."}
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <form ref={editDosageForm} className="grid gap-4 py-4">
+                                      <input type="hidden" name="id" value={e._id} />
+                                      <div className="flex gap-2">
+                                        <InputLabel name="name" defaultValue={e.name ? e.name : ""} required>
+                                          Dosage Name
+                                        </InputLabel>
+                                      </div>
+                                      <DialogFooter>
+                                        <DialogClose
+                                          onClick={handleEdit}
+                                          className="px-4 py-2 bg-foreground text-white rounded-lg"
+                                        >
+                                          Save changes
+                                        </DialogClose>
+                                      </DialogFooter>
+                                    </form>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                              <div className="rounded-full p-3 hover:bg-muted">
+                                <Dialog>
+                                  <DialogTrigger>
+                                    <Trash2Icon size={18} />
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Delete Dosage</DialogTitle>
+                                      <DialogDescription>{"Are you sure to delete this dosage?"}</DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                      <DialogClose
+                                        onClick={() =>
+                                          axios
+                                            .delete(`/api/mims/${e._id}`)
+                                            .then(() => setMims((old) => old.filter((meds) => meds._id !== e._id)))
+                                        }
+                                        className="px-4 py-2 bg-destructive text-white rounded-lg"
+                                      >
+                                        DELETE
+                                      </DialogClose>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  <TabsContent value="form" className="absolute w-full">
+                    <div className="flex justify-between w-full mb-3">
+                      <Input
+                        placeholder="Search Form"
+                        className="w-80"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button>Add Form</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Add Form</DialogTitle>
+                            <DialogDescription>{"Add form here. Click save when you're done."}</DialogDescription>
+                          </DialogHeader>
+                          <form ref={addFormForm} className="grid gap-4 py-4">
+                            <div className="flex gap-2">
+                              <InputLabel name="name" required>
+                                Form Name
+                              </InputLabel>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose
+                                onClick={handleAdd}
+                                className="px-4 py-2 bg-foreground text-white rounded-lg"
+                              >
+                                ADD
+                              </DialogClose>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <Table>
+                      <TableHeader className="border-b">
+                        <TableHead className="border-r">Form Name</TableHead>
+                        <TableHead className="w-20"></TableHead>
+                      </TableHeader>
+                      <TableBody>
+                        {mims.map((e, i) => (
+                          <TableRow key={`mims-${i}`}>
+                            <TableCell>{e.name}</TableCell>
+                            <TableCell className="flex gap-2 p-1 w-fit">
+                              <div className="rounded-full p-3 hover:bg-muted">
+                                <Dialog>
+                                  <DialogTrigger>
+                                    <Edit2Icon size={18} />
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Edit Form</DialogTitle>
+                                      <DialogDescription>
+                                        {"Edit form here. Click save when you're done."}
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <form ref={editFormForm} className="grid gap-4 py-4">
+                                      <input type="hidden" name="id" value={e._id} />
+                                      <div className="flex gap-2">
+                                        <InputLabel name="name" defaultValue={e.name ? e.name : ""} required>
+                                          Form Name
+                                        </InputLabel>
+                                      </div>
+                                      <DialogFooter>
+                                        <DialogClose
+                                          onClick={handleEdit}
+                                          className="px-4 py-2 bg-foreground text-white rounded-lg"
+                                        >
+                                          Save changes
+                                        </DialogClose>
+                                      </DialogFooter>
+                                    </form>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                              <div className="rounded-full p-3 hover:bg-muted">
+                                <Dialog>
+                                  <DialogTrigger>
+                                    <Trash2Icon size={18} />
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Delete Form</DialogTitle>
+                                      <DialogDescription>{"Are you sure to delete this form?"}</DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                      <DialogClose
+                                        onClick={() =>
+                                          axios
+                                            .delete(`/api/mims/${e._id}`)
+                                            .then(() => setMims((old) => old.filter((meds) => meds._id !== e._id)))
+                                        }
+                                        className="px-4 py-2 bg-destructive text-white rounded-lg"
+                                      >
+                                        DELETE
+                                      </DialogClose>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                  <TabsContent value="frequency" className="absolute w-full">
+                    <div className="flex justify-between w-full mb-3">
+                      <Input
+                        placeholder="Search Frequency"
+                        className="w-80"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button>Add Frequency</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Add Frequency</DialogTitle>
+                            <DialogDescription>{"Add frequency here. Click save when you're done."}</DialogDescription>
+                          </DialogHeader>
+                          <form ref={addFreqForm} className="grid gap-4 py-4">
+                            <div className="flex gap-2">
+                              <InputLabel name="name" required>
+                                Frequency Name
+                              </InputLabel>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose
+                                onClick={handleAdd}
+                                className="px-4 py-2 bg-foreground text-white rounded-lg"
+                              >
+                                ADD
+                              </DialogClose>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <Table>
+                      <TableHeader className="border-b">
+                        <TableHead className="border-r">Frequency Name</TableHead>
+                        <TableHead className="w-20"></TableHead>
+                      </TableHeader>
+                      <TableBody>
+                        {mims.map((e, i) => (
+                          <TableRow key={`mims-${i}`}>
+                            <TableCell>{e.name}</TableCell>
+                            <TableCell className="flex gap-2 p-1 w-fit">
+                              <div className="rounded-full p-3 hover:bg-muted">
+                                <Dialog>
+                                  <DialogTrigger>
+                                    <Edit2Icon size={18} />
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Edit Frequency</DialogTitle>
+                                      <DialogDescription>
+                                        {"Edit frequency here. Click save when you're done."}
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <form ref={editFreqForm} className="grid gap-4 py-4">
+                                      <input type="hidden" name="id" value={e._id} />
+                                      <div className="flex gap-2">
+                                        <InputLabel defaultValue={e.name ? e.name : ""} required>
+                                          Frequency Name
+                                        </InputLabel>
+                                      </div>
+                                      <DialogFooter>
+                                        <DialogClose
+                                          onClick={handleEdit}
+                                          className="px-4 py-2 bg-foreground text-white rounded-lg"
+                                        >
+                                          Save changes
+                                        </DialogClose>
+                                      </DialogFooter>
+                                    </form>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                              <div className="rounded-full p-3 hover:bg-muted">
+                                <Dialog>
+                                  <DialogTrigger>
+                                    <Trash2Icon size={18} />
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Delete Frequency</DialogTitle>
+                                      <DialogDescription>{"Are you sure to delete this frequency?"}</DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                      <DialogClose
+                                        onClick={() =>
+                                          axios
+                                            .delete(`/api/mims/${e._id}`)
+                                            .then(() => setMims((old) => old.filter((meds) => meds._id !== e._id)))
+                                        }
+                                        className="px-4 py-2 bg-destructive text-white rounded-lg"
+                                      >
+                                        DELETE
+                                      </DialogClose>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TabsContent>
+                </Tabs>
+
+                <div className="absolute right-0 select-none">
+                  <Button variant="secondary" className="mr-2" onClick={page.previous} disabled={page.active === 1}>
+                    Prev
+                  </Button>
+                  <Button variant="secondary" onClick={page.next} disabled={page.active === Math.ceil(length / LIMIT)}>
+                    Next
+                  </Button>
+                </div>
               </div>
-              <Table>
-                <TableHeader className="border-b">
-                  <TableHead className="border-r">Medicine Name</TableHead>
-                  <TableHead className="border-r">Form</TableHead>
-                  <TableHead className="border-r">Dosage</TableHead>
-                  <TableHead className="border-r">Route</TableHead>
-                  <TableHead>Frequency</TableHead>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>x</TableCell>
-                    <TableCell>x</TableCell>
-                    <TableCell>x</TableCell>
-                    <TableCell>x</TableCell>
-                    <TableCell>x</TableCell>
-                    <TableCell className="flex gap-2 p-1">
-                      <div className="rounded-full p-3 hover:bg-muted">
-                        <Dialog>
-                          <DialogTrigger>
-                            <Edit2Icon size={18} />
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Edit Medicine</DialogTitle>
-                              <DialogDescription>
-                                {"Edit medicine here. Click save when you're done."}
-                              </DialogDescription>
-                            </DialogHeader>
-                            <form className="grid gap-4 py-4">
-                              <div className="flex gap-2">
-                                <InputLabel required>Medicine Name</InputLabel>
-                              </div>
-                              <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                  <Label>Dosage</Label>
-                                  <Select>
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="h-60 overflow-y-auto">
-                                      <SelectItem value="" className="h-8"></SelectItem>
-                                      <SelectItem value="kg">kg</SelectItem>
-                                      <SelectItem value="Lf">Lf</SelectItem>
-                                      <SelectItem value="L">L</SelectItem>
-                                      <SelectItem value="uCi">uCi</SelectItem>
-                                      <SelectItem value="ug">ug</SelectItem>
-                                      <SelectItem value="umol">umol</SelectItem>
-                                      <SelectItem value="um">um</SelectItem>
-                                      <SelectItem value="mCi">mCi</SelectItem>
-                                      <SelectItem value="meq">meq</SelectItem>
-                                      <SelectItem value="mg">mg</SelectItem>
-                                      <SelectItem value="mL">mL</SelectItem>
-                                      <SelectItem value="mm">mm</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div>
-                                  <Label>Form</Label>
-                                  <Select>
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="" className="h-8"></SelectItem>
-                                      <SelectItem value="M">M</SelectItem>
-                                      <SelectItem value="sol">sol</SelectItem>
-                                      <SelectItem value="syr">syr</SelectItem>
-                                      <SelectItem value="tab">tab</SelectItem>
-                                      <SelectItem value="caps">caps</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div>
-                                  <Label>Route</Label>
-                                  <Select>
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="h-60 overflow-y-auto">
-                                      <SelectItem value="" className="h-8"></SelectItem>
-                                      <SelectItem value="oral">oral</SelectItem>
-                                      <SelectItem value="sublingual">sublingual</SelectItem>
-                                      <SelectItem value="buccal">buccal</SelectItem>
-                                      <SelectItem value="intravenous">intravenous</SelectItem>
-                                      <SelectItem value="intramuscular">intramuscular</SelectItem>
-                                      <SelectItem value="subcutaneous">subcutaneous</SelectItem>
-                                      <SelectItem value="inhalation">inhalation</SelectItem>
-                                      <SelectItem value="nasal">nasal</SelectItem>
-                                      <SelectItem value="rectal">rectal</SelectItem>
-                                      <SelectItem value="vaginal">vaginal</SelectItem>
-                                      <SelectItem value="cutaneous">cutaneous</SelectItem>
-                                      <SelectItem value="otic">otic</SelectItem>
-                                      <SelectItem value="ocular">ocular</SelectItem>
-                                      <SelectItem value="transdermal">transdermal</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div>
-                                  <Label>Frequency</Label>
-                                  <Select>
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="h-60 overflow-y-auto">
-                                      <SelectItem value="" className="h-8"></SelectItem>
-                                      <SelectItem value="b.i.d.">b.i.d.</SelectItem>
-                                      <SelectItem value="t.i.d.">t.i.d.</SelectItem>
-                                      <SelectItem value="q.i.d.">q.i.d.</SelectItem>
-                                      <SelectItem value="q.h.s.">q.h.s.</SelectItem>
-                                      <SelectItem value="5X a day">5X a day</SelectItem>
-                                      <SelectItem value="q.4h">q.4h</SelectItem>
-                                      <SelectItem value="q.6h">q.6h</SelectItem>
-                                      <SelectItem value="q.o.d.">q.o.d.</SelectItem>
-                                      <SelectItem value="prn.">prn.</SelectItem>
-                                      <SelectItem value="q.t.t.">q.t.t.</SelectItem>
-                                      <SelectItem value="a.c.">a.c.</SelectItem>
-                                      <SelectItem value="p.c.">p.c.</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <DialogClose className="px-4 py-2 bg-foreground text-white rounded-lg">
-                                  Save changes
-                                </DialogClose>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                      <div className="rounded-full p-3 hover:bg-muted">
-                        <Trash2Icon size={18} />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
             </div>
           </div>
         </div>

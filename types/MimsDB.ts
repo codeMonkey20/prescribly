@@ -1,8 +1,7 @@
 export type MimsDB = {
-  medicineName: string;
+  name: string;
+  type: "dosage" | "form" | "medicine" | "frequency";
   _id?: string;
-  defaultForm?: string;
-  defaultDosage?: string;
-  defaultRoute?: string;
-  defaultFrequency?: string;
+  createdAt?: string;
+  updateAt?: string;
 };
