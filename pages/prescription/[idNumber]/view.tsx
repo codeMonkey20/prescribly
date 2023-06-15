@@ -14,6 +14,7 @@ import { getServerSession } from "next-auth";
 import { StaffDB } from "@/types/StaffDB";
 import Image from "next/image";
 import { format } from "date-fns";
+import ageDate from "@/lib/ageDate";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -68,8 +69,18 @@ export default function PrescriptionPageView() {
               <p className="px-3">{patient?.healthConditions}</p>
             </div>
             <div className="flex flex-col justify-center">
-              <QRCode value={`${patient?.idNumber}`} size={80} />
-              <p className="w-20 text-center">{patient?.idNumber}</p>
+              <div className="flex">
+                <div className="text-right mr-6 font-semibold">
+                  <p>{format(new Date(patient.createdAt + ""), "MM/dd/yyyy")}</p>
+                  <p>{patient.fullName}</p>
+                  <p>{ageDate(patient.birthdate + "")}</p>
+                  <p>{patient.gender}</p>
+                </div>
+                <div>
+                  <QRCode value={`${patient?.idNumber}`} size={80} />
+                  <p className="w-20 self-end whitespace-nowrap">{patient?.idNumber}</p>
+                </div>
+              </div>
             </div>
           </div>
           <FaPrescription className="text-5xl" />
