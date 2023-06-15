@@ -116,25 +116,31 @@ export default function PrescriptionPageView() {
                     <TableCell className="p-1 border-r">{e.dispense}</TableCell>
                     <TableCell className="p-1 border-r">{e.given}</TableCell>
                     <TableCell className="p-1 border-r">{e.remarks}</TableCell>
-                    <TableCell className="p-1">{format(new Date(e.updatedAt + ""), "MM/dd/yyyy")}</TableCell>
+                    <TableCell className="p-1">
+                      {e.updatedAt ? format(new Date(e.updatedAt + ""), "MM/dd/yyyy") : ""}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
-            <p className="font-bold">
-              {staff?.signature ? (
-                <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
-              ) : (
-                ""
-              )}
-              {staff ? `Dr. ${staff?.firstName} ${staff?.lastName}` : <Skeleton className="w-28 h-6" />}
-              <br />
-              {staff?.license ? staff?.license : "-"} <br />
-              {staff?.phone ? staff?.phone : "-"} <br />
-              MSU-IIT Clinic
-            </p>
+            {staff ? (
+              <p className="font-bold">
+                {staff?.signature ? (
+                  <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
+                ) : (
+                  ""
+                )}
+                {staff ? `Dr. ${staff?.firstName} ${staff?.lastName}` : <Skeleton className="w-28 h-6" />}
+                <br />
+                {staff?.license ? staff?.license : "-"} <br />
+                {staff?.phone ? staff?.phone : "-"} <br />
+                MSU-IIT Clinic
+              </p>
+            ) : (
+              <p className="font-semibold italic">Doctor Deleted in Database</p>
+            )}
 
             <div className="flex items-end gap-1 print:hidden">
               <Button onClick={() => router.back()} variant="link">
