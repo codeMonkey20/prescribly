@@ -400,7 +400,7 @@ export default function PrescriptionPage() {
                             <SelectValue />
                           </div>
                         </SelectTrigger>
-                        <SelectContent className="h-60 overflow-y-hidden">
+                        <SelectContent>
                           <SelectItem value="day/s">day/s</SelectItem>
                           <SelectItem value="week/s">week/s</SelectItem>
                           <SelectItem value="month/s">month/s</SelectItem>
