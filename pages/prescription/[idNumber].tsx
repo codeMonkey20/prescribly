@@ -39,6 +39,7 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
 }
 
 type UnitData = {
+  duration: string;
   dosage: string;
 };
 
@@ -105,16 +106,22 @@ export default function PrescriptionPage() {
             </div>
             <div className="flex flex-col justify-center">
               <div className="flex">
-                <div className="text-right mr-6 font-semibold">
+                <div className="text-right mr-6 font-semibold flex flex-col justify-end">
                   <p>{patient.fullName}</p>
                   <p>{ageDate(patient.birthdate + "")}</p>
                   <p>{patient.gender}</p>
                   <p>{patient.address ? patient.address : "-"}</p>
-                  <p>{patient.updatedAt ? format(new Date(patient.createdAt + ""), "MM/dd/yyyy") : ""}</p>
                 </div>
                 <div>
+                  <p className="mb-2">
+                    {!newPrescription
+                      ? tableData[0].createdAt
+                        ? format(new Date(tableData[0].createdAt + ""), "MM/dd/yyyy")
+                        : ""
+                      : format(new Date(), "MM/dd/yyyy")}
+                  </p>
                   <QRCode value={`${patient?.idNumber}`} size={80} />
-                  <p className="w-20 self-end whitespace-nowrap">{patient?.idNumber}</p>
+                  <p className="w-20 text-sm text-center whitespace-nowrap">{patient?.idNumber}</p>
                 </div>
               </div>
             </div>
@@ -145,9 +152,9 @@ export default function PrescriptionPage() {
                   });
                   setUnitData((row) => {
                     if (row) {
-                      return [...row, { dosage: "mg" }];
+                      return [...row, { dosage: "mg", duration: "day/s" }];
                     }
-                    return [{ dosage: "mg" }];
+                    return [{ dosage: "mg", duration: "day/s" }];
                   });
                 }}
               >
@@ -225,6 +232,7 @@ export default function PrescriptionPage() {
                     </TableCell>
                     <TableCell className="px-1 flex items-center gap-2 border-r">
                       <Input
+                        className="w-16"
                         value={!newPrescription ? e.dosage.split(" ")[0] : e.dosage}
                         disabled={user.usertype === "Pharmacist"}
                         onChange={(input) => {
@@ -363,12 +371,24 @@ export default function PrescriptionPage() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="p-1 border-r">
+                    <TableCell className="px-1 flex items-center gap-2 border-r">
+                      <Input
+                        className="w-10"
+                        value={!newPrescription ? e.duration.split(" ")[0] : e.duration}
+                        disabled={user.usertype === "Pharmacist"}
+                        onChange={(input) => {
+                          setTableData((old) => {
+                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                            copy[i].duration = input.target.value;
+                            return copy;
+                          });
+                        }}
+                      />
                       <Select
                         disabled={user.usertype === "Pharmacist"}
-                        value={e.duration}
+                        value={!newPrescription ? e.duration.split(" ")[1] : unitData[i].duration}
                         onValueChange={(input) => {
-                          setTableData((old) => {
+                          setUnitData((old) => {
                             const copy = JSON.parse(JSON.stringify(old));
                             copy[i].duration = input;
                             return copy;
@@ -380,9 +400,11 @@ export default function PrescriptionPage() {
                             <SelectValue />
                           </div>
                         </SelectTrigger>
-                        <SelectContent className="h-60 overflow-y-auto">
-                          <SelectItem value=""></SelectItem>
-                          <SelectItem value=""></SelectItem>
+                        <SelectContent className="h-60 overflow-y-hidden">
+                          <SelectItem value="day/s">day/s</SelectItem>
+                          <SelectItem value="week/s">week/s</SelectItem>
+                          <SelectItem value="month/s">month/s</SelectItem>
+                          <SelectItem value="year/s">year/s</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -431,17 +453,7 @@ export default function PrescriptionPage() {
                         }}
                       />
                     </TableCell>
-                    <TableCell className="p-1">
-                      <Input
-                        type="date"
-                        disabled
-                        value={
-                          user.usertype === "Pharmacist"
-                            ? format(new Date(e.updatedAt + ""), "yyyy-MM-dd")
-                            : e.updatedAt + ""
-                        }
-                      />
-                    </TableCell>
+                    <TableCell className="p-1">{!newPrescription ? format(new Date(), "MM/dd/yyyy") : ""}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -481,6 +493,7 @@ export default function PrescriptionPage() {
                     const prescription: Prescription[] = JSON.parse(JSON.stringify(tableData));
                     for (let i = 0; i < tableData.length; i++) {
                       prescription[i].dosage = `${prescription[i].dosage.split(" ")[0]} ${unitData[i].dosage}`;
+                      prescription[i].duration = `${prescription[i].duration.split(" ")[0]} ${unitData[i].duration}`;
                       delete prescription[i].updatedAt;
                     }
                     console.log(prescription);

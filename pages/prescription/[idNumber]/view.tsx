@@ -71,16 +71,18 @@ export default function PrescriptionPageView() {
             </div>
             <div className="flex flex-col justify-center">
               <div className="flex">
-                <div className="text-right mr-6 font-semibold">
+                <div className="text-right mr-6 font-semibold flex flex-col justify-end">
                   <p>{patient.fullName}</p>
                   <p>{ageDate(patient.birthdate + "")}</p>
                   <p>{patient.gender}</p>
                   <p>{patient.address ? patient.address : "-"}</p>
-                  <p>{patient.updatedAt ? format(new Date(patient.createdAt + ""), "MM/dd/yyyy") : ""}</p>
                 </div>
                 <div>
+                  <p className="mb-2">
+                    {tableData[0].createdAt ? format(new Date(tableData[0].createdAt + ""), "MM/dd/yyyy") : ""}
+                  </p>
                   <QRCode value={`${patient?.idNumber}`} size={80} />
-                  <p className="w-20 self-end whitespace-nowrap">{patient?.idNumber}</p>
+                  <p className="w-20 text-sm text-center whitespace-nowrap">{patient?.idNumber}</p>
                 </div>
               </div>
             </div>
