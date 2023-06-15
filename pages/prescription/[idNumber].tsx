@@ -100,7 +100,7 @@ export default function PrescriptionPage() {
         <div className="rounded-3xl bg-white w-full py-3 px-4 flex flex-col gap-2 grow">
           <div className="flex items-start justify-between">
             <div>
-              <p className="italic font-bold">Current Health Condition(s:)</p>
+              <p className="italic font-bold">History of Present Illness/es:</p>
               <p className="px-3">{patient?.healthConditions}</p>
             </div>
             <div className="flex flex-col justify-center">

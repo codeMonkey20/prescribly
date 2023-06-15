@@ -96,7 +96,7 @@ export default function PrescribeIdNumberPage() {
                       <Label className="italic text-md" htmlFor="phone">
                         Phone Number
                       </Label>
-                      <span>{patient?.phone}</span>
+                      <span>{patient?.phone ? patient?.phone : "-"}</span>
                     </div>
                   </div>
                   <div className="flex justify-between">
