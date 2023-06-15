@@ -15,6 +15,7 @@ import { StaffDB } from "@/types/StaffDB";
 import Image from "next/image";
 import { format } from "date-fns";
 import ageDate from "@/lib/ageDate";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -71,10 +72,11 @@ export default function PrescriptionPageView() {
             <div className="flex flex-col justify-center">
               <div className="flex">
                 <div className="text-right mr-6 font-semibold">
-                  <p>{format(new Date(patient.createdAt + ""), "MM/dd/yyyy")}</p>
                   <p>{patient.fullName}</p>
                   <p>{ageDate(patient.birthdate + "")}</p>
                   <p>{patient.gender}</p>
+                  <p>{patient.address ? patient.address : "-"}</p>
+                  <p>{patient.updatedAt ? format(new Date(patient.createdAt + ""), "MM/dd/yyyy") : ""}</p>
                 </div>
                 <div>
                   <QRCode value={`${patient?.idNumber}`} size={80} />
@@ -127,10 +129,10 @@ export default function PrescriptionPageView() {
               ) : (
                 ""
               )}
-              {staff ? `Dr. ${staff?.firstName} ${staff?.lastName}` : ""}
+              {staff ? `Dr. ${staff?.firstName} ${staff?.lastName}` : <Skeleton className="w-28 h-6" />}
               <br />
-              {staff?.license ? staff?.license : "00-XXXXX-00"} <br />
-              {staff?.phone ? staff?.phone : "N/A"} <br />
+              {staff?.license ? staff?.license : "-"} <br />
+              {staff?.phone ? staff?.phone : "-"} <br />
               MSU-IIT Clinic
             </p>
 
