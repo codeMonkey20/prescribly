@@ -57,6 +57,13 @@ export default function LandingPage() {
     setButtonLoad(true);
     const form = new FormData(e.target);
     const { signature, ...formJSON } = Object.fromEntries(form.entries());
+
+    if (formJSON.password !== formJSON.repassword) {
+      alert("Password does not match");
+      setButtonLoad(false);
+      return;
+    }
+    
     const reader = new FileReader();
     reader.onload = async function () {
       const data = reader.result?.toString().replace("data:", "").replace(/^.+,/, "");
@@ -65,12 +72,7 @@ export default function LandingPage() {
     };
     const file: any = signature;
     reader.readAsDataURL(file);
-
-    if (formJSON.password !== formJSON.repassword) {
-      alert("Password does not match");
-      setButtonLoad(false);
-      return;
-    }
+    
     delete formJSON.repassword;
     const userID = user?._id;
     await axios.put("/api/profile", { ...formJSON, usertype, userID });
@@ -86,7 +88,7 @@ export default function LandingPage() {
   }, [password]);
 
   useEffect(() => {
-    if (user) axios.get(`/api/staff/${user?._id}`).then(({ data }) => setSign(data.signature));
+    if (user && user.usertype !== "Admin") axios.get(`/api/staff/${user?._id}`).then(({ data }) => setSign(data.signature));
   }, [user]);
 
   if (session.status === "authenticated")

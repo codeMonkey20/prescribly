@@ -182,6 +182,29 @@ export default function UserTable({ users, setUsers, loading }: Props) {
                             </DialogFooter>
                           </DialogContent>
                         </Dialog>
+                        <Dialog>
+                          <DialogTrigger>
+                            <div className="flex w-full text-sm pr-6 pl-1 py-1 hover:bg-muted/80">Reset Password</div>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader className="font-bold">Reset Password</DialogHeader>Are you sure to reset the
+                            password of this user? (Default Password: 1234)
+                            <DialogFooter>
+                              <DialogClose
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/80 rounded px-3 py-2"
+                                onClick={() => {
+                                  axios.put("/api/profile", {
+                                    usertype: user.usertype,
+                                    userID: user._id,
+                                    password: "1234",
+                                  });
+                                }}
+                              >
+                                RESET
+                              </DialogClose>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </PopoverContent>
                     </Popover>
                   </TableCell>
