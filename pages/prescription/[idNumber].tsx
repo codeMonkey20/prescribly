@@ -72,10 +72,9 @@ export default function PrescriptionPage() {
           if (data[0]?.prescription) {
             setUnitData(
               data[0]?.prescription.map((e: Prescription) => {
-                e.dosage;
                 return {
                   dosage: e.dosage.split(" ")[1],
-                  form: e.form.split(" ")[1],
+                  duration: e.duration.split(" ")[1],
                 };
               })
             );
@@ -134,7 +133,7 @@ export default function PrescriptionPage() {
                   <p className="mb-2">
                     {!newPrescription
                       ? tableData[0].createdAt
-                        ? format(new Date(tableData[0].createdAt + ""), "MMMM/dd/yyyy")
+                        ? format(new Date(tableData[0].createdAt + ""), "MMMM dd, yyyy")
                         : ""
                       : format(new Date(), "MMMM dd, yyyy")}
                   </p>
@@ -197,7 +196,7 @@ export default function PrescriptionPage() {
                   <TableHead className="border-r w-10">Dispensed Meds</TableHead>
                   <TableHead className="border-r w-10">Given</TableHead>
                   <TableHead className="border-r w-fit">Remarks</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>Date and Time</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -283,18 +282,6 @@ export default function PrescriptionPage() {
                               {e}
                             </SelectItem>
                           ))}
-                          {/* <SelectItem value="kg">kg</SelectItem>
-                          <SelectItem value="Lf">Lf</SelectItem>
-                          <SelectItem value="L">L</SelectItem>
-                          <SelectItem value="uCi">uCi</SelectItem>
-                          <SelectItem value="ug">ug</SelectItem>
-                          <SelectItem value="umol">umol</SelectItem>
-                          <SelectItem value="um">um</SelectItem>
-                          <SelectItem value="mCi">mCi</SelectItem>
-                          <SelectItem value="meq">meq</SelectItem>
-                          <SelectItem value="mg">mg</SelectItem>
-                          <SelectItem value="mL">mL</SelectItem>
-                          <SelectItem value="mm">mm</SelectItem> */}
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -322,11 +309,6 @@ export default function PrescriptionPage() {
                                 {e}
                               </SelectItem>
                             ))}
-                            {/* <SelectItem value="M">M</SelectItem>
-                            <SelectItem value="sol">sol</SelectItem>
-                            <SelectItem value="syr">syr</SelectItem>
-                            <SelectItem value="tab">tab</SelectItem>
-                            <SelectItem value="caps">caps</SelectItem> */}
                           </SelectContent>
                         </Select>
                       </div>
@@ -389,18 +371,6 @@ export default function PrescriptionPage() {
                               {e}
                             </SelectItem>
                           ))}
-                          {/* <SelectItem value="b.i.d.">b.i.d.</SelectItem>
-                          <SelectItem value="t.i.d.">t.i.d.</SelectItem>
-                          <SelectItem value="q.i.d.">q.i.d.</SelectItem>
-                          <SelectItem value="q.h.s.">q.h.s.</SelectItem>
-                          <SelectItem value="5X a day">5X a day</SelectItem>
-                          <SelectItem value="q.4h">q.4h</SelectItem>
-                          <SelectItem value="q.6h">q.6h</SelectItem>
-                          <SelectItem value="q.o.d.">q.o.d.</SelectItem>
-                          <SelectItem value="prn.">prn.</SelectItem>
-                          <SelectItem value="q.t.t.">q.t.t.</SelectItem>
-                          <SelectItem value="a.c.">a.c.</SelectItem>
-                          <SelectItem value="p.c.">p.c.</SelectItem> */}
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -486,7 +456,9 @@ export default function PrescriptionPage() {
                         }}
                       />
                     </TableCell>
-                    <TableCell className="p-1">{!newPrescription ? format(new Date(), "MMMM dd, yyyy") : ""}</TableCell>
+                    <TableCell className="p-1">
+                      {!newPrescription ? format(new Date(), "MMMM dd, yyyy h:mm aa") : ""}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

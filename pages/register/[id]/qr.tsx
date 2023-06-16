@@ -45,7 +45,10 @@ export default function QRPage() {
             <p className="text-center">
               Please save a screenshot of your QR Code and present it everytime you visit the clinic
             </p>
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => window.print()} className="bg-[#DA812E] hover:bg-[#DA812E]/80">
+                PRINT
+              </Button>
               <Button
                 variant="secondary"
                 className="px-6"

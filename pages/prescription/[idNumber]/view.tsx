@@ -102,7 +102,7 @@ export default function PrescriptionPageView() {
                   <TableHead className="border-r w-10">Dispensed Meds</TableHead>
                   <TableHead className="border-r w-10">Given</TableHead>
                   <TableHead className="border-r">Remarks</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>Date and Time</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -119,7 +119,7 @@ export default function PrescriptionPageView() {
                     <TableCell className="p-1 border-r">{e.given}</TableCell>
                     <TableCell className="p-1 border-r">{e.remarks}</TableCell>
                     <TableCell className="p-1">
-                      {e.updatedAt ? format(new Date(e.updatedAt + ""), "MMMM dd, yyyy") : ""}
+                      {e.updatedAt ? format(new Date(e.updatedAt + ""), "MMMM dd, yyyy h:mm aa") : ""}
                     </TableCell>
                   </TableRow>
                 ))}

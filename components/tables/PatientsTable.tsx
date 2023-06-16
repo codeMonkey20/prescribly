@@ -58,14 +58,14 @@ export default function PatientsTable({ patients, setPatients, loading }: Props)
                       </PopoverTrigger>
                       <PopoverContent className="w-fit p-2">
                         <Link
-                          className="flex w-14 text-sm pr-6 pl-1 py-1 rounded hover:bg-muted/80 cursor-pointer"
+                          className="flex w-full text-sm pr-6 pl-1 py-1 rounded hover:bg-muted/80 cursor-pointer"
                           href={`/register?id=${patient.userID}&edit=true`}
                         >
                           Edit
                         </Link>
                         <Dialog>
-                          <DialogTrigger>
-                            <div className="flex w-14 text-sm pr-6 pl-1 py-1 rounded hover:bg-muted/80 cursor-pointer">
+                          <DialogTrigger className="w-full">
+                            <div className="flex w-full text-sm pr-6 pl-1 py-1 rounded hover:bg-muted/80 cursor-pointer">
                               Delete
                             </div>
                           </DialogTrigger>
@@ -90,6 +90,12 @@ export default function PatientsTable({ patients, setPatients, loading }: Props)
                             </DialogFooter>
                           </DialogContent>
                         </Dialog>
+                        <Link
+                          className="flex w-fit text-sm pr-6 pl-1 py-1 rounded hover:bg-muted/80 cursor-pointer"
+                          href={`/qr/${patient.idNumber}`}
+                        >
+                          Show QR Code
+                        </Link>
                       </PopoverContent>
                     </Popover>
                   </TableCell>
