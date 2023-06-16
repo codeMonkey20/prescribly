@@ -63,16 +63,18 @@ export default function LandingPage() {
       setButtonLoad(false);
       return;
     }
-    
-    const reader = new FileReader();
-    reader.onload = async function () {
-      const data = reader.result?.toString().replace("data:", "").replace(/^.+,/, "");
-      setSign(data + "");
-      await axios.post(`/api/upload/${user?._id}`, { file: data });
-    };
-    const file: any = signature;
-    reader.readAsDataURL(file);
-    
+
+    if (user?.usertype === "Doctor") {
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const data = reader.result?.toString().replace("data:", "").replace(/^.+,/, "");
+        setSign(data + "");
+        await axios.post(`/api/upload/${user?._id}`, { file: data });
+      };
+      const file: any = signature;
+      reader.readAsDataURL(file);
+    }
+
     delete formJSON.repassword;
     const userID = user?._id;
     await axios.put("/api/profile", { ...formJSON, usertype, userID });
@@ -88,7 +90,8 @@ export default function LandingPage() {
   }, [password]);
 
   useEffect(() => {
-    if (user && user.usertype !== "Admin") axios.get(`/api/staff/${user?._id}`).then(({ data }) => setSign(data.signature));
+    if (user && user.usertype !== "Admin")
+      axios.get(`/api/staff/${user?._id}`).then(({ data }) => setSign(data.signature));
   }, [user]);
 
   if (session.status === "authenticated")
