@@ -60,6 +60,8 @@ export default function PrescriptionPage() {
     options: medicationName,
   });
   const [frequency, setFrequency] = useState<string[]>([]);
+  const [dosage, setDosage] = useState<string[]>([]);
+  const [form, setForm] = useState<string[]>([]);
 
   useEffect(() => {
     if (router.query.idNumber) {
@@ -86,6 +88,12 @@ export default function PrescriptionPage() {
       });
       axios.get("/api/mims?type=frequency").then(({ data }) => {
         setFrequency(data.map((e: MimsDB) => e.name));
+      });
+      axios.get("/api/mims?type=dosage").then(({ data }) => {
+        setDosage(data.map((e: MimsDB) => e.name));
+      });
+      axios.get("/api/mims?type=form").then(({ data }) => {
+        setForm(data.map((e: MimsDB) => e.name));
       });
     }
   }, [newPrescription, router, user?.usertype]);
@@ -270,7 +278,12 @@ export default function PrescriptionPage() {
                           </div>
                         </SelectTrigger>
                         <SelectContent className="h-60 overflow-y-hidden">
-                          <SelectItem value="kg">kg</SelectItem>
+                          {dosage.map((e, i) => (
+                            <SelectItem key={`dosage-${i}`} value={e}>
+                              {e}
+                            </SelectItem>
+                          ))}
+                          {/* <SelectItem value="kg">kg</SelectItem>
                           <SelectItem value="Lf">Lf</SelectItem>
                           <SelectItem value="L">L</SelectItem>
                           <SelectItem value="uCi">uCi</SelectItem>
@@ -281,7 +294,7 @@ export default function PrescriptionPage() {
                           <SelectItem value="meq">meq</SelectItem>
                           <SelectItem value="mg">mg</SelectItem>
                           <SelectItem value="mL">mL</SelectItem>
-                          <SelectItem value="mm">mm</SelectItem>
+                          <SelectItem value="mm">mm</SelectItem> */}
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -304,11 +317,16 @@ export default function PrescriptionPage() {
                             </div>
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="M">M</SelectItem>
+                            {form.map((e, i) => (
+                              <SelectItem key={i} value={e}>
+                                {e}
+                              </SelectItem>
+                            ))}
+                            {/* <SelectItem value="M">M</SelectItem>
                             <SelectItem value="sol">sol</SelectItem>
                             <SelectItem value="syr">syr</SelectItem>
                             <SelectItem value="tab">tab</SelectItem>
-                            <SelectItem value="caps">caps</SelectItem>
+                            <SelectItem value="caps">caps</SelectItem> */}
                           </SelectContent>
                         </Select>
                       </div>
@@ -366,7 +384,11 @@ export default function PrescriptionPage() {
                           </div>
                         </SelectTrigger>
                         <SelectContent className="h-60 overflow-y-auto">
-                          {frequency.map((e,i) => (<SelectItem key={i} value={e}>{e}</SelectItem>))}
+                          {frequency.map((e, i) => (
+                            <SelectItem key={i} value={e}>
+                              {e}
+                            </SelectItem>
+                          ))}
                           {/* <SelectItem value="b.i.d.">b.i.d.</SelectItem>
                           <SelectItem value="t.i.d.">t.i.d.</SelectItem>
                           <SelectItem value="q.i.d.">q.i.d.</SelectItem>

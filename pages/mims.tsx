@@ -83,7 +83,7 @@ export default function MimsPage() {
     if (!(formElem instanceof HTMLFormElement)) return;
     const formData = new FormData(formElem);
     const formJSON = Object.fromEntries(formData.entries());
-    formJSON.type = "medicine";
+    formJSON.type = type;
     const { data } = await axios.post("/api/mims", formJSON);
     setMims((old) => [data, ...old]);
   };
