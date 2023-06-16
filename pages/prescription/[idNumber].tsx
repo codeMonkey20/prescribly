@@ -59,6 +59,7 @@ export default function PrescriptionPage() {
   const { getRootProps, getInputProps, getListboxProps, getOptionProps, groupedOptions } = useAutocomplete({
     options: medicationName,
   });
+  const [frequency, setFrequency] = useState<string[]>([]);
 
   useEffect(() => {
     if (router.query.idNumber) {
@@ -82,6 +83,9 @@ export default function PrescriptionPage() {
 
       axios.get("/api/mims?type=medicine").then(({ data }) => {
         setMedicationName(data.map((e: MimsDB) => e.name));
+      });
+      axios.get("/api/mims?type=frequency").then(({ data }) => {
+        setFrequency(data.map((e: MimsDB) => e.name));
       });
     }
   }, [newPrescription, router, user?.usertype]);
@@ -118,13 +122,13 @@ export default function PrescriptionPage() {
                   <p>{patient.gender}</p>
                   <p>{patient.address ? patient.address : "-"}</p>
                 </div>
-                <div>
+                <div className="flex flex-col items-center">
                   <p className="mb-2">
                     {!newPrescription
                       ? tableData[0].createdAt
-                        ? format(new Date(tableData[0].createdAt + ""), "MM/dd/yyyy")
+                        ? format(new Date(tableData[0].createdAt + ""), "MMMM/dd/yyyy")
                         : ""
-                      : format(new Date(), "MM/dd/yyyy")}
+                      : format(new Date(), "MMMM dd, yyyy")}
                   </p>
                   <QRCode value={`${patient?.idNumber}`} size={80} />
                   <p className="w-20 text-sm text-center whitespace-nowrap">{patient?.idNumber}</p>
@@ -141,7 +145,7 @@ export default function PrescriptionPage() {
                     dispense: "",
                     dosage: "",
                     form: "tab",
-                    frequency: "b.i.d.",
+                    frequency: "3x a day",
                     given: "",
                     medicationName: "",
                     purpose: "",
@@ -362,7 +366,8 @@ export default function PrescriptionPage() {
                           </div>
                         </SelectTrigger>
                         <SelectContent className="h-60 overflow-y-auto">
-                          <SelectItem value="b.i.d.">b.i.d.</SelectItem>
+                          {frequency.map((e,i) => (<SelectItem key={i} value={e}>{e}</SelectItem>))}
+                          {/* <SelectItem value="b.i.d.">b.i.d.</SelectItem>
                           <SelectItem value="t.i.d.">t.i.d.</SelectItem>
                           <SelectItem value="q.i.d.">q.i.d.</SelectItem>
                           <SelectItem value="q.h.s.">q.h.s.</SelectItem>
@@ -373,7 +378,7 @@ export default function PrescriptionPage() {
                           <SelectItem value="prn.">prn.</SelectItem>
                           <SelectItem value="q.t.t.">q.t.t.</SelectItem>
                           <SelectItem value="a.c.">a.c.</SelectItem>
-                          <SelectItem value="p.c.">p.c.</SelectItem>
+                          <SelectItem value="p.c.">p.c.</SelectItem> */}
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -459,7 +464,7 @@ export default function PrescriptionPage() {
                         }}
                       />
                     </TableCell>
-                    <TableCell className="p-1">{!newPrescription ? format(new Date(), "MM/dd/yyyy") : ""}</TableCell>
+                    <TableCell className="p-1">{!newPrescription ? format(new Date(), "MMMM dd, yyyy") : ""}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

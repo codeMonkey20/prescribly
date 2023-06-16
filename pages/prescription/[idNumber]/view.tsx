@@ -77,9 +77,9 @@ export default function PrescriptionPageView() {
                   <p>{patient.gender}</p>
                   <p>{patient.address ? patient.address : "-"}</p>
                 </div>
-                <div>
+                <div className="flex flex-col items-center">
                   <p className="mb-2">
-                    {tableData[0].createdAt ? format(new Date(tableData[0].createdAt + ""), "MM/dd/yyyy") : ""}
+                    {tableData[0].createdAt ? format(new Date(tableData[0].createdAt + ""), "MMMM dd, yyyy") : ""}
                   </p>
                   <QRCode value={`${patient?.idNumber}`} size={80} />
                   <p className="w-20 text-sm text-center whitespace-nowrap">{patient?.idNumber}</p>
@@ -119,7 +119,7 @@ export default function PrescriptionPageView() {
                     <TableCell className="p-1 border-r">{e.given}</TableCell>
                     <TableCell className="p-1 border-r">{e.remarks}</TableCell>
                     <TableCell className="p-1">
-                      {e.updatedAt ? format(new Date(e.updatedAt + ""), "MM/dd/yyyy") : ""}
+                      {e.updatedAt ? format(new Date(e.updatedAt + ""), "MMMM dd, yyyy") : ""}
                     </TableCell>
                   </TableRow>
                 ))}
