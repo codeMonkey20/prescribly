@@ -42,14 +42,18 @@ export default function Header({}: Props) {
         )}
       </div>
       <header className="flex flex-col gap-1 grow pl-3 py-3 cursor-pointer">
-        <Link
-          href="/dashboard"
-          className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-          style={{ backgroundColor: url.includes("dashboard") ? "hsl(var(--primary))" : "" }}
-          replace
-        >
-          Dashboard
-        </Link>
+        {verified ? (
+          <Link
+            href="/dashboard"
+            className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
+            style={{ backgroundColor: url.includes("dashboard") ? "hsl(var(--primary))" : "" }}
+            replace
+          >
+            Dashboard
+          </Link>
+        ) : (
+          ""
+        )}
         {/* {usertype !== "Admin" ? ( */}
         <Link
           href="/profile"
