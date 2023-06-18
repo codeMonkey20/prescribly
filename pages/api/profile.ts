@@ -10,7 +10,7 @@ export default async function profileUpdate(req: NextApiRequest, res: NextApiRes
     return;
   }
 
-  const { usertype, password, userID, ...requestBody } = req.body;
+  const { usertype, password, userID, terms, ...requestBody } = req.body;
   const hash = await bcrypt.hash(password, 8);
   await User.findByIdAndUpdate(userID, { password: hash, ...requestBody });
   switch (usertype) {
@@ -22,7 +22,7 @@ export default async function profileUpdate(req: NextApiRequest, res: NextApiRes
       break;
 
     default:
-      await Staff.findOneAndUpdate({ userID }, requestBody);
+      await Staff.findOneAndUpdate({ userID }, { ...requestBody, terms });
       break;
   }
   res.json(requestBody);

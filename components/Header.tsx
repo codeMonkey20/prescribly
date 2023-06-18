@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import QRCode from "react-qr-code";
 import Image from "next/image";
+import axios from "axios";
 
 type Props = {};
 
@@ -23,6 +24,13 @@ export default function Header({}: Props) {
   const userData = session.data?.user.usertypeData;
   const router = useRouter();
   const url = router.asPath;
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    if (session.data?.user._id) {
+      axios.get(`/api/verified?id=${session.data?.user._id}`).then(({ data }) => setVerified(data.verified));
+    }
+  }, [session]);
 
   return (
     <>
@@ -43,14 +51,14 @@ export default function Header({}: Props) {
           Dashboard
         </Link>
         {/* {usertype !== "Admin" ? ( */}
-          <Link
-            href="/profile"
-            className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-            style={{ backgroundColor: url.includes("profile") ? "hsl(var(--primary))" : "" }}
-            replace
-          >
-            Profile
-          </Link>
+        <Link
+          href="/profile"
+          className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
+          style={{ backgroundColor: url.includes("profile") ? "hsl(var(--primary))" : "" }}
+          replace
+        >
+          Profile
+        </Link>
         {/* ) : (
           ""
         )} */}
@@ -66,7 +74,7 @@ export default function Header({}: Props) {
         ) : (
           ""
         )}
-        {usertype !== "Patient" ? (
+        {usertype !== "Patient" && verified ? (
           <Link
             href="/patients"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
@@ -78,7 +86,7 @@ export default function Header({}: Props) {
         ) : (
           ""
         )}
-        {usertype === "Pharmacist" ? (
+        {usertype === "Pharmacist" && verified ? (
           <Link
             href="/dispense"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
@@ -90,7 +98,7 @@ export default function Header({}: Props) {
         ) : (
           ""
         )}
-        {usertype === "Doctor" ? (
+        {usertype === "Doctor" && verified ? (
           <Link
             href="/prescribe"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"

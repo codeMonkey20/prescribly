@@ -15,6 +15,8 @@ import { Loader2 } from "lucide-react";
 import axios from "axios";
 import Header from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -56,7 +58,8 @@ export default function LandingPage() {
     if (!(e.target instanceof HTMLFormElement)) return;
     setButtonLoad(true);
     const form = new FormData(e.target);
-    const { signature, ...formJSON } = Object.fromEntries(form.entries());
+    const { signature, terms, ...formJSON } = Object.fromEntries(form.entries());
+    const boolterms = terms === "on";
 
     if (formJSON.password !== formJSON.repassword) {
       alert("Password does not match");
@@ -77,7 +80,7 @@ export default function LandingPage() {
 
     delete formJSON.repassword;
     const userID = user?._id;
-    await axios.put("/api/profile", { ...formJSON, usertype, userID });
+    await axios.put("/api/profile", { ...formJSON, usertype, userID, terms: boolterms });
     router.reload();
   };
 
@@ -258,35 +261,50 @@ export default function LandingPage() {
                   <div className="flex justify-between">
                     <div className="flex flex-col m-2 grow">
                       {profileUpdateMode ? (
-                        <div className="flex gap-2">
-                          <div className="grow">
-                            <Label className="italic text-md" htmlFor="password">
-                              Password
-                            </Label>
-                            <Input
-                              type="password"
-                              name="password"
-                              id="password"
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
-                              className={invalidPass ? "border border-destructive" : ""}
-                              required
-                            />
-                            {invalidPass ? (
-                              <p className="text-xs italic text-destructive">
-                                Must contain at least 8 characters with special characters and 1 uppercase letter
-                              </p>
-                            ) : (
-                              ""
-                            )}
+                        <>
+                          <div className="flex gap-2">
+                            <div className="grow">
+                              <Label className="italic text-md" htmlFor="password">
+                                Password
+                              </Label>
+                              <Input
+                                type="password"
+                                name="password"
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className={invalidPass ? "border border-destructive" : ""}
+                                required
+                              />
+                              {invalidPass ? (
+                                <p className="text-xs italic text-destructive">
+                                  Must contain at least 8 characters with special characters and 1 uppercase letter
+                                </p>
+                              ) : (
+                                ""
+                              )}
+                            </div>
+                            <div className="grow">
+                              <Label className="italic text-md" htmlFor="repassword">
+                                Retype Password
+                              </Label>
+                              <Input type="password" name="repassword" id="repassword" required />
+                            </div>
                           </div>
-                          <div className="grow">
-                            <Label className="italic text-md" htmlFor="repassword">
-                              Retype Password
+                          <div className="flex items-center gap-2 mt-5">
+                            <Checkbox name="terms" />
+                            <Label>
+                              I am a certified licensed professional and agree to the{" "}
+                              <Link
+                                href="/DISCLOSURE-AGREEMENT.pdf"
+                                target="_blank"
+                                className="italic underline text-sm"
+                              >
+                                Terms and Conditions of Privacy Policy
+                              </Link>
                             </Label>
-                            <Input type="password" name="repassword" id="repassword" required />
                           </div>
-                        </div>
+                        </>
                       ) : (
                         <>
                           <Label className="italic text-md">Password</Label>

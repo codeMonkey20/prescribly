@@ -13,6 +13,7 @@ const schema = new mongoose.Schema(
     license: { type: String },
     expire: { type: Date },
     signature: { type: String },
+    terms: { type: Boolean },
   },
   { timestamps: true }
 );
