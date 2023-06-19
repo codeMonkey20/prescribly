@@ -9,4 +9,5 @@ export type StaffDB = {
   license?: string;
   expire?: string;
   signature?: string;
+  terms?: boolean;
 };

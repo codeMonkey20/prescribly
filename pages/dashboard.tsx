@@ -29,6 +29,13 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
         permanent: false,
       },
     };
+  } else if (!session.user.verified) {
+    return {
+      redirect: {
+        destination: "/profile",
+        permanent: false,
+      },
+    };
   }
   return {
     props: {},

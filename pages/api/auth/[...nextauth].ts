@@ -35,6 +35,14 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async jwt({ token, user, trigger, session }) {
+      if (trigger === "update") {
+        console.log({ ...token, ...session.user });
+        return { ...token, ...session.user };
+      }
+      return { ...token, ...user };
+    },
+
     async session({ session, token }: { session: any; token: any }) {
       if (session) {
         const { _doc } = await User.findOne({ email: session.user.email });
@@ -44,9 +52,16 @@ export const authOptions: NextAuthOptions = {
             user.usertypeData = await Patient.findOne({ userID: user._id });
             break;
           case "Admin":
+            user.verified = true;
             break;
           default:
-            user.usertypeData = await Staff.findOne({ userID: user._id });
+            const staff = await Staff.findOne({ userID: user._id });
+            const verified =
+              staff.terms === true &&
+              (staff.license !== "" || staff.license !== undefined) &&
+              (staff.expire !== "" || staff.expire !== undefined);
+            user.usertypeData = staff;
+            user.verified = verified;
             break;
         }
         return {

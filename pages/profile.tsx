@@ -67,6 +67,20 @@ export default function LandingPage() {
       return;
     }
 
+    const verified =
+      boolterms &&
+      (formJSON.license !== "" || formJSON.license !== undefined) &&
+      (formJSON.expire !== "" || formJSON.expire !== undefined);
+
+    await session.update({
+      ...session.data,
+      user: {
+        ...session.data?.user,
+        usertypeData: { ...session.data?.user.usertypeData, signature: "" },
+        verified,
+      },
+    });
+
     if (user?.usertype === "Doctor") {
       const reader = new FileReader();
       reader.onload = async function () {
@@ -96,6 +110,8 @@ export default function LandingPage() {
     if (user && user.usertype !== "Admin")
       axios.get(`/api/staff/${user?._id}`).then(({ data }) => setSign(data.signature));
   }, [user]);
+
+  console.log(session.data?.user);
 
   if (session.status === "authenticated")
     return (
@@ -292,7 +308,7 @@ export default function LandingPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 mt-5">
-                            <Checkbox name="terms" />
+                            <Checkbox name="terms" defaultChecked={session.data?.user.usertypeData?.terms} />
                             <Label>
                               I am a certified licensed professional and agree to the{" "}
                               <Link

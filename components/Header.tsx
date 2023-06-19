@@ -24,13 +24,7 @@ export default function Header({}: Props) {
   const userData = session.data?.user.usertypeData;
   const router = useRouter();
   const url = router.asPath;
-  const [verified, setVerified] = useState(false);
-
-  useEffect(() => {
-    if (session.data?.user._id && session.data?.user.usertype !== "Admin") {
-      axios.get(`/api/verified?id=${session.data?.user._id}`).then(({ data }) => setVerified(data.verified));
-    } else if (session.data?.user.usertype === "Admin") setVerified(true);
-  }, [session]);
+  const verified = session.data?.user.verified === true;
 
   return (
     <>
@@ -42,14 +36,18 @@ export default function Header({}: Props) {
         )}
       </div>
       <header className="flex flex-col gap-1 grow pl-3 py-3 cursor-pointer">
-        <Link
-          href="/dashboard"
-          className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-          style={{ backgroundColor: url.includes("dashboard") ? "hsl(var(--primary))" : "" }}
-          replace
-        >
-          Dashboard
-        </Link>
+        {verified ? (
+          <Link
+            href="/dashboard"
+            className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
+            style={{ backgroundColor: url.includes("dashboard") ? "hsl(var(--primary))" : "" }}
+            replace
+          >
+            Dashboard
+          </Link>
+        ) : (
+          ""
+        )}
         <Link
           href="/profile"
           className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
@@ -106,7 +104,7 @@ export default function Header({}: Props) {
         ) : (
           ""
         )}
-        {usertype === "Admin" ? (
+        {/* {usertype === "Admin" ? (
           <Link
             href="/mims"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
@@ -117,7 +115,7 @@ export default function Header({}: Props) {
           </Link>
         ) : (
           ""
-        )}
+        )} */}
         <Dialog>
           <DialogTrigger className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200">
             Logout
