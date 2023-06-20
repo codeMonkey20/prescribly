@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import useAutocomplete from "@mui/base/useAutocomplete";
 import ageDate from "@/lib/ageDate";
 import { MimsDB } from "@/types/MimsDB";
+import Autocomplete from "@/components/Autocomplete";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -56,9 +57,6 @@ export default function PrescriptionPage() {
   const [medicationName, setMedicationName] = useState<string[]>([]);
   const newprescquery = router.query.new;
   const newPrescription = newprescquery === "true";
-  const { getRootProps, getInputProps, getListboxProps, getOptionProps, groupedOptions } = useAutocomplete({
-    options: medicationName,
-  });
   const [frequency, setFrequency] = useState<string[]>([]);
   const [dosage, setDosage] = useState<string[]>([]);
   const [form, setForm] = useState<string[]>([]);
@@ -235,9 +233,12 @@ export default function PrescriptionPage() {
                       />
                     </TableCell>
                     <TableCell className="p-1 border-r">
-                      <Input
+                      <Autocomplete
+                        data={medicationName}
                         value={e.medicationName}
                         disabled={user.usertype === "Pharmacist"}
+                        setValue={setTableData}
+                        index={i}
                         onChange={(input) => {
                           setTableData((old) => {
                             const copy: Prescription[] = JSON.parse(JSON.stringify(old));

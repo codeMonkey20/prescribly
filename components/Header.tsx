@@ -104,7 +104,7 @@ export default function Header({}: Props) {
         ) : (
           ""
         )}
-        {/* {usertype === "Admin" ? (
+        {usertype === "Admin" ? (
           <Link
             href="/mims"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
@@ -115,7 +115,7 @@ export default function Header({}: Props) {
           </Link>
         ) : (
           ""
-        )} */}
+        )}
         <Dialog>
           <DialogTrigger className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200">
             Logout
