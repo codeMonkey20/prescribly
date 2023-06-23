@@ -78,6 +78,7 @@ const interventions = new Schema(
     description: { type: String },
     nurse: { type: Schema.Types.ObjectId, ref: "users" },
     nurseFullName: { type: String },
+    time: { type: Date },
   },
   { timestamps: true }
 );

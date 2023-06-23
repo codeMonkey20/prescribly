@@ -20,7 +20,13 @@ export default function InterventionsTable({ patient, setPatient }: Props) {
 
   useEffect(() => {
     setPatient((old) => {
-      return { ...old, consultation: { ...old?.consultation, interventions } };
+      return {
+        ...old,
+        consultation: {
+          ...old?.consultation,
+          interventions,
+        },
+      };
     });
   }, [interventions, setPatient]);
 
@@ -50,7 +56,7 @@ export default function InterventionsTable({ patient, setPatient }: Props) {
                   }}
                 />
               </TableCell>
-              <TableCell className="p-0">{format(new Date(e.createdAt + ""), "hh:mmaa")}</TableCell>
+              <TableCell className="p-0">{e.time ? format(new Date(e.time + ""), "hh:mmaa") : ""}</TableCell>
               <TableCell className="p-0">{e.nurseFullName}</TableCell>
               <TableCell className="p-0">
                 <div
@@ -79,8 +85,7 @@ export default function InterventionsTable({ patient, setPatient }: Props) {
                       description: "",
                       nurse: session.data?.user._id,
                       nurseFullName: `${session.data?.user.firstName} ${session.data?.user.lastName}`,
-                      createdAt: new Date().toString(),
-                      updatedAt: new Date().toString(),
+                      time: new Date().toString(),
                     },
                   ];
                 })
