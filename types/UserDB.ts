@@ -8,7 +8,7 @@ export type UserDB = {
   firstName?: string;
   lastName?: string;
   fullName?: string;
-  usertype?: "Patient" | "Doctor" | "Pharmacist" | "Admin";
+  usertype?: "Patient" | "Doctor" | "Pharmacist" | "Admin" | "Nurse";
   usertypeID?: string;
   usertypeData?: PatientDB & StaffDB;
 };

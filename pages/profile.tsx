@@ -111,8 +111,6 @@ export default function LandingPage() {
       axios.get(`/api/staff/${user?._id}`).then(({ data }) => setSign(data.signature));
   }, [user]);
 
-  console.log(session.data?.user);
-
   if (session.status === "authenticated")
     return (
       <main className="flex justify-center items-center h-screen">

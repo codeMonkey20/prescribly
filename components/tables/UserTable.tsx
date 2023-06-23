@@ -139,6 +139,7 @@ export default function UserTable({ users, setUsers, loading }: Props) {
                                     <SelectContent>
                                       <SelectItem value="Doctor">Doctor</SelectItem>
                                       <SelectItem value="Pharmacist">Pharmacist</SelectItem>
+                                      <SelectItem value="Nurse">Nurse</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </div>

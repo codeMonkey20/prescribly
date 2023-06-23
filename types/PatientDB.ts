@@ -1,3 +1,5 @@
+import { Consultation } from "./Consultation";
+import { HealthRecord } from "./HealthRecord";
 import { Prescription } from "./Prescription";
 
 export type PatientDB = {
@@ -24,4 +26,8 @@ export type PatientDB = {
   createdAt?: string;
   updatedAt?: string;
   test?: string;
+  lastMenstrualPeriod?: string;
+  menstrualPattern?: "Regular" | "Irregular";
+  electronicHealthRecord?: HealthRecord;
+  consultation?: Consultation;
 };

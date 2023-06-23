@@ -25,4 +25,6 @@ export type PatientRegistration = {
   allergies?: string;
   medications?: string;
   medicalConditions?: string;
+  lastMenstrualPeriod?: Date;
+  menstrualPattern?: "Regular" | "Irregular";
 };

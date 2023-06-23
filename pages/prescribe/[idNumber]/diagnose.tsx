@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
+import { Input } from "@/components/ui/input";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -72,11 +73,11 @@ export default function PrescribeDiagnosePage() {
             <Header />
           </div>
           <div className="flex flex-col grow px-8 py-5">
-            <h1 className="text-4xl font-bold my-8 ml-3">Prescribe</h1>
+            <h1 className="text-4xl font-bold my-3 ml-3">Prescribe</h1>
             <form className="bg-white flex grow rounded-3xl px-4 py-2" onSubmit={handlePrescribe}>
               <div className="bg-white flex grow rounded-3xl px-4 py-2">
                 <div className="flex flex-col w-full">
-                  <h2 className="text-xl font-semibold my-6 mx-2">Patient Profile</h2>
+                  <h2 className="text-xl font-semibold mx-2">Diagnose</h2>
                   <div className="flex justify-between items-center gap-4">
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="smoke">
@@ -143,14 +144,69 @@ export default function PrescribeDiagnosePage() {
                 </div>
                 <Separator orientation="vertical" className="mx-4 h-auto my-2" />
                 <div className="w-full flex flex-col">
-                  <h2 className="text-xl font-semibold my-6 mx-2">Medical Information</h2>
+                  <div>
+                    <p className="font-semibold">Vital Signs</p>
+                    <div className="grid grid-cols-3 gap-2 items-center">
+                      <Label className="italic text-right">Temperature:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="temperature"
+                        defaultValue={patient?.electronicHealthRecord?.temperature}
+                      />
+                      <p>°C</p>
+                      <Label className="italic text-right">PR:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="pulse"
+                        defaultValue={patient?.electronicHealthRecord?.pulse}
+                      />
+                      <p>bpm</p>
+                      <Label className="italic text-right">RR:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="respiration"
+                        defaultValue={patient?.electronicHealthRecord?.respiration}
+                      />
+                      <p>bpm</p>
+                      <Label className="italic text-right">BP:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="bloodPressure"
+                        defaultValue={patient?.electronicHealthRecord?.bloodPressure}
+                      />
+                      <p>mmhg</p>
+                      <Label className="italic text-right">WT:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="weight"
+                        defaultValue={patient?.electronicHealthRecord?.weight}
+                      />
+                      <p>kg</p>
+                    </div>
+                  </div>
                   <div className="flex flex-col grow">
                     <div className="flex justify-between">
                       <div className="flex flex-col m-2 grow">
                         <Label className="italic text-md" htmlFor="healthConditions">
                           History of Present Illness/es:
                         </Label>
-                        <Textarea name="healthConditions" id="healthConditions" />
+                        <Textarea
+                          name="healthConditions"
+                          id="healthConditions"
+                          defaultValue={patient?.healthConditions}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <div className="flex flex-col m-2 grow">
+                        <Label className="italic text-md" htmlFor="currentMedications">
+                          Current Medications Taken:
+                        </Label>
+                        <Textarea
+                          name="currentMedications"
+                          id="currentMedications"
+                          defaultValue={patient?.consultation?.currentMedications}
+                        />
                       </div>
                     </div>
                   </div>

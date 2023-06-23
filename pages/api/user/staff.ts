@@ -11,7 +11,7 @@ export default async function userStaff(req: NextApiRequest, res: NextApiRespons
         const regex = new RegExp(`.*${search}.*`, "i");
         allUsers = await User.find({
           $or: [{ fullName: { $regex: regex } }, { email: { $regex: regex } }],
-          usertype: { $in: ["Doctor", "Pharmacist"] },
+          usertype: { $in: ["Doctor", "Pharmacist", "Nurse"] },
         });
       } else allUsers = await User.find({ usertype: { $in: ["Doctor", "Pharmacist"] }, ...query });
 

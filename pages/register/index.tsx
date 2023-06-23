@@ -10,13 +10,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/router";
 import { Loader2 } from "lucide-react";
-import { signOut } from "next-auth/react";
 import { UserDB } from "@/types/UserDB";
 import { PatientDB } from "@/types/PatientDB";
 import { format } from "date-fns";
 import ageDate from "@/lib/ageDate";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
+import { Input } from "@/components/ui/input";
 
 export default function PatientRegister() {
   const skeletonSizes = [
@@ -31,6 +31,8 @@ export default function PatientRegister() {
   const [patient, setPatient] = useState<PatientDB>({});
   const editMode = query.edit === "true";
   const [loading, setLoading] = useState(true);
+  const [isFemale, setIsFemale] = useState(false);
+  const verifyMode = query.verify === "true";
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -48,7 +50,8 @@ export default function PatientRegister() {
     medicalConditions = medicalConditions.substring(2);
     if (editMode && query.id) {
       await axios.put(`/api/patient/${query.id}`, { ...formDataJSON, medicalConditions });
-      push("/patients");
+      if (verifyMode) push(`/examine/${patient.idNumber}/verify`);
+      else push("/patients");
     } else {
       const newFormDataJSON = {
         ...formDataJSON,
@@ -84,6 +87,7 @@ export default function PatientRegister() {
     if (editMode && query.id)
       axios.get(`/api/patient/${query.id}`).then(({ data }) => {
         setPatient(data);
+        setIsFemale(data.gender === "Female");
         setLoading(false);
         setAge(ageDate(data.birthdate));
       });
@@ -171,7 +175,12 @@ export default function PatientRegister() {
               <div className="flex gap-5">
                 <div className="grid grow items-center gap-1.5">
                   <Label>Sex assigned at birth</Label>
-                  <Select name="gender" defaultValue={patient.phone ? patient.phone : "Male"}>
+                  <Select
+                    name="gender"
+                    value={isFemale ? "Female" : "Male"}
+                    onValueChange={(input) => setIsFemale(input === "Female")}
+                    defaultValue={patient.gender ? patient.gender : "Male"}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -204,7 +213,7 @@ export default function PatientRegister() {
           </div>
           <div className="grow bg-primary rounded-r-2xl p-4">
             <div className="bg-white rounded-3xl px-5 py-3 h-full flex flex-col justify-center gap-2">
-              <h2 className="text-xl font-semibold">Medical Information</h2>
+              <h2 className="text-xl font-semibold">Past Medical History</h2>
               <div className="flex gap-4">
                 <div className="flex flex-col gap-3">
                   <div>
@@ -256,7 +265,7 @@ export default function PatientRegister() {
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <h3 className="text-lg font-semibold">Medical Condition/s:</h3>
+                <h3 className="italic font-semibold">Medical Condition/s:</h3>
                 <div className="grid grid-cols-4">
                   {conditions.map((condition: string, i: number) => (
                     <div key={`condition-${i}`} className="flex items-center gap-2">
@@ -264,7 +273,6 @@ export default function PatientRegister() {
                         id={condition}
                         name={condition}
                         defaultChecked={patient.medicalConditions?.includes(condition)}
-                        // defaultChecked={true}
                       />
                       <label htmlFor={condition} className="italic text-sm">
                         {condition}
@@ -277,13 +285,60 @@ export default function PatientRegister() {
                       ))
                     : ""}
                 </div>
+                {isFemale ? (
+                  <div className="mt-3">
+                    <h3 className="italic font-semibold">For Women:</h3>
+                    <div className="flex items-center gap-2">
+                      <Label>Date of Last Menstrual Period (LMP)</Label>
+                      <Input
+                        type="date"
+                        name="lastMenstrualPeriod"
+                        className="w-fit"
+                        defaultValue={
+                          editMode && isFemale
+                            ? patient.lastMenstrualPeriod
+                              ? format(new Date(patient.lastMenstrualPeriod), "yyyy-MM-dd")
+                              : ""
+                            : ""
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label>Menstrual Pattern:</Label>
+                      <RadioGroup
+                        name="menstrualPattern"
+                        className="flex"
+                        defaultValue={
+                          patient.menstrualPattern !== undefined
+                            ? patient.menstrualPattern
+                              ? "Regular"
+                              : "Irregular"
+                            : "Irregular"
+                        }
+                        required
+                      >
+                        <div className="flex items-center gap-1">
+                          <RadioGroupItem id="menstrual-regular" value="Regular" />
+                          <Label htmlFor="menstrual-regular">Regular</Label>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <RadioGroupItem id="menstrual-irregular" value="Irregular" />
+                          <Label htmlFor="menstrual-irregular">Irregular</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
                 <div className="self-end">
                   <Button variant="ghost" type="button" className="w-fit mr-2" onClick={back}>
                     Back
                   </Button>
                   <Button className="w-fit" disabled={buttonLoad}>
                     {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}
-                    {editMode ? "SAVE" : "PROCEED"}
+                    {editMode ? (verifyMode ? "PROCEED" : "SAVE") : "SUBMIT"}
                   </Button>
                 </div>
               </div>

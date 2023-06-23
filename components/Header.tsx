@@ -104,7 +104,19 @@ export default function Header({}: Props) {
         ) : (
           ""
         )}
-        {usertype === "Admin" ? (
+        {usertype === "Nurse" && verified ? (
+          <Link
+            href="/examine"
+            className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
+            style={{ backgroundColor: url.includes("examine") ? "hsl(var(--primary))" : "" }}
+            replace
+          >
+            Examine
+          </Link>
+        ) : (
+          ""
+        )}
+        {(usertype === "Admin" || usertype === "Pharmacist") && verified ? (
           <Link
             href="/mims"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"

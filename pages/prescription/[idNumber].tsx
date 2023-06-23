@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PatientDB } from "@/types/PatientDB";
 import { Prescription } from "@/types/Prescription";
 import axios from "axios";
@@ -113,7 +113,7 @@ export default function PrescriptionPage() {
     return (
       <main className="bg-primary h-screen flex flex-col items-center justify-center p-10 gap-3">
         <h1 className="font-bold text-3xl self-start">Prescription</h1>
-        <div className="rounded-3xl bg-white w-full py-3 px-4 flex flex-col gap-2 grow">
+        <div className="rounded-3xl bg-white w-full h-full py-3 px-4 flex flex-col gap-2 grow">
           <div className="flex items-start justify-between">
             <div>
               <p className="italic font-bold">History of Present Illness/es:</p>
@@ -173,13 +173,13 @@ export default function PrescriptionPage() {
                   });
                 }}
               >
-                Add Row
+                Add Medication
               </Button>
             ) : (
               ""
             )}
           </div>
-          <div className="grow">
+          <div className="grow max-h-full overflow-y-auto">
             <Table className="max-h-96 overflow-y-auto">
               <TableHeader>
                 <TableRow>
@@ -465,6 +465,7 @@ export default function PrescriptionPage() {
               </TableBody>
             </Table>
           </div>
+          <p className="text-right font-bold">CN-{patient.consultation?.consultationNumber}</p>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             <p className="font-bold">
               {staff?.signature ? (

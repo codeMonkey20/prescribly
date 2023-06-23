@@ -88,7 +88,7 @@ export default function PrescriptionPageView() {
             </div>
           </div>
           <FaPrescription className="text-5xl" />
-          <div className="grow">
+          <div className="grow max-h-full overflow-y-auto">
             <Table className="max-h-96 overflow-y-auto">
               <TableHeader>
                 <TableRow>
@@ -126,6 +126,7 @@ export default function PrescriptionPageView() {
               </TableBody>
             </Table>
           </div>
+          <p className="text-right font-bold">CN-{patient.consultation?.consultationNumber}</p>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             {staff ? (
               <p className="font-bold">

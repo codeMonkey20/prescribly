@@ -32,6 +32,7 @@
     "@yudiel/react-qr-scanner": "^1.1.8",
     "autoprefixer": "10.4.14",
     "axios": "^1.4.0",
+    "badgee": "^3.0.0",
     "bcrypt": "^5.1.0",
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",

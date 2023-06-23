@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import QRCode from "react-qr-code";
 import Image from "next/image";
 import { GetServerSidePropsContext } from "next";
 import { getServerSession } from "next-auth";
@@ -14,6 +13,7 @@ import axios from "axios";
 import { PatientDB } from "@/types/PatientDB";
 import Header from "@/components/Header";
 import Link from "next/link";
+import log from "@/lib/log";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -37,26 +37,26 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
   };
 }
 
-export default function PrescribeIdNumberPage() {
+export default function ExamineHealthRecordPage() {
   const session = useSession();
-  const usertype = session.data?.user.usertype;
-  const userData = session.data?.user.usertypeData;
   const router = useRouter();
+  const idNumber = router.query.idNumber;
 
   const [patient, setPatient] = useState<PatientDB>();
   const [examinedBy, setExaminedBy] = useState("");
 
   useEffect(() => {
-    if (router.query.idNumber) {
+    if (idNumber) {
       axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(async ({ data }) => {
         setPatient(data[0]);
         const nurse = await axios.get(`/api/staff/${data[0].examinedBy}`);
+        log(nurse.data);
         setExaminedBy(`${nurse.data.firstName} ${nurse.data.lastName}`);
       });
     }
-  }, [router]);
+  }, [idNumber, router]);
 
-  if (session.status === "authenticated")
+  if (session.status === "authenticated" && patient)
     return (
       <main className="flex justify-center items-center h-screen">
         <div className="w-11/12 h-5/6 border-4 border-primary bg-primary rounded-3xl flex">
@@ -64,7 +64,7 @@ export default function PrescribeIdNumberPage() {
             <Header />
           </div>
           <div className="flex flex-col grow px-8 py-5">
-            <h1 className="text-4xl font-bold my-8 ml-3">Prescribe</h1>
+            <h1 className="text-4xl font-bold my-8 ml-3">Examine</h1>
             <div className="bg-white flex grow rounded-3xl px-4 py-2">
               <div className="bg-white flex grow rounded-3xl px-4 py-2">
                 <div className="flex flex-col w-full">
@@ -137,40 +137,7 @@ export default function PrescribeIdNumberPage() {
                   </div>
                 </div>
                 <Separator orientation="vertical" className="mx-4 h-auto my-2" />
-                <div className="w-full flex flex-col">
-                  {/* <h2 className="text-xl font-semibold my-6 mx-2">Medical Information</h2>
-                  <div className="flex flex-col grow">
-                    <div className="flex justify-between">
-                      <div className="flex flex-col m-2 grow">
-                        <Label className="italic text-md" htmlFor="email">
-                          Smoke
-                        </Label>
-                        <span>{patient?.smoke ? "Yes" : "No"}</span>
-                      </div>
-                      <div className="flex flex-col m-2 grow">
-                        <Label className="italic text-md" htmlFor="email">
-                          Liquor/Alcohol
-                        </Label>
-                        <span>{patient?.alcohol ? "Yes" : "No"}</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between">
-                      <div className="flex flex-col m-2 grow">
-                        <Label className="italic text-md">Allergies</Label>
-                        <span>{patient?.allergies === "" ? "-" : patient?.allergies}</span>
-                      </div>
-                      <div className="flex flex-col m-2 grow">
-                        <Label className="italic text-md">Medications</Label>
-                        <span>{patient?.medications === "" ? "-" : patient?.medications}</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between">
-                      <div className="flex flex-col m-2 grow">
-                        <Label className="italic text-md">Medical Condition(s)</Label>
-                        <span>{patient?.medicalConditions === "" ? "-" : patient?.medicalConditions}</span>
-                      </div>
-                    </div>
-                  </div> */}
+                <div className="w-full flex flex-col gap-5">
                   <div className="flex items-center justify-between mt-6">
                     <h2 className="text-xl font-semibold">Electronic Health Record</h2>
                     {patient?.electronicHealthRecord ? (
@@ -193,7 +160,7 @@ export default function PrescribeIdNumberPage() {
                       ""
                     )}
                   </div>
-                  <div className="flex flex-col mt-5 grow">
+                  <div className="flex flex-col grow">
                     <h2 className="text-xl font-semibold">Consultations</h2>
                     {patient?.consultation ? (
                       <div className="flex justify-between items-center">
@@ -210,9 +177,13 @@ export default function PrescribeIdNumberPage() {
                     <Button variant="link" onClick={() => router.back()}>
                       BACK
                     </Button>
-                    <Button onClick={() => router.push(`/prescribe/${router.query.idNumber}/diagnose`)}>
-                      DIAGNOSE
-                    </Button>
+                    {patient?.electronicHealthRecord ? (
+                      <Button onClick={() => router.push(`/examine/intervention/${router.query.idNumber}`)}>
+                        EXAMINE
+                      </Button>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </div>
               </div>
