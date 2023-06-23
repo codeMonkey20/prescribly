@@ -50,8 +50,10 @@ export default function ExamineHealthRecordPage() {
       axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(async ({ data }) => {
         setPatient(data[0]);
         const nurse = await axios.get(`/api/staff/${data[0].examinedBy}`);
-        log(nurse.data);
-        setExaminedBy(`${nurse.data.firstName} ${nurse.data.lastName}`);
+        if (nurse.data) {
+          log(nurse.data);
+          setExaminedBy(`${nurse.data.firstName} ${nurse.data.lastName}`);
+        }
       });
     }
   }, [idNumber, router]);
@@ -178,7 +180,7 @@ export default function ExamineHealthRecordPage() {
                       BACK
                     </Button>
                     {patient?.electronicHealthRecord ? (
-                      <Button onClick={() => router.push(`/examine/intervention/${router.query.idNumber}`)}>
+                      <Button onClick={() => router.push(`/examine/intervention/${router.query.idNumber}?new=true`)}>
                         EXAMINE
                       </Button>
                     ) : (

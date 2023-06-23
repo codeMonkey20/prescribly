@@ -62,7 +62,7 @@ export default function UserTable({ users, setUsers, loading }: Props) {
   if (!loading && !staffLoad)
     return (
       <div className="grow">
-        <Table>
+        <Table className="max-h-none">
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Email</TableHead>

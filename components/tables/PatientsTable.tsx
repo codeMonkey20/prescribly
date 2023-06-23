@@ -21,10 +21,10 @@ export default function PatientsTable({ patients, setPatients, loading }: Props)
   const [buttonLoad, setButtonLoad] = useState(false);
   const session = useSession();
 
-  if (!loading && patients)
+  if (patients)
     return (
-      <div className="grow w-full">
-        <Table>
+      <div className="grow w-full max-h-full overflow-y-auto">
+        <Table className="max-h-none">
           <TableHeader>
             <TableRow>
               <TableHead className="w-fit">Name</TableHead>

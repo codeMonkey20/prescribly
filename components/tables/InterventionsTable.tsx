@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import log from "@/lib/log";
+import { useRouter } from "next/router";
 
 type Props = {
   patient: PatientDB;
@@ -15,7 +16,10 @@ type Props = {
 
 export default function InterventionsTable({ patient, setPatient }: Props) {
   const session = useSession();
-  const intervention = patient.consultation ? JSON.parse(JSON.stringify(patient.consultation.interventions)) : [];
+  const router = useRouter();
+  const newConsultation = router.query.new === "true";
+  const intervention =
+    patient.consultation && !newConsultation ? JSON.parse(JSON.stringify(patient.consultation.interventions)) : [];
   const [interventions, setInterventions] = useState<Interventions[]>(intervention);
 
   useEffect(() => {

@@ -13,13 +13,13 @@ export default async function userStaff(req: NextApiRequest, res: NextApiRespons
           $or: [{ fullName: { $regex: regex } }, { email: { $regex: regex } }],
           usertype: { $in: ["Doctor", "Pharmacist", "Nurse"] },
         });
-      } else allUsers = await User.find({ usertype: { $in: ["Doctor", "Pharmacist"] }, ...query });
+      } else allUsers = await User.find({ usertype: { $in: ["Doctor", "Pharmacist", "Nurse"] }, ...query });
 
-      if (page) {
-        const pages = parseInt(page.toString());
-        const LIMIT = 4;
-        allUsers = allUsers.filter((_, i) => i + 1 >= pages * LIMIT - (LIMIT - 1) && i + 1 <= pages * LIMIT);
-      }
+      // if (page) {
+      //   const pages = parseInt(page.toString());
+      //   const LIMIT = 4;
+      //   allUsers = allUsers.filter((_, i) => i + 1 >= pages * LIMIT - (LIMIT - 1) && i + 1 <= pages * LIMIT);
+      // }
       res.json(allUsers);
       return;
 

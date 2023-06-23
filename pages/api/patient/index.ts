@@ -14,11 +14,11 @@ export default async function patient(req: NextApiRequest, res: NextApiResponse)
         });
       } else allUsers = await Patient.find(query);
 
-      if (page) {
-        const pages = parseInt(page.toString());
-        const LIMIT = 4;
-        allUsers = allUsers.filter((_, i) => i + 1 >= pages * LIMIT - (LIMIT - 1) && i + 1 <= pages * LIMIT);
-      }
+      // if (page) {
+      //   const pages = parseInt(page.toString());
+      //   const LIMIT = 4;
+      //   allUsers = allUsers.filter((_, i) => i + 1 >= pages * LIMIT - (LIMIT - 1) && i + 1 <= pages * LIMIT);
+      // }
 
       res.status(200).json(allUsers);
       res.end();

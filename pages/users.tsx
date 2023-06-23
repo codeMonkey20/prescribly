@@ -24,6 +24,8 @@ import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import usePagination from "@/hooks/usePagination";
 import { useRouter } from "next/router";
+import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import log from "@/lib/log";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -60,7 +62,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [length, setLength] = useState<number>(0);
 
-  const page = usePagination({ total: length });
+  // const page = usePagination({ total: length });
 
   const handleAddUser = async function (e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -78,7 +80,7 @@ export default function UsersPage() {
     setButtonLoad(false);
     setOpen(false);
     setUsers((oldUsers) => [...oldUsers, data]);
-    router.reload();
+    // router.reload();
   };
 
   useEffect(() => {
@@ -90,9 +92,10 @@ export default function UsersPage() {
   }, []);
 
   useEffect(() => {
-    axios.get(`/api/user/staff?search=${search}&page=${page.active}`).then(({ data }) => setUsers(data));
+    axios.get(`/api/user/staff?search=${search}`).then(({ data }) => setUsers(data));
     axios.get("/api/staff/count").then(({ data }) => setLength(data.count));
-  }, [search, page.active]);
+  }, [search]);
+  log(users);
 
   if (session.status === "authenticated")
     return (
@@ -101,85 +104,85 @@ export default function UsersPage() {
           <div className="w-64 min-h-fit bg-white rounded-l-3xl flex flex-col">
             <Header />
           </div>
-          <div className="flex flex-col grow px-8 py-5">
-            <h1 className="text-4xl font-bold my-8 ml-3">Users</h1>
-            <div className="bg-white flex grow rounded-3xl px-4 py-2">
-              <div className="grow flex flex-col">
-                <div className="flex justify-between my-2">
-                  <Input
-                    className="w-96"
-                    placeholder="Search Staffs"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                  <Button onClick={() => setOpen(true)}>Add User</Button>
-                  <Dialog open={open} onOpenChange={() => setOpen(false)}>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Add User</DialogTitle>
-                        <DialogDescription>
-                          {"Add user to your profile here. Click save when you're done."}
-                        </DialogDescription>
-                      </DialogHeader>
-                      <form className="grid gap-4 py-4" onSubmit={handleAddUser}>
-                        <div className="flex gap-2">
-                          <InputLabel name="firstName" required>
-                            First Name
-                          </InputLabel>
-                          <InputLabel name="lastName" required>
-                            Last Name
-                          </InputLabel>
-                          <InputLabel name="middleInitial" className="w-14">
-                            Initials
-                          </InputLabel>
+          <div className="flex flex-col grow px-8 py-5 max-h-full">
+            <h1 className="text-4xl font-bold my-3 ml-3">Users</h1>
+            <div className="bg-white grow rounded-3xl px-4 py-2 max-h-full">
+              <div className="flex justify-between my-2">
+                <Input
+                  className="w-96"
+                  placeholder="Search Staffs"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <Button onClick={() => setOpen(true)}>Add User</Button>
+                <Dialog open={open} onOpenChange={() => setOpen(false)}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add User</DialogTitle>
+                      <DialogDescription>
+                        {"Add user to your profile here. Click save when you're done."}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form className="grid gap-4 py-4" onSubmit={handleAddUser}>
+                      <div className="flex gap-2">
+                        <InputLabel name="firstName" required>
+                          First Name
+                        </InputLabel>
+                        <InputLabel name="lastName" required>
+                          Last Name
+                        </InputLabel>
+                        <InputLabel name="middleInitial" className="w-14">
+                          Initials
+                        </InputLabel>
+                      </div>
+                      <div className="flex gap-2">
+                        <InputLabel type="date" name="birthdate" required>
+                          Date of Birth
+                        </InputLabel>
+                        <InputLabel name="phone">Phone</InputLabel>
+                      </div>
+                      <div className="flex gap-2">
+                        <InputLabel name="address">Address</InputLabel>
+                        <div>
+                          <Label>Role</Label>
+                          <Select name="usertype" defaultValue="Doctor">
+                            <SelectTrigger>
+                              <div className="w-20">
+                                <SelectValue />
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Doctor">Doctor</SelectItem>
+                              <SelectItem value="Pharmacist">Pharmacist</SelectItem>
+                              <SelectItem value="Nurse">Nurse</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                        <div className="flex gap-2">
-                          <InputLabel type="date" name="birthdate" required>
-                            Date of Birth
-                          </InputLabel>
-                          <InputLabel name="phone">Phone</InputLabel>
-                        </div>
-                        <div className="flex gap-2">
-                          <InputLabel name="address">Address</InputLabel>
-                          <div>
-                            <Label>Role</Label>
-                            <Select name="usertype" defaultValue="Doctor">
-                              <SelectTrigger>
-                                <div className="w-20">
-                                  <SelectValue />
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Doctor">Doctor</SelectItem>
-                                <SelectItem value="Pharmacist">Pharmacist</SelectItem>
-                                <SelectItem value="Nurse">Nurse</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <InputLabel type="email" name="email" required>
-                            Email
-                          </InputLabel>
-                        </div>
-                        <DialogFooter>
-                          <Button type="submit" disabled={buttonLoad}>
-                            {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}Add User
-                          </Button>
-                        </DialogFooter>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <InputLabel type="email" name="email" required>
+                          Email
+                        </InputLabel>
+                      </div>
+                      <DialogFooter>
+                        <Button type="submit" disabled={buttonLoad}>
+                          {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}Add User
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              <div className="grow flex flex-col max-h-[80%] overflow-y-auto">
                 <UserTable users={users} setUsers={setUsers} loading={tabLoad} />
-                <div className="self-end select-none">
+                {/* <div className="self-end select-none">
                   <Button variant="secondary" className="mr-2" onClick={page.previous} disabled={page.active === 1}>
                     Prev
                   </Button>
                   <Button variant="secondary" onClick={page.next} disabled={page.active === Math.ceil(length / LIMIT)}>
                     Next
                   </Button>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

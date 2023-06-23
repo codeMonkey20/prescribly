@@ -50,10 +50,13 @@ export default function ExamineInterventionPage() {
   const session = useSession();
   const router = useRouter();
   const idNumber = router.query.idNumber;
+  const newConsultation = router.query.new === "true";
 
   const [patient, setPatient] = useState<PatientDB>();
   const [buttonLoad, setButtonLoad] = useState(false);
   const [consultationNumber, setConsultationNumber] = useState(0);
+
+  log(consultationNumber);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -154,7 +157,10 @@ export default function ExamineInterventionPage() {
                   </div>
                   <div>
                     <Label>Current Medications Taken</Label>
-                    <Textarea name="currentMedications" defaultValue={patient.consultation?.currentMedications} />
+                    <Textarea
+                      name="currentMedications"
+                      defaultValue={newConsultation ? "" : patient.consultation?.currentMedications}
+                    />
                   </div>
                 </form>
                 <Separator orientation="vertical" className="mx-4 h-auto my-2" />
@@ -162,7 +168,7 @@ export default function ExamineInterventionPage() {
                   <h2 className="font-semibold">Nursing Interventions</h2>
                   <p className="italic">
                     Consultation Number: CN-
-                    {patient.consultation?.consultationNumber
+                    {patient.consultation?.consultationNumber && !newConsultation
                       ? patient.consultation.consultationNumber
                       : consultationNumber}
                   </p>
