@@ -76,7 +76,6 @@ export default function ExamineInterventionPage() {
       for (const i of body.interventions) {
         delete i.createdAt;
         delete i.updatedAt;
-        delete i.new;
       }
     }
     const { vitals, ...newBody } = body;
