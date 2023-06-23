@@ -51,7 +51,9 @@ export default function PrescribeIdNumberPage() {
       axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(async ({ data }) => {
         setPatient(data[0]);
         const nurse = await axios.get(`/api/staff/${data[0].examinedBy}`);
-        setExaminedBy(`${nurse.data.firstName} ${nurse.data.lastName}`);
+        if (nurse.data) {
+          setExaminedBy(`${nurse.data.firstName} ${nurse.data.lastName}`);
+        }
       });
     }
   }, [router]);

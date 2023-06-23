@@ -191,7 +191,7 @@ export default function PrescriptionPage() {
                   <TableHead className="border-r w-fit">Route</TableHead>
                   <TableHead className="border-r w-fit">Frequency</TableHead>
                   <TableHead className="border-r w-fit">Duration of TX</TableHead>
-                  <TableHead className="border-r w-10">Dispensed Meds</TableHead>
+                  <TableHead className="border-r w-10">Dispense</TableHead>
                   <TableHead className="border-r w-10">Given</TableHead>
                   <TableHead className="border-r w-fit">Remarks</TableHead>
                   <TableHead>Date and Time</TableHead>

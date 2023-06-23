@@ -99,7 +99,7 @@ export default function PrescriptionPageView() {
                   <TableHead className="border-r">Route</TableHead>
                   <TableHead className="border-r">Frequency</TableHead>
                   <TableHead className="border-r">Duration of TX</TableHead>
-                  <TableHead className="border-r w-10">Dispensed Meds</TableHead>
+                  <TableHead className="border-r w-10">Dispense</TableHead>
                   <TableHead className="border-r w-10">Given</TableHead>
                   <TableHead className="border-r">Remarks</TableHead>
                   <TableHead>Date and Time</TableHead>
