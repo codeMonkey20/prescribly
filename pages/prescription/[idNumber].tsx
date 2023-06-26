@@ -1,10 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PatientDB } from "@/types/PatientDB";
 import { Prescription } from "@/types/Prescription";
 import axios from "axios";
-import { ChevronDownIcon, ChevronUpIcon, Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
@@ -14,16 +21,25 @@ import { GetServerSidePropsContext } from "next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { StaffDB } from "@/types/StaffDB";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import useAutocomplete from "@mui/base/useAutocomplete";
 import ageDate from "@/lib/ageDate";
 import { MimsDB } from "@/types/MimsDB";
 import Autocomplete from "@/components/Autocomplete";
+import log from "@/lib/log";
 
-export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
+export async function getServerSideProps({
+  req,
+  res,
+}: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
@@ -55,30 +71,32 @@ export default function PrescriptionPage() {
   const [staff, setStaff] = useState<StaffDB>();
   const [unitData, setUnitData] = useState<UnitData[]>([]);
   const [medicationName, setMedicationName] = useState<string[]>([]);
-  const newprescquery = router.query.new;
-  const newPrescription = newprescquery === "true";
+  const newPrescription = router.query.new === "true";
   const [frequency, setFrequency] = useState<string[]>([]);
   const [dosage, setDosage] = useState<string[]>([]);
   const [form, setForm] = useState<string[]>([]);
 
   useEffect(() => {
     if (router.query.idNumber) {
-      axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(({ data }) => {
-        setPatient(data[0]);
-        if (!newPrescription) {
-          setTableData(data[0]?.prescription);
-          if (data[0]?.prescription) {
-            setUnitData(
-              data[0]?.prescription.map((e: Prescription) => {
-                return {
-                  dosage: e.dosage.split(" ")[1],
-                  duration: e.duration.split(" ")[1],
-                };
-              })
-            );
+      axios
+        .get(`/api/patient?idNumber=${router.query.idNumber}`)
+        .then(({ data }) => {
+          setPatient(data[0]);
+          setPatient((old) => ({ comments: "", ...old }));
+          if (!newPrescription) {
+            setTableData(data[0]?.prescription);
+            if (data[0]?.prescription) {
+              setUnitData(
+                data[0]?.prescription.map((e: Prescription) => {
+                  return {
+                    dosage: e.dosage.split(" ")[1],
+                    duration: e.duration.split(" ")[1],
+                  };
+                })
+              );
+            }
           }
-        }
-      });
+        });
 
       axios.get("/api/mims?type=medicine").then(({ data }) => {
         setMedicationName(data.map((e: MimsDB) => e.name));
@@ -100,7 +118,9 @@ export default function PrescriptionPage() {
       axios
         .get(
           `/api/staff/${
-            session.data.user.usertype === "Pharmacist" && patient?.doctor ? patient?.doctor : session.data.user._id
+            session.data.user.usertype === "Pharmacist" && patient?.doctor
+              ? patient?.doctor
+              : session.data.user._id
           }`
         )
         .then(({ data }) => {
@@ -113,11 +133,20 @@ export default function PrescriptionPage() {
     return (
       <main className="bg-primary h-screen flex flex-col items-center justify-center p-10 gap-3">
         <h1 className="font-bold text-3xl self-start">Prescription</h1>
-        <div className="rounded-3xl bg-white w-full h-full py-3 px-4 flex flex-col gap-2 grow">
+        <div className="relative rounded-3xl bg-white w-full h-full py-3 px-4 flex flex-col gap-2 grow">
           <div className="flex items-start justify-between">
             <div>
               <p className="italic font-bold">History of Present Illness/es:</p>
               <p className="px-3">{patient?.healthConditions}</p>
+            </div>
+            <div className="absolute z-10 mx-auto left-0 right-0 text-center">
+              <p className="text-center">
+                <span className="text-sm">Republic of the Philippines</span>{" "}
+                <br />
+                Mindanao State University - Iligan Institute of Technology{" "}
+                <br />
+                Andre Bonifacio Avenue, 9200 Iligan City
+              </p>
             </div>
             <div className="flex flex-col justify-center">
               <div className="flex">
@@ -131,12 +160,17 @@ export default function PrescriptionPage() {
                   <p className="mb-2">
                     {!newPrescription
                       ? tableData[0].createdAt
-                        ? format(new Date(tableData[0].createdAt + ""), "MMMM dd, yyyy")
+                        ? format(
+                            new Date(tableData[0].createdAt + ""),
+                            "MMMM dd, yyyy"
+                          )
                         : ""
                       : format(new Date(), "MMMM dd, yyyy")}
                   </p>
                   <QRCode value={`${patient?.idNumber}`} size={80} />
-                  <p className="w-20 text-sm text-center whitespace-nowrap">{patient?.idNumber}</p>
+                  <p className="w-20 text-sm text-center whitespace-nowrap">
+                    {patient?.idNumber}
+                  </p>
                 </div>
               </div>
             </div>
@@ -183,18 +217,29 @@ export default function PrescriptionPage() {
             <Table className="max-h-96 overflow-y-auto">
               <TableHeader>
                 <TableRow>
-                  {user.usertype === "Doctor" && newPrescription ? <TableHead></TableHead> : ""}
+                  {user.usertype === "Doctor" && newPrescription ? (
+                    <TableHead></TableHead>
+                  ) : (
+                    ""
+                  )}
                   <TableHead className="border-r w-fit">Purpose</TableHead>
-                  <TableHead className="border-r w-fit">Medication Name</TableHead>
+                  <TableHead className="border-r w-fit">
+                    Medication Name
+                  </TableHead>
                   <TableHead className="border-r w-fit">Dosage</TableHead>
                   <TableHead className="border-r w-fit">Form</TableHead>
                   <TableHead className="border-r w-fit">Route</TableHead>
                   <TableHead className="border-r w-fit">Frequency</TableHead>
-                  <TableHead className="border-r w-fit">Duration of TX</TableHead>
+                  <TableHead className="border-r w-fit">
+                    Duration of TX
+                  </TableHead>
                   <TableHead className="border-r w-10">Dispense</TableHead>
                   <TableHead className="border-r w-10">Given</TableHead>
                   <TableHead className="border-r w-fit">Remarks</TableHead>
-                  <TableHead>Date and Time</TableHead>
+                  <TableHead className="border-r w-fit">
+                    Date and Time
+                  </TableHead>
+                  <TableHead>RN</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -225,7 +270,9 @@ export default function PrescriptionPage() {
                         disabled={user.usertype === "Pharmacist"}
                         onChange={(input) => {
                           setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                            const copy: Prescription[] = JSON.parse(
+                              JSON.stringify(old)
+                            );
                             copy[i].purpose = input.target.value;
                             return copy;
                           });
@@ -241,7 +288,9 @@ export default function PrescriptionPage() {
                         index={i}
                         onChange={(input) => {
                           setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                            const copy: Prescription[] = JSON.parse(
+                              JSON.stringify(old)
+                            );
                             copy[i].medicationName = input.target.value;
                             return copy;
                           });
@@ -251,11 +300,15 @@ export default function PrescriptionPage() {
                     <TableCell className="px-1 flex items-center gap-2 border-r">
                       <Input
                         className="w-16"
-                        value={!newPrescription ? e.dosage.split(" ")[0] : e.dosage}
+                        value={
+                          !newPrescription ? e.dosage.split(" ")[0] : e.dosage
+                        }
                         disabled={user.usertype === "Pharmacist"}
                         onChange={(input) => {
                           setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                            const copy: Prescription[] = JSON.parse(
+                              JSON.stringify(old)
+                            );
                             copy[i].dosage = input.target.value;
                             return copy;
                           });
@@ -263,7 +316,11 @@ export default function PrescriptionPage() {
                       />
                       <Select
                         disabled={user.usertype === "Pharmacist"}
-                        value={!newPrescription ? e.dosage.split(" ")[1] : unitData[i].dosage}
+                        value={
+                          !newPrescription
+                            ? e.dosage.split(" ")[1]
+                            : unitData[i].dosage
+                        }
                         onValueChange={(input) => {
                           setUnitData((old) => {
                             const copy = JSON.parse(JSON.stringify(old));
@@ -335,9 +392,15 @@ export default function PrescriptionPage() {
                           <SelectItem value="oral">oral</SelectItem>
                           <SelectItem value="sublingual">sublingual</SelectItem>
                           <SelectItem value="buccal">buccal</SelectItem>
-                          <SelectItem value="intravenous">intravenous</SelectItem>
-                          <SelectItem value="intramuscular">intramuscular</SelectItem>
-                          <SelectItem value="subcutaneous">subcutaneous</SelectItem>
+                          <SelectItem value="intravenous">
+                            intravenous
+                          </SelectItem>
+                          <SelectItem value="intramuscular">
+                            intramuscular
+                          </SelectItem>
+                          <SelectItem value="subcutaneous">
+                            subcutaneous
+                          </SelectItem>
                           <SelectItem value="inhalation">inhalation</SelectItem>
                           <SelectItem value="nasal">nasal</SelectItem>
                           <SelectItem value="rectal">rectal</SelectItem>
@@ -345,7 +408,9 @@ export default function PrescriptionPage() {
                           <SelectItem value="cutaneous">cutaneous</SelectItem>
                           <SelectItem value="otic">otic</SelectItem>
                           <SelectItem value="ocular">ocular</SelectItem>
-                          <SelectItem value="transdermal">transdermal</SelectItem>
+                          <SelectItem value="transdermal">
+                            transdermal
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
@@ -378,11 +443,17 @@ export default function PrescriptionPage() {
                     <TableCell className="px-1 flex items-center gap-2 border-r">
                       <Input
                         className="w-10"
-                        value={!newPrescription ? e.duration.split(" ")[0] : e.duration}
+                        value={
+                          !newPrescription
+                            ? e.duration.split(" ")[0]
+                            : e.duration
+                        }
                         disabled={user.usertype === "Pharmacist"}
                         onChange={(input) => {
                           setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                            const copy: Prescription[] = JSON.parse(
+                              JSON.stringify(old)
+                            );
                             copy[i].duration = input.target.value;
                             return copy;
                           });
@@ -390,7 +461,11 @@ export default function PrescriptionPage() {
                       />
                       <Select
                         disabled={user.usertype === "Pharmacist"}
-                        value={!newPrescription ? e.duration.split(" ")[1] : unitData[i].duration}
+                        value={
+                          !newPrescription
+                            ? e.duration.split(" ")[1]
+                            : unitData[i].duration
+                        }
                         onValueChange={(input) => {
                           setUnitData((old) => {
                             const copy = JSON.parse(JSON.stringify(old));
@@ -418,7 +493,9 @@ export default function PrescriptionPage() {
                         disabled={user.usertype === "Pharmacist"}
                         onChange={(input) => {
                           setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                            const copy: Prescription[] = JSON.parse(
+                              JSON.stringify(old)
+                            );
                             copy[i].dispense = input.target.value;
                             return copy;
                           });
@@ -431,14 +508,22 @@ export default function PrescriptionPage() {
                         disabled={user.usertype === "Doctor"}
                         onChange={(input) => {
                           setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                            const copy: Prescription[] = JSON.parse(
+                              JSON.stringify(old)
+                            );
                             copy[i].given = input.target.value;
                             return copy;
                           });
                           setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
-                            if (copy[i].given === "0") copy[i].remarks = "Out of stock";
-                            else if (copy[i].given === copy[i].dosage.split(" ")[0]) copy[i].remarks = "Complete";
+                            const copy: Prescription[] = JSON.parse(
+                              JSON.stringify(old)
+                            );
+                            if (copy[i].given === "0")
+                              copy[i].remarks = "Out of stock";
+                            else if (
+                              copy[i].given === copy[i].dosage.split(" ")[0]
+                            )
+                              copy[i].remarks = "Complete";
                             return copy;
                           });
                         }}
@@ -450,31 +535,70 @@ export default function PrescriptionPage() {
                         disabled={user.usertype === "Doctor"}
                         onChange={(input) => {
                           setTableData((old) => {
-                            const copy: Prescription[] = JSON.parse(JSON.stringify(old));
+                            const copy: Prescription[] = JSON.parse(
+                              JSON.stringify(old)
+                            );
                             copy[i].remarks = input.target.value;
                             return copy;
                           });
                         }}
                       />
                     </TableCell>
+                    <TableCell className="p-1 border-r">
+                      {!newPrescription
+                        ? format(new Date(), "MMMM dd, yyyy h:mm aa")
+                        : ""}
+                    </TableCell>
                     <TableCell className="p-1">
-                      {!newPrescription ? format(new Date(), "MMMM dd, yyyy h:mm aa") : ""}
+                      {patient.pharmacist && patient.pharmacist !== ""
+                        ? patient.pharmacist
+                        : user.usertype === "Pharmacist"
+                        ? `${user.firstName} ${user.lastName}`
+                        : ""}
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
-          <p className="text-right font-bold">CN-{patient.consultation?.consultationNumber}</p>
+          <div className="flex w-full justify-between items-center">
+            <div className="flex gap-3 items-center">
+              <p className="whitespace-nowrap">{"Doctor's Remarks:"}</p>
+              <Input
+                className="w-96 h-8"
+                disabled={user.usertype === "Pharmacist"}
+                value={patient.comments}
+                onChange={(e) =>
+                  setPatient((old) => {
+                    const newPatient: PatientDB = JSON.parse(
+                      JSON.stringify(old)
+                    );
+                    newPatient.comments = e.target.value;
+                    return newPatient;
+                  })
+                }
+              />
+            </div>
+            <p className="font-bold">
+              CN-{patient.consultation?.consultationNumber}
+            </p>
+          </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             <p className="font-bold">
               {staff?.signature ? (
-                <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
+                <Image
+                  src={"data:image/png;base64," + staff?.signature}
+                  alt="sign"
+                  width={80}
+                  height={80}
+                />
               ) : (
                 ""
               )}
               {`Dr. ${
-                user.usertype === "Doctor" && newPrescription ? user.fullName : `${staff?.firstName} ${staff?.lastName}`
+                user.usertype === "Doctor" && newPrescription
+                  ? user.fullName
+                  : `${staff?.firstName} ${staff?.lastName}`
               }`}
               <br />
               {staff?.license ? (
@@ -497,13 +621,19 @@ export default function PrescriptionPage() {
                   onClick={async () => {
                     if (tableData?.length === 0) return;
                     setButtonLoad(true);
-                    const prescription: Prescription[] = JSON.parse(JSON.stringify(tableData));
+                    const prescription: Prescription[] = JSON.parse(
+                      JSON.stringify(tableData)
+                    );
                     for (let i = 0; i < tableData.length; i++) {
-                      prescription[i].dosage = `${prescription[i].dosage.split(" ")[0]} ${unitData[i].dosage}`;
-                      prescription[i].duration = `${prescription[i].duration.split(" ")[0]} ${unitData[i].duration}`;
+                      prescription[i].dosage = `${
+                        prescription[i].dosage.split(" ")[0]
+                      } ${unitData[i].dosage}`;
+                      prescription[i].duration = `${
+                        prescription[i].duration.split(" ")[0]
+                      } ${unitData[i].duration}`;
                       delete prescription[i].updatedAt;
                     }
-                    console.log(prescription);
+                    log(prescription);
                     if (user.usertype === "Doctor") {
                       await axios.put(`/api/patient/${patient?.userID}`, {
                         ...patient,
@@ -511,7 +641,14 @@ export default function PrescriptionPage() {
                         doctor: user._id,
                       });
                     } else {
-                      await axios.put(`/api/patient/${patient?.userID}`, { ...patient, prescription });
+                      await axios.put(`/api/patient/${patient?.userID}`, {
+                        ...patient,
+                        prescription,
+                        pharmacist:
+                          user.usertype === "Pharmacist"
+                            ? `${user.firstName} ${user.lastName}`
+                            : "",
+                      });
                     }
                     router.replace("/patients");
                   }}

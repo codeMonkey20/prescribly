@@ -57,6 +57,7 @@ export default function PatientRegister() {
     body.pulse = parseFloat(body.pulse + "");
     body.respiration = parseFloat(body.respiration + "");
     body.weight = parseFloat(body.weight + "");
+    body.oxygen = parseFloat(body.oxygen + "");
     log(body);
     log(patient);
     await axios.put(`/api/patient/${patient.userID}`, { examinedBy: session.data?.user._id });
@@ -154,6 +155,9 @@ export default function PatientRegister() {
               <Label className="italic text-right">WT:</Label>
               <Input className="h-6 w-full" name="weight" />
               <p>kg</p>
+              <Label className="italic text-right">Oxygen:</Label>
+              <Input className="h-6 w-full" name="oxygen" />
+              <p>O<sup>2</sup>{" "}sat</p>
             </div>
           </div>
         </div>

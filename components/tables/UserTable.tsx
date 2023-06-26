@@ -20,6 +20,7 @@ import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { StaffDB } from "@/types/StaffDB";
 import { format } from "date-fns";
+import log from "@/lib/log";
 
 type Props = {
   users: UserDB[];
@@ -37,7 +38,7 @@ export default function UserTable({ users, setUsers, loading }: Props) {
     if (!(formElem instanceof HTMLFormElement)) return;
     const formData = new FormData(formElem);
     const formJSON = Object.fromEntries(formData.entries());
-    console.log(formJSON);
+    log(formJSON);
     const { email, firstName, lastName, usertype, ...request } = formJSON;
     await axios.put(`/api/user/${formJSON.userID}`, { email, firstName, lastName, usertype });
     await axios.put(`/api/staff/${formJSON.userID}`, { firstName, lastName, ...request });

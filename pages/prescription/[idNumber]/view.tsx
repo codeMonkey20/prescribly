@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PatientDB } from "@/types/PatientDB";
 import { Prescription } from "@/types/Prescription";
 import axios from "axios";
@@ -17,7 +24,10 @@ import { format } from "date-fns";
 import ageDate from "@/lib/ageDate";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
+export async function getServerSideProps({
+  req,
+  res,
+}: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
@@ -44,15 +54,17 @@ export default function PrescriptionPageView() {
 
   useEffect(() => {
     if (router.query.idNumber) {
-      axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(({ data }) => {
-        setPatient(data[0]);
-        setTableData(data[0]?.prescription);
-      });
+      axios
+        .get(`/api/patient?idNumber=${router.query.idNumber}`)
+        .then(({ data }) => {
+          setPatient(data[0]);
+          setTableData(data[0]?.prescription);
+        });
     }
   }, [router.query.idNumber, user?.usertype]);
 
   useEffect(() => {
-    if (patient) {
+    if (patient && patient.doctor && patient.doctor !== "") {
       axios.get(`/api/staff/${patient?.doctor}`).then(({ data }) => {
         setStaff(data);
       });
@@ -63,7 +75,15 @@ export default function PrescriptionPageView() {
     return (
       <main className="bg-primary h-screen flex flex-col items-center justify-center p-10 gap-3">
         <h1 className="font-bold text-3xl self-start">Prescription</h1>
-        <div className="rounded-3xl bg-white w-full py-3 px-4 flex flex-col gap-2 grow">
+        <div className="relative rounded-3xl bg-white w-full py-3 px-4 flex flex-col gap-2 grow">
+          <div className="absolute z-10 mx-auto left-0 right-0 text-center">
+            <p className="text-center">
+              <span className="text-sm">Republic of the Philippines</span>{" "}
+              <br />
+              Mindanao State University - Iligan Institute of Technology <br />
+              Andre Bonifacio Avenue, 9200 Iligan City
+            </p>
+          </div>
           <div className="flex items-start justify-between">
             <div>
               <p className="italic font-bold">History of Present Illness/es:</p>
@@ -79,10 +99,17 @@ export default function PrescriptionPageView() {
                 </div>
                 <div className="flex flex-col items-center">
                   <p className="mb-2">
-                    {tableData[0].createdAt ? format(new Date(tableData[0].createdAt + ""), "MMMM dd, yyyy") : ""}
+                    {tableData[0].createdAt
+                      ? format(
+                          new Date(tableData[0].createdAt + ""),
+                          "MMMM dd, yyyy"
+                        )
+                      : ""}
                   </p>
                   <QRCode value={`${patient?.idNumber}`} size={80} />
-                  <p className="w-20 text-sm text-center whitespace-nowrap">{patient?.idNumber}</p>
+                  <p className="w-20 text-sm text-center whitespace-nowrap">
+                    {patient?.idNumber}
+                  </p>
                 </div>
               </div>
             </div>
@@ -102,40 +129,76 @@ export default function PrescriptionPageView() {
                   <TableHead className="border-r w-10">Dispense</TableHead>
                   <TableHead className="border-r w-10">Given</TableHead>
                   <TableHead className="border-r">Remarks</TableHead>
-                  <TableHead>Date and Time</TableHead>
+                  <TableHead className="border-r">Date and Time</TableHead>
+                  <TableHead>RN</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {tableData.map((e: Prescription, i) => (
                   <TableRow key={`userrow-${i}`}>
                     <TableCell className="p-1 border-r">{e.purpose}</TableCell>
-                    <TableCell className="p-1 border-r">{e.medicationName}</TableCell>
-                    <TableCell className="p-1 flex items-center gap-2 border-r">{e.dosage}</TableCell>
+                    <TableCell className="p-1 border-r">
+                      {e.medicationName}
+                    </TableCell>
+                    <TableCell className="p-1 flex items-center gap-2 border-r">
+                      {e.dosage}
+                    </TableCell>
                     <TableCell className="p-1 border-r">{e.form}</TableCell>
                     <TableCell className="p-1 border-r">{e.route}</TableCell>
-                    <TableCell className="p-1 border-r">{e.frequency}</TableCell>
+                    <TableCell className="p-1 border-r">
+                      {e.frequency}
+                    </TableCell>
                     <TableCell className="p-1 border-r">{e.duration}</TableCell>
                     <TableCell className="p-1 border-r">{e.dispense}</TableCell>
                     <TableCell className="p-1 border-r">{e.given}</TableCell>
                     <TableCell className="p-1 border-r">{e.remarks}</TableCell>
+                    <TableCell className="p-1 border-r/">
+                      {e.updatedAt
+                        ? format(
+                            new Date(e.updatedAt + ""),
+                            "MMMM dd, yyyy h:mm aa"
+                          )
+                        : ""}
+                    </TableCell>
                     <TableCell className="p-1">
-                      {e.updatedAt ? format(new Date(e.updatedAt + ""), "MMMM dd, yyyy h:mm aa") : ""}
+                      {patient.pharmacist && patient.pharmacist !== ""
+                        ? patient.pharmacist
+                        : ""}
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
-          <p className="text-right font-bold">CN-{patient.consultation?.consultationNumber}</p>
+          <div>
+            <div className="flex gap-3 items-center">
+              <p className="whitespace-nowrap">
+                {"Doctor's Remarks: " +
+                  (patient.comments ? patient.comments : "")}
+              </p>
+            </div>
+          </div>
+          <p className="text-right font-bold">
+            CN-{patient.consultation?.consultationNumber}
+          </p>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             {staff ? (
               <p className="font-bold">
                 {staff?.signature ? (
-                  <Image src={"data:image/png;base64," + staff?.signature} alt="sign" width={80} height={80} />
+                  <Image
+                    src={"data:image/png;base64," + staff?.signature}
+                    alt="sign"
+                    width={80}
+                    height={80}
+                  />
                 ) : (
                   ""
                 )}
-                {staff ? `Dr. ${staff?.firstName} ${staff?.lastName}` : <Skeleton className="w-28 h-6" />}
+                {staff ? (
+                  `Dr. ${staff?.firstName} ${staff?.lastName}`
+                ) : (
+                  <Skeleton className="w-28 h-6" />
+                )}
                 <br />
                 {staff?.license ? staff?.license : "-"} <br />
                 {staff?.phone ? staff?.phone : "-"} <br />
@@ -149,7 +212,10 @@ export default function PrescriptionPageView() {
               <Button onClick={() => router.back()} variant="link">
                 BACK
               </Button>
-              <Button onClick={() => window.print()} className="bg-[#DA812E] hover:bg-[#DA812E]/80">
+              <Button
+                onClick={() => window.print()}
+                className="bg-[#DA812E] hover:bg-[#DA812E]/80"
+              >
                 PRINT
               </Button>
             </div>

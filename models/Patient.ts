@@ -1,6 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 
-mongoose.connect("mongodb+srv://twitter-admin:BCXPwV5Tmxkwcqzu@twitter-clone.xeolut6.mongodb.net/prescribly");
+mongoose.connect(
+  "mongodb+srv://twitter-admin:BCXPwV5Tmxkwcqzu@twitter-clone.xeolut6.mongodb.net/prescribly"
+);
 const prescription = new mongoose.Schema(
   {
     medicationName: { type: String },
@@ -27,6 +29,7 @@ const healthRecord = new Schema(
     respiration: { type: Number },
     bloodPressure: { type: String },
     weight: { type: Number },
+    oxygen: { type: Number },
 
     // physical exam
     skin: { type: String },
@@ -119,6 +122,8 @@ const schema = new mongoose.Schema(
     menstrualPattern: { type: String },
     electronicHealthRecord: healthRecord,
     consultation: consultation,
+    comments: { type: String },
+    pharmacist: { type: String },
   },
   { timestamps: true }
 );

@@ -17,7 +17,10 @@ import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 
-export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
+export async function getServerSideProps({
+  req,
+  res,
+}: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
     return {
@@ -59,9 +62,11 @@ export default function PrescribeDiagnosePage() {
 
   useEffect(() => {
     if (router.query.idNumber) {
-      axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(({ data }) => {
-        setPatient(data[0]);
-      });
+      axios
+        .get(`/api/patient?idNumber=${router.query.idNumber}`)
+        .then(({ data }) => {
+          setPatient(data[0]);
+        });
     }
   }, [router]);
 
@@ -74,7 +79,10 @@ export default function PrescribeDiagnosePage() {
           </div>
           <div className="flex flex-col grow px-8 py-5">
             <h1 className="text-4xl font-bold my-3 ml-3">Prescribe</h1>
-            <form className="bg-white flex grow rounded-3xl px-4 py-2" onSubmit={handlePrescribe}>
+            <form
+              className="bg-white flex grow rounded-3xl px-4 py-2"
+              onSubmit={handlePrescribe}
+            >
               <div className="bg-white flex grow rounded-3xl px-4 py-2">
                 <div className="flex flex-col w-full">
                   <h2 className="text-xl font-semibold mx-2">Diagnose</h2>
@@ -83,7 +91,12 @@ export default function PrescribeDiagnosePage() {
                       <Label className="italic text-md" htmlFor="smoke">
                         Smoke:
                       </Label>
-                      <RadioGroup name="smoke" id="smoke" className="flex" defaultValue={patient?.smoke ? "yes" : "no"}>
+                      <RadioGroup
+                        name="smoke"
+                        id="smoke"
+                        className="flex"
+                        defaultValue={patient?.smoke ? "yes" : "no"}
+                      >
                         <div className="flex items-center gap-1">
                           <RadioGroupItem id="smoke-yes" value="yes" />
                           <Label htmlFor="smoke-yes">Yes</Label>
@@ -120,18 +133,29 @@ export default function PrescribeDiagnosePage() {
                       <Label className="italic text-md" htmlFor="allergies">
                         Allergies
                       </Label>
-                      <Textarea name="allergies" id="allergies" defaultValue={patient?.allergies} />
+                      <Textarea
+                        name="allergies"
+                        id="allergies"
+                        defaultValue={patient?.allergies}
+                      />
                     </div>
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="medications">
                         Medication(s)
                       </Label>
-                      <Textarea name="medications" id="medications" defaultValue={patient?.medications} />
+                      <Textarea
+                        name="medications"
+                        id="medications"
+                        defaultValue={patient?.medications}
+                      />
                     </div>
                   </div>
                   <div className="flex justify-between">
                     <div className="flex flex-col m-2 grow">
-                      <Label className="italic text-md" htmlFor="medicalConditions">
+                      <Label
+                        className="italic text-md"
+                        htmlFor="medicalConditions"
+                      >
                         Medical Condition(s)
                       </Label>
                       <Textarea
@@ -142,7 +166,10 @@ export default function PrescribeDiagnosePage() {
                     </div>
                   </div>
                 </div>
-                <Separator orientation="vertical" className="mx-4 h-auto my-2" />
+                <Separator
+                  orientation="vertical"
+                  className="mx-4 h-auto my-2"
+                />
                 <div className="w-full flex flex-col">
                   <div>
                     <p className="font-semibold">Vital Signs</p>
@@ -151,7 +178,9 @@ export default function PrescribeDiagnosePage() {
                       <Input
                         className="h-6 w-full"
                         name="temperature"
-                        defaultValue={patient?.electronicHealthRecord?.temperature}
+                        defaultValue={
+                          patient?.electronicHealthRecord?.temperature
+                        }
                       />
                       <p>°C</p>
                       <Label className="italic text-right">PR:</Label>
@@ -165,14 +194,18 @@ export default function PrescribeDiagnosePage() {
                       <Input
                         className="h-6 w-full"
                         name="respiration"
-                        defaultValue={patient?.electronicHealthRecord?.respiration}
+                        defaultValue={
+                          patient?.electronicHealthRecord?.respiration
+                        }
                       />
                       <p>bpm</p>
                       <Label className="italic text-right">BP:</Label>
                       <Input
                         className="h-6 w-full"
                         name="bloodPressure"
-                        defaultValue={patient?.electronicHealthRecord?.bloodPressure}
+                        defaultValue={
+                          patient?.electronicHealthRecord?.bloodPressure
+                        }
                       />
                       <p>mmhg</p>
                       <Label className="italic text-right">WT:</Label>
@@ -182,12 +215,24 @@ export default function PrescribeDiagnosePage() {
                         defaultValue={patient?.electronicHealthRecord?.weight}
                       />
                       <p>kg</p>
+                      <Label className="italic text-right">Oxygen:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="oxygen"
+                        defaultValue={patient?.electronicHealthRecord?.oxygen}
+                      />
+                      <p>
+                        O<sup>2</sup> sat
+                      </p>
                     </div>
                   </div>
                   <div className="flex flex-col grow">
                     <div className="flex justify-between">
                       <div className="flex flex-col m-2 grow">
-                        <Label className="italic text-md" htmlFor="healthConditions">
+                        <Label
+                          className="italic text-md"
+                          htmlFor="healthConditions"
+                        >
                           History of Present Illness/es:
                         </Label>
                         <Textarea
@@ -199,23 +244,37 @@ export default function PrescribeDiagnosePage() {
                     </div>
                     <div className="flex justify-between">
                       <div className="flex flex-col m-2 grow">
-                        <Label className="italic text-md" htmlFor="currentMedications">
+                        <Label
+                          className="italic text-md"
+                          htmlFor="currentMedications"
+                        >
                           Current Medications Taken:
                         </Label>
                         <Textarea
                           name="currentMedications"
                           id="currentMedications"
-                          defaultValue={patient?.consultation?.currentMedications}
+                          defaultValue={
+                            patient?.consultation?.currentMedications
+                          }
                         />
                       </div>
                     </div>
                   </div>
                   <div className="self-end flex gap-1">
-                    <Button type="button" variant="link" onClick={() => router.back()}>
+                    <Button
+                      type="button"
+                      variant="link"
+                      onClick={() => router.back()}
+                    >
                       BACK
                     </Button>
                     <Button disabled={buttonLoad}>
-                      {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}PRESCRIBE
+                      {buttonLoad ? (
+                        <Loader2 className="animate-spin mr-2" />
+                      ) : (
+                        ""
+                      )}
+                      PRESCRIBE
                     </Button>
                   </div>
                 </div>
@@ -228,7 +287,14 @@ export default function PrescribeDiagnosePage() {
   return (
     <main className="flex items-center justify-center h-screen">
       <div className="flex flex-col justify-center items-center gap-3">
-        <Image src="/logo.png" alt="logo" width={150} height={150} className="w-auto animate-pulse" priority />
+        <Image
+          src="/logo.png"
+          alt="logo"
+          width={150}
+          height={150}
+          className="w-auto animate-pulse"
+          priority
+        />
       </div>
     </main>
   );

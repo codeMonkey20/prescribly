@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import usePagination from "@/hooks/usePagination";
+import log from "@/lib/log";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -160,7 +161,7 @@ export default function MimsPage() {
                             ref={addMedicineForm}
                             className="grid gap-4 py-4"
                             onSubmit={(e) => {
-                              console.log(e);
+                              log(e);
                             }}
                           >
                             <div className="flex gap-2">

@@ -30,4 +30,6 @@ export type PatientDB = {
   menstrualPattern?: "Regular" | "Irregular";
   electronicHealthRecord?: HealthRecord;
   consultation?: Consultation;
+  comments?: string;
+  pharmacist?: string;
 };

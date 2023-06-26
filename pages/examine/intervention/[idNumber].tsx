@@ -20,7 +20,10 @@ import InterventionsTable from "@/components/tables/InterventionsTable";
 import { Consultation } from "@/types/Consultation";
 import { Loader2 } from "lucide-react";
 
-export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
+export async function getServerSideProps({
+  req,
+  res,
+}: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
     return {
@@ -43,7 +46,14 @@ export async function getServerSideProps({ req, res }: GetServerSidePropsContext
 }
 
 type Body = Consultation & {
-  vitals?: { bloodPressure?: string; pulse?: number; respiration?: number; temperature?: number; weight?: number };
+  vitals?: {
+    bloodPressure?: string;
+    pulse?: number;
+    respiration?: number;
+    temperature?: number;
+    weight?: number;
+    oxygen?: number;
+  };
 };
 
 export default function ExamineInterventionPage() {
@@ -63,16 +73,32 @@ export default function ExamineInterventionPage() {
     if (!(e.target instanceof HTMLFormElement)) return;
     setButtonLoad(true);
     const form = new FormData(e.target);
-    const { bloodPressure, currentMedications, healthConditions, pulse, respiration, temperature, weight } = JSON.parse(
-      JSON.stringify(Object.fromEntries(form.entries()))
-    );
+    const {
+      bloodPressure,
+      currentMedications,
+      healthConditions,
+      pulse,
+      respiration,
+      temperature,
+      weight,
+      oxygen,
+    } = JSON.parse(JSON.stringify(Object.fromEntries(form.entries())));
     const body: Body = {};
     if (!patient?.consultation?.consultationNumber) {
       body.consultationNumber = consultationNumber;
     }
-    body.interventions = JSON.parse(JSON.stringify(patient?.consultation?.interventions));
+    body.interventions = JSON.parse(
+      JSON.stringify(patient?.consultation?.interventions)
+    );
     body.currentMedications = currentMedications;
-    body.vitals = { bloodPressure, pulse, respiration, temperature, weight };
+    body.vitals = {
+      bloodPressure,
+      pulse,
+      respiration,
+      temperature,
+      weight,
+      oxygen,
+    };
     delete body.createdAt;
     delete body.updatedAt;
     if (body.interventions) {
@@ -86,21 +112,31 @@ export default function ExamineInterventionPage() {
     if (patient?.consultation?.consultationNumber) {
       await axios.put(`/api/patient/consultations/${patient?.userID}`, newBody);
     } else {
-      await axios.post(`/api/patient/consultations/${patient?.userID}`, newBody);
+      await axios.post(
+        `/api/patient/consultations/${patient?.userID}`,
+        newBody
+      );
     }
-    await axios.put(`/api/patient/${patient?.userID}`, { healthConditions, electronicHealthRecord: { ...vitals } });
+    await axios.put(`/api/patient/${patient?.userID}`, {
+      healthConditions,
+      electronicHealthRecord: { ...vitals },
+    });
     router.push(`/examine/${patient?.idNumber}`);
   };
 
   useEffect(() => {
     if (idNumber) {
-      axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(async ({ data }) => {
-        setPatient(data[0]);
-        const nurse = await axios.get(`/api/staff/${data[0].examinedBy}`);
-        log(nurse.data);
-      });
+      axios
+        .get(`/api/patient?idNumber=${router.query.idNumber}`)
+        .then(async ({ data }) => {
+          setPatient(data[0]);
+          const nurse = await axios.get(`/api/staff/${data[0].examinedBy}`);
+          log(nurse.data);
+        });
     }
-    axios.get("/api/patient/consultations/count").then(({ data }) => setConsultationNumber(data.count));
+    axios
+      .get("/api/patient/consultations/count")
+      .then(({ data }) => setConsultationNumber(data.count));
   }, [idNumber, router]);
 
   if (session.status === "authenticated" && patient)
@@ -114,7 +150,11 @@ export default function ExamineInterventionPage() {
             <h1 className="text-4xl font-bold my-8 ml-3">Examine</h1>
             <div className="bg-white flex grow rounded-3xl px-4 py-2">
               <div className="bg-white flex grow rounded-3xl px-4 py-2">
-                <form id="form" className="flex flex-col w-full gap-2" onSubmit={handleSubmit}>
+                <form
+                  id="form"
+                  className="flex flex-col w-full gap-2"
+                  onSubmit={handleSubmit}
+                >
                   <div>
                     <p className="font-semibold">Vital Signs</p>
                     <div className="grid grid-cols-3 gap-2 items-center">
@@ -122,24 +162,34 @@ export default function ExamineInterventionPage() {
                       <Input
                         className="h-6 w-full"
                         name="temperature"
-                        defaultValue={patient.electronicHealthRecord?.temperature}
+                        defaultValue={
+                          patient.electronicHealthRecord?.temperature
+                        }
                       />
                       <p>°C</p>
                       <Label className="italic text-right">PR:</Label>
-                      <Input className="h-6 w-full" name="pulse" defaultValue={patient.electronicHealthRecord?.pulse} />
+                      <Input
+                        className="h-6 w-full"
+                        name="pulse"
+                        defaultValue={patient.electronicHealthRecord?.pulse}
+                      />
                       <p>bpm</p>
                       <Label className="italic text-right">RR:</Label>
                       <Input
                         className="h-6 w-full"
                         name="respiration"
-                        defaultValue={patient.electronicHealthRecord?.respiration}
+                        defaultValue={
+                          patient.electronicHealthRecord?.respiration
+                        }
                       />
                       <p>bpm</p>
                       <Label className="italic text-right">BP:</Label>
                       <Input
                         className="h-6 w-full"
                         name="bloodPressure"
-                        defaultValue={patient.electronicHealthRecord?.bloodPressure}
+                        defaultValue={
+                          patient.electronicHealthRecord?.bloodPressure
+                        }
                       />
                       <p>mmhg</p>
                       <Label className="italic text-right">WT:</Label>
@@ -149,37 +199,64 @@ export default function ExamineInterventionPage() {
                         defaultValue={patient.electronicHealthRecord?.weight}
                       />
                       <p>kg</p>
+                      <Label className="italic text-right">Oxygen:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="oxygen"
+                        defaultValue={patient.electronicHealthRecord?.oxygen}
+                      />
+                      <p>
+                        O<sup>2</sup> sat
+                      </p>
                     </div>
                   </div>
                   <div>
                     <Label>History of Present Illness</Label>
-                    <Textarea name="healthConditions" defaultValue={patient.healthConditions} />
+                    <Textarea
+                      name="healthConditions"
+                      defaultValue={patient.healthConditions}
+                    />
                   </div>
                   <div>
                     <Label>Current Medications Taken</Label>
                     <Textarea
                       name="currentMedications"
-                      defaultValue={newConsultation ? "" : patient.consultation?.currentMedications}
+                      defaultValue={
+                        newConsultation
+                          ? ""
+                          : patient.consultation?.currentMedications
+                      }
                     />
                   </div>
                 </form>
-                <Separator orientation="vertical" className="mx-4 h-auto my-2" />
+                <Separator
+                  orientation="vertical"
+                  className="mx-4 h-auto my-2"
+                />
                 <div className="w-full flex flex-col">
                   <h2 className="font-semibold">Nursing Interventions</h2>
                   <p className="italic">
                     Consultation Number: CN-
-                    {patient.consultation?.consultationNumber && !newConsultation
+                    {patient.consultation?.consultationNumber &&
+                    !newConsultation
                       ? patient.consultation.consultationNumber
                       : consultationNumber}
                   </p>
-                  <InterventionsTable patient={patient} setPatient={setPatient} />
+                  <InterventionsTable
+                    patient={patient}
+                    setPatient={setPatient}
+                  />
                   <div className="self-end flex gap-1">
                     <Button variant="link" onClick={() => router.back()}>
                       BACK
                     </Button>
                     {session.data.user.usertype === "Nurse" ? (
                       <Button form="form" disabled={buttonLoad}>
-                        {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}
+                        {buttonLoad ? (
+                          <Loader2 className="animate-spin mr-2" />
+                        ) : (
+                          ""
+                        )}
                         SAVE
                       </Button>
                     ) : (
@@ -196,7 +273,14 @@ export default function ExamineInterventionPage() {
   return (
     <main className="flex items-center justify-center h-screen">
       <div className="flex flex-col justify-center items-center gap-3">
-        <Image src="/logo.png" alt="logo" width={150} height={150} className="w-auto animate-pulse" priority />
+        <Image
+          src="/logo.png"
+          alt="logo"
+          width={150}
+          height={150}
+          className="w-auto animate-pulse"
+          priority
+        />
       </div>
     </main>
   );

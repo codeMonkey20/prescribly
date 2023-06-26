@@ -11,6 +11,7 @@ import axios from "axios";
 import { QrScanner } from "@yudiel/react-qr-scanner";
 import Header from "@/components/Header";
 import { Loader2 } from "lucide-react";
+import log from "@/lib/log";
 
 export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
@@ -73,7 +74,7 @@ export default function PrescribePage() {
                     router.push(`/prescribe/${result}`);
                   }}
                   scanDelay={2000}
-                  onError={(error) => console.log(error?.message)}
+                  onError={(error) => log(error?.message)}
                 />
               </div>
               <p>or enter ID number to proceed</p>

@@ -8,6 +8,7 @@ export type HealthRecord = {
   respiration?: number;
   bloodPressure?: number;
   weight?: number;
+  oxygen?: number;
 
   // physical exam
   skin?: string;

@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import User from "@/models/User";
 import Patient from "@/models/Patient";
 import Staff from "@/models/Staff";
+import log from "@/lib/log";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -37,7 +38,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (trigger === "update") {
-        console.log({ ...token, ...session.user });
+        log({ ...token, ...session.user });
         return { ...token, ...session.user };
       }
       return { ...token, ...user };

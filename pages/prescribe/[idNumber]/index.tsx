@@ -50,9 +50,11 @@ export default function PrescribeIdNumberPage() {
     if (router.query.idNumber) {
       axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(async ({ data }) => {
         setPatient(data[0]);
-        const nurse = await axios.get(`/api/staff/${data[0].examinedBy}`);
-        if (nurse.data) {
-          setExaminedBy(`${nurse.data.firstName} ${nurse.data.lastName}`);
+        if (data[0].examinedBy && data[0].examinedBy !== "") {
+          const nurse = await axios.get(`/api/staff/${data[0].examinedBy}`);
+          if (nurse.data) {
+            setExaminedBy(`${nurse.data.firstName} ${nurse.data.lastName}`);
+          }
         }
       });
     }
