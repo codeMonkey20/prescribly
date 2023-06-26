@@ -152,7 +152,7 @@ export default function PrescriptionPageView() {
                     <TableCell className="p-1 border-r">{e.dispense}</TableCell>
                     <TableCell className="p-1 border-r">{e.given}</TableCell>
                     <TableCell className="p-1 border-r">{e.remarks}</TableCell>
-                    <TableCell className="p-1 border-r/">
+                    <TableCell className="p-1 border-r">
                       {e.updatedAt
                         ? format(
                             new Date(e.updatedAt + ""),
