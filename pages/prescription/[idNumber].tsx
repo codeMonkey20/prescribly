@@ -640,6 +640,12 @@ export default function PrescriptionPage() {
                         prescription,
                         doctor: user._id,
                       });
+
+                      await axios.delete("/api/queue?doctor=1");
+                      await axios.post(
+                        `/api/queue?pharmacist=${patient.idNumber}`
+                      );
+                      router.replace("/prescribe");
                     } else {
                       await axios.put(`/api/patient/${patient?.userID}`, {
                         ...patient,
@@ -649,8 +655,10 @@ export default function PrescriptionPage() {
                             ? `${user.firstName} ${user.lastName}`
                             : "",
                       });
+
+                      await axios.delete("/api/queue?pharmacist=1");
+                      router.replace("/dispense");
                     }
-                    router.replace("/patients");
                   }}
                   disabled={buttonLoad}
                 >

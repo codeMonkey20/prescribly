@@ -2,7 +2,13 @@ import { InputLabel } from "@/components/InputLabel";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import React, { FormEvent, useEffect, useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import axios from "axios";
@@ -17,11 +23,13 @@ import ageDate from "@/lib/ageDate";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
+import log from "@/lib/log";
 
 export default function PatientRegister() {
   const skeletonSizes = [
-    90, 64, 115, 73, 109, 54, 109, 90, 120, 120, 120, 96, 89, 57, 74, 103, 61, 115, 115, 90, 110, 65, 59, 65, 85, 58,
-    83, 84, 70, 94, 98, 119, 71, 87, 66, 88,
+    90, 64, 115, 73, 109, 54, 109, 90, 120, 120, 120, 96, 89, 57, 74, 103, 61,
+    115, 115, 90, 110, 65, 59, 65, 85, 58, 83, 84, 70, 94, 98, 119, 71, 87, 66,
+    88,
   ];
   const { query, push, back } = useRouter();
   const [age, setAge] = useState(0);
@@ -40,18 +48,33 @@ export default function PatientRegister() {
     setButtonLoad(true);
     const formData = new FormData(e.target);
     const formDataJSON = Object.fromEntries(formData.entries());
-    let medicalConditions = "";
-    for (const form in formDataJSON) {
-      if (formDataJSON[form] === "on") {
-        medicalConditions = `${medicalConditions}, ${form}`;
-        delete formDataJSON[form];
-      }
-    }
-    medicalConditions = medicalConditions.substring(2);
+    const currentMedications = formDataJSON.currentMedications;
+    delete formDataJSON.currentMedications;
+    // let medicalConditions = "";
+    // for (const form in formDataJSON) {
+    //   if (formDataJSON[form] === "on") {
+    //     medicalConditions = `${medicalConditions}, ${form}`;
+    //     delete formDataJSON[form];
+    //   }
+    // }
+    // medicalConditions = medicalConditions.substring(2);
     if (editMode && query.id) {
-      await axios.put(`/api/patient/${query.id}`, { ...formDataJSON, medicalConditions });
+      await axios.put(`/api/patient/${query.id}`, {
+        ...formDataJSON,
+        consultation: {
+          currentMedications,
+        },
+        // medicalConditions,
+      });
       if (verifyMode) push(`/examine/${patient.idNumber}/verify`);
-      else push("/patients");
+      else {
+        if (editMode) {
+          await axios.post(`/api/queue?nurse=${patient.idNumber}`);
+        } else {
+          await axios.post(`/api/queue?nurse=${formDataJSON.idNumber}`);
+        }
+        push(`/login`);
+      }
     } else {
       const newFormDataJSON = {
         ...formDataJSON,
@@ -60,7 +83,10 @@ export default function PatientRegister() {
         healthConditions: "",
         prescriptions: [],
         fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
-        medicalConditions,
+        consultation: {
+          currentMedications,
+        },
+        // medicalConditions,
       };
       const { firstName, lastName } = formDataJSON;
       const user = await axios.post(`/api/user`, {
@@ -70,7 +96,12 @@ export default function PatientRegister() {
         usertype: "Patient",
       });
       await axios.post(`/api/patient/${user.data._id}`, newFormDataJSON);
-      push(`/register/${user.data._id}/qr`);
+      if (editMode) {
+        await axios.post(`/api/queue?nurse=${patient.idNumber}`);
+      } else {
+        await axios.post(`/api/queue?nurse=${formDataJSON.idNumber}`);
+      }
+      push(`/login`);
     }
   };
 
@@ -93,20 +124,33 @@ export default function PatientRegister() {
       });
   }, [query.id, editMode]);
 
-  if (((patient.medicalConditions && editMode) || !editMode) && !loading)
+  if (!loading)
     return (
       <main className="flex justify-center items-center h-screen bg-white">
-        <form className="w-11/12 h-5/6 border-4 border-primary rounded-3xl flex" onSubmit={handleSubmit}>
+        <form
+          className="w-11/12 h-5/6 border-4 border-primary rounded-3xl flex"
+          onSubmit={handleSubmit}
+        >
           <div className="w-2/5 px-6 flex flex-col justify-center gap-1">
             <h1 className="text-3xl font-bold">Register</h1>
-            <p className="italic">Fill in the form with accurate information about you.</p>
+            <p className="italic">
+              Fill in the form with accurate information about you.
+            </p>
             <h2 className="my-2 text-xl font-semibold">Patient Registration</h2>
             <div className="flex flex-col gap-3">
               <div className="flex gap-5">
-                <InputLabel name="firstName" defaultValue={user.firstName} required>
+                <InputLabel
+                  name="firstName"
+                  defaultValue={user.firstName}
+                  required
+                >
                   First Name
                 </InputLabel>
-                <InputLabel name="lastName" defaultValue={user.lastName} required>
+                <InputLabel
+                  name="lastName"
+                  defaultValue={user.lastName}
+                  required
+                >
                   Last Name
                 </InputLabel>
                 <InputLabel name="middleInitial" className="w-12">
@@ -126,38 +170,59 @@ export default function PatientRegister() {
                   <Label>College</Label>
                   <Select
                     name="college"
-                    defaultValue={patient.college ? patient.college : "College of Computer Studies"}
+                    defaultValue={
+                      patient.college
+                        ? patient.college
+                        : "College of Computer Studies"
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="College of Computer Studies">College of Computer Studies</SelectItem>
+                      <SelectItem value="College of Computer Studies">
+                        College of Computer Studies
+                      </SelectItem>
                       <SelectItem value="College of Science and Mathematics">
                         College of Science and Mathematics
                       </SelectItem>
-                      <SelectItem value="College of Engineering">College of Engineering</SelectItem>
+                      <SelectItem value="College of Engineering">
+                        College of Engineering
+                      </SelectItem>
                       <SelectItem value="College of Economics, Business & Accountancy">
                         College of Economics, Business & Accountancy
                       </SelectItem>
-                      <SelectItem value="College of Health Sciences">College of Health Sciences</SelectItem>
-                      <SelectItem value="College of Education">College of Education</SelectItem>
+                      <SelectItem value="College of Health Sciences">
+                        College of Health Sciences
+                      </SelectItem>
+                      <SelectItem value="College of Education">
+                        College of Education
+                      </SelectItem>
                       <SelectItem value="College of Arts and Social Sciences">
                         College of Arts and Social Sciences
                       </SelectItem>
-                      <SelectItem value="Integrated Developmental School">Integrated Developmental School</SelectItem>
+                      <SelectItem value="Integrated Developmental School">
+                        Integrated Developmental School
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="flex gap-5">
-                <InputLabel defaultValue={patient.phone ? patient.phone : ""} name="phone">
+                <InputLabel
+                  defaultValue={patient.phone ? patient.phone : ""}
+                  name="phone"
+                >
                   Phone
                 </InputLabel>
                 <InputLabel
                   type="date"
                   name="birthdate"
-                  defaultValue={patient.birthdate ? format(new Date(patient.birthdate), "yyyy-MM-dd") : ""}
+                  defaultValue={
+                    patient.birthdate
+                      ? format(new Date(patient.birthdate), "yyyy-MM-dd")
+                      : ""
+                  }
                   onChange={(e) => {
                     const dob = new Date(e.target.value);
                     const ageDifMs = Date.now() - dob.getTime();
@@ -192,7 +257,12 @@ export default function PatientRegister() {
                 </div>
                 <div className="grid grow items-center gap-1.5">
                   <Label>Civil Status</Label>
-                  <Select name="civilStatus" defaultValue={patient.civilStatus ? patient.civilStatus : "Single"}>
+                  <Select
+                    name="civilStatus"
+                    defaultValue={
+                      patient.civilStatus ? patient.civilStatus : "Single"
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -207,7 +277,11 @@ export default function PatientRegister() {
               </div>
               <div className="grid grow items-center gap-1.5">
                 <Label htmlFor="address">Address</Label>
-                <Textarea id="address" name="address" defaultValue={patient.address ? patient.address : ""} />
+                <Textarea
+                  id="address"
+                  name="address"
+                  defaultValue={patient.address ? patient.address : ""}
+                />
               </div>
             </div>
           </div>
@@ -221,7 +295,13 @@ export default function PatientRegister() {
                     <RadioGroup
                       name="smoke"
                       className="flex"
-                      defaultValue={patient.smoke !== undefined ? (patient.smoke ? "yes" : "no") : "no"}
+                      defaultValue={
+                        patient.smoke !== undefined
+                          ? patient.smoke
+                            ? "yes"
+                            : "no"
+                          : "no"
+                      }
                     >
                       <div className="flex items-center gap-1">
                         <RadioGroupItem id="smoke-yes" value="yes" />
@@ -238,7 +318,13 @@ export default function PatientRegister() {
                     <RadioGroup
                       name="alcohol"
                       className="flex"
-                      defaultValue={patient.alcohol !== undefined ? (patient.alcohol ? "yes" : "no") : "no"}
+                      defaultValue={
+                        patient.alcohol !== undefined
+                          ? patient.alcohol
+                            ? "yes"
+                            : "no"
+                          : "no"
+                      }
                     >
                       <div className="flex items-center gap-1">
                         <RadioGroupItem id="alcohol-yes" value="yes" />
@@ -253,20 +339,33 @@ export default function PatientRegister() {
                 </div>
                 <div className="grid grow items-center gap-1.5">
                   <Label htmlFor="allergies">Allergies:</Label>
-                  <Textarea id="allergies" name="allergies" defaultValue={patient.allergies ? patient.allergies : ""} />
+                  <Textarea
+                    id="allergies"
+                    name="allergies"
+                    defaultValue={patient.allergies ? patient.allergies : ""}
+                  />
                 </div>
                 <div className="grid grow items-center gap-1.5">
                   <Label htmlFor="medications">Medication/s:</Label>
                   <Textarea
                     id="medications"
                     name="medications"
-                    defaultValue={patient.medications ? patient.medications : ""}
+                    defaultValue={
+                      patient.medications ? patient.medications : ""
+                    }
                   />
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <h3 className="italic font-semibold">Medical Condition/s:</h3>
-                <div className="grid grid-cols-4">
+                <h3 className="italic font-semibold">
+                  History of Present Illness:
+                </h3>
+                <Textarea name="healthConditions"></Textarea>
+                <h3 className="italic font-semibold">
+                  Current Medications Taken:
+                </h3>
+                <Textarea name="currentMedications"></Textarea>
+                {/* <div className="grid grid-cols-4">
                   {conditions.map((condition: string, i: number) => (
                     <div key={`condition-${i}`} className="flex items-center gap-2">
                       <Checkbox
@@ -284,7 +383,7 @@ export default function PatientRegister() {
                         <Skeleton key={`skeleton-${i}`} className="h-3 my-1" style={{ width: e }} />
                       ))
                     : ""}
-                </div>
+                </div> */}
                 {isFemale ? (
                   <div className="mt-3">
                     <h3 className="italic font-semibold">For Women:</h3>
@@ -297,7 +396,10 @@ export default function PatientRegister() {
                         defaultValue={
                           editMode && isFemale
                             ? patient.lastMenstrualPeriod
-                              ? format(new Date(patient.lastMenstrualPeriod), "yyyy-MM-dd")
+                              ? format(
+                                  new Date(patient.lastMenstrualPeriod),
+                                  "yyyy-MM-dd"
+                                )
                               : ""
                             : ""
                         }
@@ -319,11 +421,17 @@ export default function PatientRegister() {
                         required
                       >
                         <div className="flex items-center gap-1">
-                          <RadioGroupItem id="menstrual-regular" value="Regular" />
+                          <RadioGroupItem
+                            id="menstrual-regular"
+                            value="Regular"
+                          />
                           <Label htmlFor="menstrual-regular">Regular</Label>
                         </div>
                         <div className="flex items-center gap-1">
-                          <RadioGroupItem id="menstrual-irregular" value="Irregular" />
+                          <RadioGroupItem
+                            id="menstrual-irregular"
+                            value="Irregular"
+                          />
                           <Label htmlFor="menstrual-irregular">Irregular</Label>
                         </div>
                       </RadioGroup>
@@ -333,12 +441,21 @@ export default function PatientRegister() {
                   ""
                 )}
                 <div className="self-end">
-                  <Button variant="ghost" type="button" className="w-fit mr-2" onClick={back}>
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    className="w-fit mr-2"
+                    onClick={back}
+                  >
                     Back
                   </Button>
                   <Button className="w-fit" disabled={buttonLoad}>
-                    {buttonLoad ? <Loader2 className="animate-spin mr-2" /> : ""}
-                    {editMode ? (verifyMode ? "PROCEED" : "SAVE") : "SUBMIT"}
+                    {buttonLoad ? (
+                      <Loader2 className="animate-spin mr-2" />
+                    ) : (
+                      ""
+                    )}
+                    {verifyMode ? "PROCEED" : "SUBMIT"}
                   </Button>
                 </div>
               </div>
@@ -351,7 +468,14 @@ export default function PatientRegister() {
   return (
     <main className="flex items-center justify-center h-screen">
       <div className="flex flex-col justify-center items-center gap-3">
-        <Image src="/logo.png" alt="logo" width={150} height={150} className="w-auto animate-pulse" priority />
+        <Image
+          src="/logo.png"
+          alt="logo"
+          width={150}
+          height={150}
+          className="w-auto animate-pulse"
+          priority
+        />
       </div>
     </main>
   );
