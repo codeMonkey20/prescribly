@@ -178,7 +178,7 @@ export default function Login() {
                       );
                     }}
                   >
-                    Sign in form
+                    PROCEED
                   </Button>
                 </div>
 
