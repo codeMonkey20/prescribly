@@ -85,6 +85,7 @@ export default function PatientRegister() {
         consultation: {
           currentMedications,
         },
+        healthConditions: formDataJSON.healthConditions,
         examinedBy: session.data?.user._id,
         // medicalConditions,
       });
@@ -102,10 +103,9 @@ export default function PatientRegister() {
         ...formDataJSON,
         smoke: formDataJSON.smoke === "yes",
         alcohol: formDataJSON.alcohol === "yes",
-        healthConditions: "",
         prescriptions: [],
         fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
-        // electronicHealthRecord,
+        electronicHealthRecord,
         consultation: {
           currentMedications,
         },
