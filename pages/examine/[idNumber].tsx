@@ -242,20 +242,16 @@ export default function ExamineHealthRecordPage() {
                     >
                       BACK
                     </Button>
-                    {patient?.electronicHealthRecord ? (
-                      <Button
-                        onClick={() => {
-                          clearInterval(intervalId.current);
-                          router.push(
-                            `/register?id=${patient?.userID}&edit=true&verify=true`
-                          );
-                        }}
-                      >
-                        EXAMINE
-                      </Button>
-                    ) : (
-                      ""
-                    )}
+                    <Button
+                      onClick={() => {
+                        clearInterval(intervalId.current);
+                        router.push(
+                          `/register?id=${patient?.userID}&edit=true&verify=true`
+                        );
+                      }}
+                    >
+                      EXAMINE
+                    </Button>
                   </div>
                 </div>
               </div>
