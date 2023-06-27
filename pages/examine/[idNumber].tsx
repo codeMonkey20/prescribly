@@ -173,12 +173,12 @@ export default function ExamineHealthRecordPage() {
                   orientation="vertical"
                   className="mx-4 h-auto my-2"
                 />
-                <div className="w-full flex flex-col gap-5">
+                <div className="w-full h-full flex flex-col gap-5">
                   <div className="flex items-center justify-between mt-6">
                     <h2 className="text-xl font-semibold">
                       Electronic Health Record
                     </h2>
-                    {patient?.electronicHealthRecord ? (
+                    {/* {patient?.electronicHealthRecord ? (
                       <p className="italic underline">Verified</p>
                     ) : (
                       <Link
@@ -187,9 +187,9 @@ export default function ExamineHealthRecordPage() {
                       >
                         Verify
                       </Link>
-                    )}
+                    )} */}
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col grow">
                     {patient?.electronicHealthRecord ? (
                       <p className="italic">
                         <span className="font-semibold not-italic">
@@ -211,7 +211,7 @@ export default function ExamineHealthRecordPage() {
                       ""
                     )}
                   </div>
-                  <div className="flex flex-col grow">
+                  {/* <div className="flex flex-col grow">
                     <h2 className="text-xl font-semibold">Consultations</h2>
                     {patient?.consultation ? (
                       <div className="flex justify-between items-center">
@@ -231,7 +231,7 @@ export default function ExamineHealthRecordPage() {
                     ) : (
                       <p className="italic">No consultations yet</p>
                     )}
-                  </div>
+                  </div> */}
                   <div className="self-end flex gap-1">
                     <Button
                       variant="link"
@@ -247,7 +247,7 @@ export default function ExamineHealthRecordPage() {
                         onClick={() => {
                           clearInterval(intervalId.current);
                           router.push(
-                            `/examine/intervention/${router.query.idNumber}?new=true`
+                            `/register?id=${patient?.userID}&edit=true&verify=true`
                           );
                         }}
                       >

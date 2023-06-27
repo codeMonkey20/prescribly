@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import log from "@/lib/log";
+import { useSession } from "next-auth/react";
 
 export default function PatientRegister() {
   const skeletonSizes = [
@@ -41,6 +42,7 @@ export default function PatientRegister() {
   const [loading, setLoading] = useState(true);
   const [isFemale, setIsFemale] = useState(false);
   const verifyMode = query.verify === "true";
+  const session = useSession();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -49,22 +51,24 @@ export default function PatientRegister() {
     const formData = new FormData(e.target);
     const formDataJSON = Object.fromEntries(formData.entries());
     const currentMedications = formDataJSON.currentMedications;
-    // const electronicHealthRecord = {
-    //   temperature: formDataJSON.temperature,
-    //   pulse: formDataJSON.pulse,
-    //   respiration: formDataJSON.respiration,
-    //   bloodPressure: formDataJSON.bloodPressure,
-    //   weight: formDataJSON.weight,
-    //   oxygen: formDataJSON.oxygen,
-    // };
+    let electronicHealthRecord = {};
+    if (session.data?.user.usertype) {
+      electronicHealthRecord = {
+        temperature: formDataJSON.temperature,
+        pulse: formDataJSON.pulse,
+        respiration: formDataJSON.respiration,
+        bloodPressure: formDataJSON.bloodPressure,
+        weight: formDataJSON.weight,
+        oxygen: formDataJSON.oxygen,
+      };
+      delete formDataJSON.temperature;
+      delete formDataJSON.pulse;
+      delete formDataJSON.respiration;
+      delete formDataJSON.bloodPressure;
+      delete formDataJSON.weight;
+      delete formDataJSON.oxygen;
+    }
     delete formDataJSON.currentMedications;
-
-    // delete formDataJSON.temperature;
-    // delete formDataJSON.pulse;
-    // delete formDataJSON.respiration;
-    // delete formDataJSON.bloodPressure;
-    // delete formDataJSON.weight;
-    // delete formDataJSON.oxygen;
 
     // let medicalConditions = "";
     // for (const form in formDataJSON) {
@@ -77,19 +81,20 @@ export default function PatientRegister() {
     if (editMode && query.id) {
       await axios.put(`/api/patient/${query.id}`, {
         ...formDataJSON,
-        // electronicHealthRecord,
+        electronicHealthRecord,
         consultation: {
           currentMedications,
         },
+        examinedBy: session.data?.user._id,
         // medicalConditions,
       });
-      if (verifyMode) push(`/examine/${patient.idNumber}/verify`);
-      else {
-        if (editMode) {
-          await axios.post(`/api/queue?nurse=${patient.idNumber}`);
-        } else {
-          await axios.post(`/api/queue?nurse=${formDataJSON.idNumber}`);
-        }
+
+      if (verifyMode) {
+        await axios.delete(`/api/queue?nurse=${1}`);
+        await axios.post(`/api/queue?doctor=${formDataJSON.idNumber}`);
+        push(`/examine`);
+      } else {
+        await axios.post(`/api/queue?nurse=${formDataJSON.idNumber}`);
         push(`/done`);
       }
     } else {
@@ -376,84 +381,100 @@ export default function PatientRegister() {
               </div> */}
               <div className="flex flex-col gap-2">
                 <h3 className="italic font-semibold">Chief Complaints:</h3>
-                <Textarea name="healthConditions"></Textarea>
+                <Textarea
+                  name="healthConditions"
+                  defaultValue={
+                    patient?.healthConditions ? patient?.healthConditions : ""
+                  }
+                ></Textarea>
                 <h3 className="italic font-semibold">
                   Current Medications Taken:
                 </h3>
-                <Textarea name="currentMedications"></Textarea>
-                {/* <div>
-                  <h2 className="my-2 text-xl font-semibold">Vital Signs</h2>
-                  <div className="grid grid-cols-3 gap-2 items-center">
-                    <Label className="italic text-right">Temperature:</Label>
-                    <Input
-                      className="h-6 w-full"
-                      name="temperature"
-                      defaultValue={
-                        patient?.electronicHealthRecord
-                          ? patient?.electronicHealthRecord?.temperature
-                          : ""
-                      }
-                    />
-                    <p>°C</p>
-                    <Label className="italic text-right">PR:</Label>
-                    <Input
-                      className="h-6 w-full"
-                      name="pulse"
-                      defaultValue={
-                        patient?.electronicHealthRecord
-                          ? patient?.electronicHealthRecord?.pulse
-                          : ""
-                      }
-                    />
-                    <p>bpm</p>
-                    <Label className="italic text-right">RR:</Label>
-                    <Input
-                      className="h-6 w-full"
-                      name="respiration"
-                      defaultValue={
-                        patient?.electronicHealthRecord
-                          ? patient?.electronicHealthRecord?.respiration
-                          : ""
-                      }
-                    />
-                    <p>bpm</p>
-                    <Label className="italic text-right">BP:</Label>
-                    <Input
-                      className="h-6 w-full"
-                      name="bloodPressure"
-                      defaultValue={
-                        patient?.electronicHealthRecord
-                          ? patient?.electronicHealthRecord?.bloodPressure
-                          : ""
-                      }
-                    />
-                    <p>mmhg</p>
-                    <Label className="italic text-right">WT:</Label>
-                    <Input
-                      className="h-6 w-full"
-                      name="weight"
-                      defaultValue={
-                        patient?.electronicHealthRecord
-                          ? patient?.electronicHealthRecord?.weight
-                          : ""
-                      }
-                    />
-                    <p>kg</p>
-                    <Label className="italic text-right">Oxygen:</Label>
-                    <Input
-                      className="h-6 w-full"
-                      name="oxygen"
-                      defaultValue={
-                        patient?.electronicHealthRecord
-                          ? patient?.electronicHealthRecord?.oxygen
-                          : ""
-                      }
-                    />
-                    <p>
-                      O<sup>2</sup> sat
-                    </p>
+                <Textarea
+                  name="currentMedications"
+                  defaultValue={
+                    patient?.consultation
+                      ? patient?.consultation?.currentMedications
+                      : ""
+                  }
+                ></Textarea>
+                {session.data?.user.usertype === "Nurse" ? (
+                  <div>
+                    <h2 className="my-2 text-xl font-semibold">Vital Signs</h2>
+                    <div className="grid grid-cols-3 gap-2 items-center">
+                      <Label className="italic text-right">Temperature:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="temperature"
+                        defaultValue={
+                          patient?.electronicHealthRecord
+                            ? patient?.electronicHealthRecord?.temperature
+                            : ""
+                        }
+                      />
+                      <p>°C</p>
+                      <Label className="italic text-right">PR:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="pulse"
+                        defaultValue={
+                          patient?.electronicHealthRecord
+                            ? patient?.electronicHealthRecord?.pulse
+                            : ""
+                        }
+                      />
+                      <p>bpm</p>
+                      <Label className="italic text-right">RR:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="respiration"
+                        defaultValue={
+                          patient?.electronicHealthRecord
+                            ? patient?.electronicHealthRecord?.respiration
+                            : ""
+                        }
+                      />
+                      <p>bpm</p>
+                      <Label className="italic text-right">BP:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="bloodPressure"
+                        defaultValue={
+                          patient?.electronicHealthRecord
+                            ? patient?.electronicHealthRecord?.bloodPressure
+                            : ""
+                        }
+                      />
+                      <p>mmhg</p>
+                      <Label className="italic text-right">WT:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="weight"
+                        defaultValue={
+                          patient?.electronicHealthRecord
+                            ? patient?.electronicHealthRecord?.weight
+                            : ""
+                        }
+                      />
+                      <p>kg</p>
+                      <Label className="italic text-right">Oxygen:</Label>
+                      <Input
+                        className="h-6 w-full"
+                        name="oxygen"
+                        defaultValue={
+                          patient?.electronicHealthRecord
+                            ? patient?.electronicHealthRecord?.oxygen
+                            : ""
+                        }
+                      />
+                      <p>
+                        O<sup>2</sup> sat
+                      </p>
+                    </div>
                   </div>
-                </div> */}
+                ) : (
+                  ""
+                )}
                 {/* <div className="grid grid-cols-4">
                   {conditions.map((condition: string, i: number) => (
                     <div key={`condition-${i}`} className="flex items-center gap-2">
@@ -544,7 +565,7 @@ export default function PatientRegister() {
                     ) : (
                       ""
                     )}
-                    {verifyMode ? "PROCEED" : "SUBMIT"}
+                    SUBMIT
                   </Button>
                 </div>
               </div>

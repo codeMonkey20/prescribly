@@ -185,7 +185,7 @@ export default function PrescribeIdNumberPage() {
                       </Link>
                     )}
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col grow">
                     {patient?.electronicHealthRecord ? (
                       <p className="italic">
                         <span className="font-semibold not-italic">Last Verified:</span>{" "}
@@ -197,7 +197,7 @@ export default function PrescribeIdNumberPage() {
                       ""
                     )}
                   </div>
-                  <div className="flex flex-col mt-5 grow">
+                  {/* <div className="flex flex-col mt-5 grow">
                     <h2 className="text-xl font-semibold">Consultations</h2>
                     {patient?.consultation ? (
                       <div className="flex justify-between items-center">
@@ -209,7 +209,7 @@ export default function PrescribeIdNumberPage() {
                     ) : (
                       <p className="italic">No consultations yet</p>
                     )}
-                  </div>
+                  </div> */}
                   <div className="self-end flex gap-1">
                     <Button variant="link" onClick={() => router.back()}>
                       BACK

@@ -579,9 +579,9 @@ export default function PrescriptionPage() {
                 }
               />
             </div>
-            <p className="font-bold">
+            {/* <p className="font-bold">
               CN-{patient.consultation?.consultationNumber}
-            </p>
+            </p> */}
           </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             <p className="font-bold">

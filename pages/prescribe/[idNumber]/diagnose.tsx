@@ -150,7 +150,7 @@ export default function PrescribeDiagnosePage() {
                       />
                     </div>
                   </div>
-                  <div className="flex justify-between">
+                  {/* <div className="flex justify-between">
                     <div className="flex flex-col m-2 grow">
                       <Label
                         className="italic text-md"
@@ -164,7 +164,7 @@ export default function PrescribeDiagnosePage() {
                         defaultValue={patient?.medicalConditions}
                       />
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 <Separator
                   orientation="vertical"
