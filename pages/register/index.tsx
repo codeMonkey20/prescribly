@@ -49,21 +49,23 @@ export default function PatientRegister() {
     const formData = new FormData(e.target);
     const formDataJSON = Object.fromEntries(formData.entries());
     const currentMedications = formDataJSON.currentMedications;
-    const electronicHealthRecord = {
-      temperature: formDataJSON.temperature,
-      pulse: formDataJSON.pulse,
-      respiration: formDataJSON.respiration,
-      bloodPressure: formDataJSON.bloodPressure,
-      weight: formDataJSON.weight,
-      oxygen: formDataJSON.oxygen,
-    };
+    // const electronicHealthRecord = {
+    //   temperature: formDataJSON.temperature,
+    //   pulse: formDataJSON.pulse,
+    //   respiration: formDataJSON.respiration,
+    //   bloodPressure: formDataJSON.bloodPressure,
+    //   weight: formDataJSON.weight,
+    //   oxygen: formDataJSON.oxygen,
+    // };
     delete formDataJSON.currentMedications;
-    delete formDataJSON.temperature;
-    delete formDataJSON.pulse;
-    delete formDataJSON.respiration;
-    delete formDataJSON.bloodPressure;
-    delete formDataJSON.weight;
-    delete formDataJSON.oxygen;
+
+    // delete formDataJSON.temperature;
+    // delete formDataJSON.pulse;
+    // delete formDataJSON.respiration;
+    // delete formDataJSON.bloodPressure;
+    // delete formDataJSON.weight;
+    // delete formDataJSON.oxygen;
+
     // let medicalConditions = "";
     // for (const form in formDataJSON) {
     //   if (formDataJSON[form] === "on") {
@@ -75,7 +77,7 @@ export default function PatientRegister() {
     if (editMode && query.id) {
       await axios.put(`/api/patient/${query.id}`, {
         ...formDataJSON,
-        electronicHealthRecord,
+        // electronicHealthRecord,
         consultation: {
           currentMedications,
         },
@@ -98,7 +100,7 @@ export default function PatientRegister() {
         healthConditions: "",
         prescriptions: [],
         fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
-        electronicHealthRecord,
+        // electronicHealthRecord,
         consultation: {
           currentMedications,
         },
@@ -379,7 +381,7 @@ export default function PatientRegister() {
                   Current Medications Taken:
                 </h3>
                 <Textarea name="currentMedications"></Textarea>
-                <div>
+                {/* <div>
                   <h2 className="my-2 text-xl font-semibold">Vital Signs</h2>
                   <div className="grid grid-cols-3 gap-2 items-center">
                     <Label className="italic text-right">Temperature:</Label>
@@ -451,7 +453,7 @@ export default function PatientRegister() {
                       O<sup>2</sup> sat
                     </p>
                   </div>
-                </div>
+                </div> */}
                 {/* <div className="grid grid-cols-4">
                   {conditions.map((condition: string, i: number) => (
                     <div key={`condition-${i}`} className="flex items-center gap-2">
@@ -471,7 +473,7 @@ export default function PatientRegister() {
                       ))
                     : ""}
                 </div> */}
-                {isFemale ? (
+                {/* {isFemale ? (
                   <div className="mt-3">
                     <h3 className="italic font-semibold">For Women:</h3>
                     <div className="flex items-center gap-2">
@@ -526,7 +528,7 @@ export default function PatientRegister() {
                   </div>
                 ) : (
                   ""
-                )}
+                )} */}
                 <div className="self-end">
                   <Button
                     variant="ghost"
