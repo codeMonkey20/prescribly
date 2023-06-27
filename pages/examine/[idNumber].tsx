@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { GetServerSidePropsContext } from "next";
 import { getServerSession } from "next-auth";
@@ -14,8 +14,12 @@ import { PatientDB } from "@/types/PatientDB";
 import Header from "@/components/Header";
 import Link from "next/link";
 import log from "@/lib/log";
+import { QueueDB } from "@/types/QueueDB";
 
-export async function getServerSideProps({ req, res }: GetServerSidePropsContext) {
+export async function getServerSideProps({
+  req,
+  res,
+}: GetServerSidePropsContext) {
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
     return {
@@ -44,21 +48,38 @@ export default function ExamineHealthRecordPage() {
 
   const [patient, setPatient] = useState<PatientDB>();
   const [examinedBy, setExaminedBy] = useState("");
+  const [queue, setQueue] = useState<QueueDB>();
+  const intervalId = useRef<NodeJS.Timer>();
 
   useEffect(() => {
     if (idNumber) {
-      axios.get(`/api/patient?idNumber=${router.query.idNumber}`).then(async ({ data }) => {
-        setPatient(data[0]);
-        if (data[0].examinedBy && data[0].examinedBy !== "") {
-          const nurse = await axios.get(`/api/staff/${data[0].examinedBy}`);
-          if (nurse.data) {
-            log(nurse.data);
-            setExaminedBy(`${nurse.data.firstName} ${nurse.data.lastName}`);
+      axios
+        .get(`/api/patient?idNumber=${router.query.idNumber}`)
+        .then(async ({ data }) => {
+          setPatient(data[0]);
+          if (data[0].examinedBy && data[0].examinedBy !== "") {
+            const nurse = await axios.get(`/api/staff/${data[0].examinedBy}`);
+            if (nurse.data) {
+              log(nurse.data);
+              setExaminedBy(`${nurse.data.firstName} ${nurse.data.lastName}`);
+            }
           }
-        }
-      });
+        });
     }
   }, [idNumber, router]);
+
+  useEffect(() => {
+    axios.get("/api/queue").then(({ data }) => {
+      setQueue(data);
+      log(data);
+    });
+    intervalId.current = setInterval(() => {
+      axios.get("/api/queue").then(({ data }) => {
+        setQueue(data);
+        log(data);
+      });
+    }, 5000);
+  }, []);
 
   if (session.status === "authenticated" && patient)
     return (
@@ -72,7 +93,9 @@ export default function ExamineHealthRecordPage() {
             <div className="bg-white flex grow rounded-3xl px-4 py-2">
               <div className="bg-white flex grow rounded-3xl px-4 py-2">
                 <div className="flex flex-col w-full">
-                  <h2 className="text-xl font-semibold my-6 mx-2">Patient Profile</h2>
+                  <h2 className="text-xl font-semibold my-6 mx-2">
+                    Patient Profile
+                  </h2>
                   <div className="flex justify-between items-center gap-4">
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="firstName">
@@ -90,7 +113,9 @@ export default function ExamineHealthRecordPage() {
                       <Label className="italic text-md" htmlFor="middleInitial">
                         Initials
                       </Label>
-                      <span>{patient?.middleInitial ? patient?.middleInitial : "-"}</span>
+                      <span>
+                        {patient?.middleInitial ? patient?.middleInitial : "-"}
+                      </span>
                     </div>
                   </div>
                   <div className="flex justify-between">
@@ -98,7 +123,11 @@ export default function ExamineHealthRecordPage() {
                       <Label className="italic text-md" htmlFor="birthdate">
                         Date of Birth
                       </Label>
-                      <span>{patient?.birthdate ? format(new Date(patient?.birthdate), "MMM dd, yyyy") : ""}</span>
+                      <span>
+                        {patient?.birthdate
+                          ? format(new Date(patient?.birthdate), "MMM dd, yyyy")
+                          : ""}
+                      </span>
                     </div>
                     <div className="flex flex-col m-2 grow">
                       <Label className="italic text-md" htmlFor="phone">
@@ -140,14 +169,22 @@ export default function ExamineHealthRecordPage() {
                     </div>
                   </div>
                 </div>
-                <Separator orientation="vertical" className="mx-4 h-auto my-2" />
+                <Separator
+                  orientation="vertical"
+                  className="mx-4 h-auto my-2"
+                />
                 <div className="w-full flex flex-col gap-5">
                   <div className="flex items-center justify-between mt-6">
-                    <h2 className="text-xl font-semibold">Electronic Health Record</h2>
+                    <h2 className="text-xl font-semibold">
+                      Electronic Health Record
+                    </h2>
                     {patient?.electronicHealthRecord ? (
                       <p className="italic underline">Verified</p>
                     ) : (
-                      <Link className="italic underline" href={`/register?id=${patient?.userID}&edit=true&verify=true`}>
+                      <Link
+                        className="italic underline"
+                        href={`/register?id=${patient?.userID}&edit=true&verify=true`}
+                      >
                         Verify
                       </Link>
                     )}
@@ -155,10 +192,20 @@ export default function ExamineHealthRecordPage() {
                   <div className="flex flex-col">
                     {patient?.electronicHealthRecord ? (
                       <p className="italic">
-                        <span className="font-semibold not-italic">Last Verified:</span>{" "}
-                        {format(new Date(patient.electronicHealthRecord.updatedAt + ""), "MMMM dd, yyyy hh:mmaa")}{" "}
+                        <span className="font-semibold not-italic">
+                          Last Verified:
+                        </span>{" "}
+                        {format(
+                          new Date(
+                            patient.electronicHealthRecord.updatedAt + ""
+                          ),
+                          "MMMM dd, yyyy hh:mmaa"
+                        )}{" "}
                         <br />
-                        <span className="font-semibold not-italic">Examined By:</span> {examinedBy}, RN
+                        <span className="font-semibold not-italic">
+                          Examined By:
+                        </span>{" "}
+                        {examinedBy}, RN
                       </p>
                     ) : (
                       ""
@@ -168,9 +215,17 @@ export default function ExamineHealthRecordPage() {
                     <h2 className="text-xl font-semibold">Consultations</h2>
                     {patient?.consultation ? (
                       <div className="flex justify-between items-center">
-                        <p className="pl-4 italic">CN-{patient.consultation.consultationNumber}</p>
-                        <Link href={`/examine/intervention/${patient.idNumber}`} className="underline italic">
-                          {format(new Date(patient.consultation.updatedAt + ""), "MMMM dd, yyyy hh:mmaa")}
+                        <p className="pl-4 italic">
+                          CN-{patient.consultation.consultationNumber}
+                        </p>
+                        <Link
+                          href={`/examine/intervention/${patient.idNumber}`}
+                          className="underline italic"
+                        >
+                          {format(
+                            new Date(patient.consultation.updatedAt + ""),
+                            "MMMM dd, yyyy hh:mmaa"
+                          )}
                         </Link>
                       </div>
                     ) : (
@@ -178,11 +233,24 @@ export default function ExamineHealthRecordPage() {
                     )}
                   </div>
                   <div className="self-end flex gap-1">
-                    <Button variant="link" onClick={() => router.back()}>
+                    <Button
+                      variant="link"
+                      onClick={() => {
+                        clearInterval(intervalId.current);
+                        router.replace("/examine");
+                      }}
+                    >
                       BACK
                     </Button>
                     {patient?.electronicHealthRecord ? (
-                      <Button onClick={() => router.push(`/examine/intervention/${router.query.idNumber}?new=true`)}>
+                      <Button
+                        onClick={() => {
+                          clearInterval(intervalId.current);
+                          router.push(
+                            `/examine/intervention/${router.query.idNumber}?new=true`
+                          );
+                        }}
+                      >
                         EXAMINE
                       </Button>
                     ) : (
@@ -199,7 +267,14 @@ export default function ExamineHealthRecordPage() {
   return (
     <main className="flex items-center justify-center h-screen">
       <div className="flex flex-col justify-center items-center gap-3">
-        <Image src="/logo.png" alt="logo" width={150} height={150} className="w-auto animate-pulse" priority />
+        <Image
+          src="/logo.png"
+          alt="logo"
+          width={150}
+          height={150}
+          className="w-auto animate-pulse"
+          priority
+        />
       </div>
     </main>
   );

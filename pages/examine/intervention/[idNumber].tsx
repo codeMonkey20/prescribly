@@ -121,7 +121,9 @@ export default function ExamineInterventionPage() {
       healthConditions,
       electronicHealthRecord: { ...vitals },
     });
-    router.push(`/examine/${patient?.idNumber}`);
+    await axios.delete(`/api/queue?nurse=${1}`);
+    await axios.post(`/api/queue?doctor=${patient?.idNumber}`);
+    router.push(`/examine`);
   };
 
   useEffect(() => {
@@ -222,9 +224,9 @@ export default function ExamineInterventionPage() {
                     <Textarea
                       name="currentMedications"
                       defaultValue={
-                        newConsultation
-                          ? ""
-                          : patient.consultation?.currentMedications
+                        patient.consultation?.currentMedications
+                          ? patient.consultation?.currentMedications
+                          : ""
                       }
                     />
                   </div>
