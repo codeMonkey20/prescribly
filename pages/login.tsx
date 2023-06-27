@@ -150,7 +150,7 @@ export default function Login() {
           </form>
           <div className="text-center flex flex-col items-center">
             <div>
-              Already registered patient?{" "}
+              Do you have a complaint?{" "}
               <button
                 className="italic underline"
                 onClick={() => setToggleID((state) => !state)}
