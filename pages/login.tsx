@@ -148,12 +148,6 @@ export default function Login() {
               LOGIN
             </Button>
           </form>
-          <div className="text-center">
-            Are you a new patient?{" "}
-            <Link href="/register">
-              <span className="italic underline">Register here!</span>
-            </Link>
-          </div>
           <div className="text-center flex flex-col items-center">
             <div>
               Already registered patient?{" "}
@@ -165,25 +159,36 @@ export default function Login() {
               </button>
             </div>
             {toggleID ? (
-              <div className="flex gap-1">
-                <Input
-                  className="w-fit"
-                  placeholder="0000-0000"
-                  value={idNumber}
-                  onChange={(e) => setIdNumber(e.target.value)}
-                />
-                <Button
-                  disabled={!exists}
-                  onClick={async () => {
-                    const id = await axios.get(
-                      `/api/patient?idNumber=${idNumber}`
-                    );
-                    router.push(`/register?id=${id.data[0].userID}&edit=true`);
-                  }}
-                >
-                  Sign in form
-                </Button>
-              </div>
+              <>
+                <div className="flex gap-1">
+                  <Input
+                    className="w-fit"
+                    placeholder="0000-0000"
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
+                  />
+                  <Button
+                    disabled={!exists}
+                    onClick={async () => {
+                      const id = await axios.get(
+                        `/api/patient?idNumber=${idNumber}`
+                      );
+                      router.push(
+                        `/register?id=${id.data[0].userID}&edit=true`
+                      );
+                    }}
+                  >
+                    Sign in form
+                  </Button>
+                </div>
+
+                {!exists && idNumber !== "" ?<div className="text-center">
+                  Are you a new patient?{" "}
+                  <Link href="/register">
+                    <span className="italic underline">Register here!</span>
+                  </Link>
+                </div> : ""}
+              </>
             ) : (
               ""
             )}

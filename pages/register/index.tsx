@@ -49,7 +49,21 @@ export default function PatientRegister() {
     const formData = new FormData(e.target);
     const formDataJSON = Object.fromEntries(formData.entries());
     const currentMedications = formDataJSON.currentMedications;
+    const electronicHealthRecord = {
+      temperature: formDataJSON.temperature,
+      pulse: formDataJSON.pulse,
+      respiration: formDataJSON.respiration,
+      bloodPressure: formDataJSON.bloodPressure,
+      weight: formDataJSON.weight,
+      oxygen: formDataJSON.oxygen,
+    };
     delete formDataJSON.currentMedications;
+    delete formDataJSON.temperature;
+    delete formDataJSON.pulse;
+    delete formDataJSON.respiration;
+    delete formDataJSON.bloodPressure;
+    delete formDataJSON.weight;
+    delete formDataJSON.oxygen;
     // let medicalConditions = "";
     // for (const form in formDataJSON) {
     //   if (formDataJSON[form] === "on") {
@@ -61,6 +75,7 @@ export default function PatientRegister() {
     if (editMode && query.id) {
       await axios.put(`/api/patient/${query.id}`, {
         ...formDataJSON,
+        electronicHealthRecord,
         consultation: {
           currentMedications,
         },
@@ -73,7 +88,7 @@ export default function PatientRegister() {
         } else {
           await axios.post(`/api/queue?nurse=${formDataJSON.idNumber}`);
         }
-        push(`/login`);
+        push(`/done`);
       }
     } else {
       const newFormDataJSON = {
@@ -83,6 +98,7 @@ export default function PatientRegister() {
         healthConditions: "",
         prescriptions: [],
         fullName: `${formDataJSON.firstName} ${formDataJSON.lastName}`,
+        electronicHealthRecord,
         consultation: {
           currentMedications,
         },
@@ -101,7 +117,7 @@ export default function PatientRegister() {
       } else {
         await axios.post(`/api/queue?nurse=${formDataJSON.idNumber}`);
       }
-      push(`/login`);
+      push(`/done`);
     }
   };
 
@@ -288,7 +304,7 @@ export default function PatientRegister() {
           <div className="grow bg-primary rounded-r-2xl p-4">
             <div className="bg-white rounded-3xl px-5 py-3 h-full flex flex-col justify-center gap-2">
               <h2 className="text-xl font-semibold">Past Medical History</h2>
-              <div className="flex gap-4">
+              {/* <div className="flex gap-4">
                 <div className="flex flex-col gap-3">
                   <div>
                     <Label>Smoke:</Label>
@@ -355,16 +371,87 @@ export default function PatientRegister() {
                     }
                   />
                 </div>
-              </div>
+              </div> */}
               <div className="flex flex-col gap-2">
-                <h3 className="italic font-semibold">
-                  History of Present Illness:
-                </h3>
+                <h3 className="italic font-semibold">Chief Complaints:</h3>
                 <Textarea name="healthConditions"></Textarea>
                 <h3 className="italic font-semibold">
                   Current Medications Taken:
                 </h3>
                 <Textarea name="currentMedications"></Textarea>
+                <div>
+                  <h2 className="my-2 text-xl font-semibold">Vital Signs</h2>
+                  <div className="grid grid-cols-3 gap-2 items-center">
+                    <Label className="italic text-right">Temperature:</Label>
+                    <Input
+                      className="h-6 w-full"
+                      name="temperature"
+                      defaultValue={
+                        patient?.electronicHealthRecord
+                          ? patient?.electronicHealthRecord?.temperature
+                          : ""
+                      }
+                    />
+                    <p>°C</p>
+                    <Label className="italic text-right">PR:</Label>
+                    <Input
+                      className="h-6 w-full"
+                      name="pulse"
+                      defaultValue={
+                        patient?.electronicHealthRecord
+                          ? patient?.electronicHealthRecord?.pulse
+                          : ""
+                      }
+                    />
+                    <p>bpm</p>
+                    <Label className="italic text-right">RR:</Label>
+                    <Input
+                      className="h-6 w-full"
+                      name="respiration"
+                      defaultValue={
+                        patient?.electronicHealthRecord
+                          ? patient?.electronicHealthRecord?.respiration
+                          : ""
+                      }
+                    />
+                    <p>bpm</p>
+                    <Label className="italic text-right">BP:</Label>
+                    <Input
+                      className="h-6 w-full"
+                      name="bloodPressure"
+                      defaultValue={
+                        patient?.electronicHealthRecord
+                          ? patient?.electronicHealthRecord?.bloodPressure
+                          : ""
+                      }
+                    />
+                    <p>mmhg</p>
+                    <Label className="italic text-right">WT:</Label>
+                    <Input
+                      className="h-6 w-full"
+                      name="weight"
+                      defaultValue={
+                        patient?.electronicHealthRecord
+                          ? patient?.electronicHealthRecord?.weight
+                          : ""
+                      }
+                    />
+                    <p>kg</p>
+                    <Label className="italic text-right">Oxygen:</Label>
+                    <Input
+                      className="h-6 w-full"
+                      name="oxygen"
+                      defaultValue={
+                        patient?.electronicHealthRecord
+                          ? patient?.electronicHealthRecord?.oxygen
+                          : ""
+                      }
+                    />
+                    <p>
+                      O<sup>2</sup> sat
+                    </p>
+                  </div>
+                </div>
                 {/* <div className="grid grid-cols-4">
                   {conditions.map((condition: string, i: number) => (
                     <div key={`condition-${i}`} className="flex items-center gap-2">

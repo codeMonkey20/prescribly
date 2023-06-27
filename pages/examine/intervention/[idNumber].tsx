@@ -213,7 +213,7 @@ export default function ExamineInterventionPage() {
                     </div>
                   </div>
                   <div>
-                    <Label>History of Present Illness</Label>
+                    <Label>Chief Complaints</Label>
                     <Textarea
                       name="healthConditions"
                       defaultValue={patient.healthConditions}

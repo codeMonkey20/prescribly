@@ -86,7 +86,7 @@ export default function PrescriptionPageView() {
           </div>
           <div className="flex items-start justify-between">
             <div>
-              <p className="italic font-bold">History of Present Illness/es:</p>
+              <p className="italic font-bold">Chief Complaints:</p>
               <p className="px-3">{patient?.healthConditions}</p>
             </div>
             <div className="flex flex-col justify-center">

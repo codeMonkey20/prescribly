@@ -233,7 +233,7 @@ export default function PrescribeDiagnosePage() {
                           className="italic text-md"
                           htmlFor="healthConditions"
                         >
-                          History of Present Illness/es:
+                          Chief Complaints
                         </Label>
                         <Textarea
                           name="healthConditions"
