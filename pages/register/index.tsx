@@ -91,7 +91,7 @@ export default function PatientRegister() {
       });
 
       if (verifyMode) {
-        await axios.delete(`/api/queue?nurse=${1}`);
+        await axios.delete(`/api/queue?nurse=${patient?.idNumber}`);
         await axios.post(`/api/queue?doctor=${formDataJSON.idNumber}`);
         push(`/examine`);
       } else {

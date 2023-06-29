@@ -177,13 +177,13 @@ export default function PrescribeIdNumberPage() {
                   </div> */}
                   <div className="flex items-center justify-between mt-6">
                     <h2 className="text-xl font-semibold">Electronic Health Record</h2>
-                    {patient?.electronicHealthRecord ? (
+                    {/* {patient?.electronicHealthRecord ? (
                       <p className="italic underline">Verified</p>
                     ) : (
                       <Link className="italic underline" href={`/register?id=${patient?.userID}&edit=true&verify=true`}>
                         Verify
                       </Link>
-                    )}
+                    )} */}
                   </div>
                   <div className="flex flex-col grow">
                     {patient?.electronicHealthRecord ? (

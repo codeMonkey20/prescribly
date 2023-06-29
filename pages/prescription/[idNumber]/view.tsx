@@ -83,6 +83,11 @@ export default function PrescriptionPageView() {
               Mindanao State University - Iligan Institute of Technology <br />
               Andre Bonifacio Avenue, 9200 Iligan City
             </p>
+            <p className="mb-2">
+              {tableData[0].createdAt
+                ? format(new Date(tableData[0].createdAt + ""), "MMMM dd, yyyy")
+                : ""}
+            </p>
           </div>
           <div className="flex items-start justify-between">
             <div>
@@ -91,25 +96,11 @@ export default function PrescriptionPageView() {
             </div>
             <div className="flex flex-col justify-center">
               <div className="flex">
-                <div className="text-right mr-6 font-semibold flex flex-col justify-end">
+                <div className="text-right font-semibold flex flex-col justify-end">
                   <p>{patient.fullName}</p>
                   <p>{ageDate(patient.birthdate + "")}</p>
                   <p>{patient.gender}</p>
                   <p>{patient.address ? patient.address : "-"}</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <p className="mb-2">
-                    {tableData[0].createdAt
-                      ? format(
-                          new Date(tableData[0].createdAt + ""),
-                          "MMMM dd, yyyy"
-                        )
-                      : ""}
-                  </p>
-                  <QRCode value={`${patient?.idNumber}`} size={80} />
-                  <p className="w-20 text-sm text-center whitespace-nowrap">
-                    {patient?.idNumber}
-                  </p>
                 </div>
               </div>
             </div>
@@ -178,12 +169,9 @@ export default function PrescriptionPageView() {
               </p>
             </div>
           </div>
-          <p className="text-right font-bold">
-            CN-{patient.consultation?.consultationNumber}
-          </p>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
             {staff ? (
-              <p className="font-bold">
+              <p className="font-bold text-sm">
                 {staff?.signature ? (
                   <Image
                     src={"data:image/png;base64," + staff?.signature}

@@ -147,74 +147,34 @@ export default function PrescriptionPage() {
                 <br />
                 Andre Bonifacio Avenue, 9200 Iligan City
               </p>
+              <p className="mb-2">
+                {!newPrescription
+                  ? tableData[0].createdAt
+                    ? format(
+                        new Date(tableData[0].createdAt + ""),
+                        "MMMM dd, yyyy"
+                      )
+                    : ""
+                  : format(new Date(), "MMMM dd, yyyy")}
+              </p>
             </div>
             <div className="flex flex-col justify-center">
               <div className="flex">
-                <div className="text-right mr-6 font-semibold flex flex-col justify-end">
+                <div className="text-right font-semibold flex flex-col justify-end">
                   <p>{patient.fullName}</p>
+                  <p>{patient?.idNumber}</p>
                   <p>{ageDate(patient.birthdate + "")}</p>
                   <p>{patient.gender}</p>
                   <p>{patient.address ? patient.address : "-"}</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <p className="mb-2">
-                    {!newPrescription
-                      ? tableData[0].createdAt
-                        ? format(
-                            new Date(tableData[0].createdAt + ""),
-                            "MMMM dd, yyyy"
-                          )
-                        : ""
-                      : format(new Date(), "MMMM dd, yyyy")}
-                  </p>
-                  <QRCode value={`${patient?.idNumber}`} size={80} />
-                  <p className="w-20 text-sm text-center whitespace-nowrap">
-                    {patient?.idNumber}
-                  </p>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex justify-between">
             <FaPrescription className="text-5xl" />
-            {user.usertype === "Doctor" && newPrescription ? (
-              <Button
-                onClick={() => {
-                  const prescrption: Prescription = {
-                    dispense: "",
-                    dosage: "",
-                    form: "tab",
-                    frequency: "3x a day",
-                    given: "",
-                    medicationName: "",
-                    purpose: "",
-                    remarks: "",
-                    route: "oral",
-                    duration: "",
-                    updatedAt: format(new Date(), "yyyy-MM-dd"),
-                  };
-                  setTableData((row) => {
-                    if (row) {
-                      return [...row, prescrption];
-                    }
-                    return [prescrption];
-                  });
-                  setUnitData((row) => {
-                    if (row) {
-                      return [...row, { dosage: "mg", duration: "day/s" }];
-                    }
-                    return [{ dosage: "mg", duration: "day/s" }];
-                  });
-                }}
-              >
-                Add Medication
-              </Button>
-            ) : (
-              ""
-            )}
           </div>
           <div className="grow max-h-full overflow-y-auto">
-            <Table className="max-h-96 overflow-y-auto">
+            <Table>
               <TableHeader>
                 <TableRow>
                   {user.usertype === "Doctor" && newPrescription ? (
@@ -248,7 +208,7 @@ export default function PrescriptionPage() {
                     {user.usertype === "Doctor" && newPrescription ? (
                       <TableCell className="p-1">
                         <div
-                          className="p-2 rounded-full hover:bg-muted"
+                          className="p-2 rounded-full hover:bg-muted flex items-center justify-center aspect-square"
                           onClick={() => {
                             setTableData((old) => {
                               return old.filter((_, idx) => idx !== i);
@@ -560,6 +520,42 @@ export default function PrescriptionPage() {
                 ))}
               </TableBody>
             </Table>
+            {user.usertype === "Doctor" && newPrescription ? (
+              <Button
+                className="w-fit"
+                onClick={() => {
+                  const prescrption: Prescription = {
+                    dispense: "",
+                    dosage: "",
+                    form: "tab",
+                    frequency: "3x a day",
+                    given: "",
+                    medicationName: "",
+                    purpose: "",
+                    remarks: "",
+                    route: "oral",
+                    duration: "",
+                    updatedAt: format(new Date(), "yyyy-MM-dd"),
+                  };
+                  setTableData((row) => {
+                    if (row) {
+                      return [...row, prescrption];
+                    }
+                    return [prescrption];
+                  });
+                  setUnitData((row) => {
+                    if (row) {
+                      return [...row, { dosage: "mg", duration: "day/s" }];
+                    }
+                    return [{ dosage: "mg", duration: "day/s" }];
+                  });
+                }}
+              >
+                Add Medication
+              </Button>
+            ) : (
+              ""
+            )}
           </div>
           <div className="flex w-full justify-between items-center">
             <div className="flex gap-3 items-center">
@@ -584,7 +580,7 @@ export default function PrescriptionPage() {
             </p> */}
           </div>
           <div className="self-end justify-self-end flex justify-between w-full gap-1">
-            <p className="font-bold">
+            <p className="font-bold text-sm">
               {staff?.signature ? (
                 <Image
                   src={"data:image/png;base64," + staff?.signature}
@@ -621,16 +617,31 @@ export default function PrescriptionPage() {
                   onClick={async () => {
                     if (tableData?.length === 0) return;
                     setButtonLoad(true);
-                    const prescription: Prescription[] = JSON.parse(
+                    let prescription: Prescription[] = JSON.parse(
                       JSON.stringify(tableData)
                     );
-                    for (let i = 0; i < tableData.length; i++) {
+                    let unitTable: UnitData[] = JSON.parse(
+                      JSON.stringify(unitData)
+                    );
+
+                    // delete empty rows
+                    prescription = prescription.filter((e, i) => {
+                      const empty =
+                        e.purpose === "" &&
+                        e.medicationName === "" &&
+                        e.dispense === "";
+                      if (empty) unitTable.splice(i, 1);
+                      return !empty;
+                    });
+                    log(prescription, unitTable);
+
+                    for (let i = 0; i < prescription.length; i++) {
                       prescription[i].dosage = `${
                         prescription[i].dosage.split(" ")[0]
-                      } ${unitData[i].dosage}`;
+                      } ${unitTable[i].dosage}`;
                       prescription[i].duration = `${
                         prescription[i].duration.split(" ")[0]
-                      } ${unitData[i].duration}`;
+                      } ${unitTable[i].duration}`;
                       delete prescription[i].updatedAt;
                     }
                     log(prescription);
@@ -641,7 +652,9 @@ export default function PrescriptionPage() {
                         doctor: user._id,
                       });
 
-                      await axios.delete("/api/queue?doctor=1");
+                      await axios.delete(
+                        `/api/queue?doctor=${patient.idNumber}`
+                      );
                       await axios.post(
                         `/api/queue?pharmacist=${patient.idNumber}`
                       );
@@ -656,7 +669,9 @@ export default function PrescriptionPage() {
                             : "",
                       });
 
-                      await axios.delete("/api/queue?pharmacist=1");
+                      await axios.delete(
+                        `/api/queue?pharmacist=${patient?.idNumber}`
+                      );
                       router.replace("/dispense");
                     }
                   }}

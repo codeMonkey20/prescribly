@@ -97,6 +97,14 @@ export default function DispensePage() {
                       <p
                         key={i}
                         className="hover:bg-muted rounded text-center cursor-pointer"
+                        onClick={() => {
+                          clearInterval(intervalId.current);
+                          router.push(
+                            `/prescription/${
+                              queue?.pharmacist[i]?.idNumber
+                            }`
+                          );
+                        }}
                       >
                         {e.idNumber}
                       </p>

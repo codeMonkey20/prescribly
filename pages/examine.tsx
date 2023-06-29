@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FormEvent, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { GetServerSidePropsContext } from "next";
 import { getServerSession } from "next-auth";
@@ -6,9 +6,7 @@ import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import axios from "axios";
-import { QrScanner } from "@yudiel/react-qr-scanner";
 import Header from "@/components/Header";
 import log from "@/lib/log";
 import { QueueDB } from "@/types/QueueDB";
@@ -103,6 +101,10 @@ export default function ExaminePage() {
                       <p
                         key={i}
                         className="hover:bg-muted rounded text-center cursor-pointer"
+                        onClick={() => {
+                          clearInterval(intervalId.current);
+                          router.push(`/examine/${queue?.nurse[i]?.idNumber}`);
+                        }}
                       >
                         {e.idNumber}
                       </p>
@@ -112,11 +114,7 @@ export default function ExaminePage() {
                 <Button
                   onClick={() => {
                     clearInterval(intervalId.current);
-                    router.push(
-                      `/examine/${
-                        queue?.nurse[0]?.idNumber
-                      }`
-                    );
+                    router.push(`/examine/${queue?.nurse[0]?.idNumber}`);
                   }}
                   className="w-full mt-2"
                   disabled={

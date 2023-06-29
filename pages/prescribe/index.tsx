@@ -99,6 +99,14 @@ export default function PrescribePage() {
                       <p
                         key={i}
                         className="hover:bg-muted rounded text-center cursor-pointer"
+                        onClick={() => {
+                          clearInterval(intervalId.current);
+                          router.push(
+                            `/prescribe/${
+                              queue?.doctor[i]?.idNumber
+                            }`
+                          );
+                        }}
                       >
                         {e.idNumber}
                       </p>

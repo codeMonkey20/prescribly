@@ -192,7 +192,7 @@ export default function ExamineHealthRecordPage() {
                   <div className="flex flex-col grow">
                     {patient?.electronicHealthRecord ? (
                       <p className="italic">
-                        <span className="font-semibold not-italic">
+                        {/* <span className="font-semibold not-italic">
                           Last Verified:
                         </span>{" "}
                         {format(
@@ -201,11 +201,13 @@ export default function ExamineHealthRecordPage() {
                           ),
                           "MMMM dd, yyyy hh:mmaa"
                         )}{" "}
-                        <br />
+                        <br /> */}
                         <span className="font-semibold not-italic">
                           Examined By:
                         </span>{" "}
-                        {examinedBy}, RN
+                        {examinedBy && examinedBy !== ""
+                          ? `${examinedBy}, RN`
+                          : "Not yet examined"}
                       </p>
                     ) : (
                       ""

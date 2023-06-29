@@ -40,7 +40,11 @@ export default function Header({}: Props) {
           <Link
             href="/dashboard"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-            style={{ backgroundColor: url.includes("dashboard") ? "hsl(var(--primary))" : "" }}
+            style={{
+              backgroundColor: url.includes("dashboard")
+                ? "hsl(var(--primary))"
+                : "",
+            }}
             replace
           >
             Dashboard
@@ -51,7 +55,11 @@ export default function Header({}: Props) {
         <Link
           href="/profile"
           className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-          style={{ backgroundColor: url.includes("profile") ? "hsl(var(--primary))" : "" }}
+          style={{
+            backgroundColor: url.includes("profile")
+              ? "hsl(var(--primary))"
+              : "",
+          }}
           replace
         >
           Profile
@@ -60,7 +68,11 @@ export default function Header({}: Props) {
           <Link
             href="/users"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-            style={{ backgroundColor: url.includes("users") ? "hsl(var(--primary))" : "" }}
+            style={{
+              backgroundColor: url.includes("users")
+                ? "hsl(var(--primary))"
+                : "",
+            }}
             replace
           >
             Users
@@ -72,7 +84,11 @@ export default function Header({}: Props) {
           <Link
             href="/patients"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-            style={{ backgroundColor: url.includes("patients") ? "hsl(var(--primary))" : "" }}
+            style={{
+              backgroundColor: url.includes("patients")
+                ? "hsl(var(--primary))"
+                : "",
+            }}
             replace
           >
             Patients
@@ -84,7 +100,11 @@ export default function Header({}: Props) {
           <Link
             href="/dispense"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-            style={{ backgroundColor: url.includes("dispense") ? "hsl(var(--primary))" : "" }}
+            style={{
+              backgroundColor: url.includes("dispense")
+                ? "hsl(var(--primary))"
+                : "",
+            }}
             replace
           >
             Dispense
@@ -96,7 +116,11 @@ export default function Header({}: Props) {
           <Link
             href="/prescribe"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-            style={{ backgroundColor: url.includes("prescribe") ? "hsl(var(--primary))" : "" }}
+            style={{
+              backgroundColor: url.includes("prescribe")
+                ? "hsl(var(--primary))"
+                : "",
+            }}
             replace
           >
             Prescribe
@@ -108,7 +132,11 @@ export default function Header({}: Props) {
           <Link
             href="/examine"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-            style={{ backgroundColor: url.includes("examine") ? "hsl(var(--primary))" : "" }}
+            style={{
+              backgroundColor: url.includes("examine")
+                ? "hsl(var(--primary))"
+                : "",
+            }}
             replace
           >
             Examine
@@ -120,10 +148,30 @@ export default function Header({}: Props) {
           <Link
             href="/mims"
             className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
-            style={{ backgroundColor: url.includes("mims") ? "hsl(var(--primary))" : "" }}
+            style={{
+              backgroundColor: url.includes("mims")
+                ? "hsl(var(--primary))"
+                : "",
+            }}
             replace
           >
             MIMS
+          </Link>
+        ) : (
+          ""
+        )}
+        {verified ? (
+          <Link
+            href="/queue"
+            className="font-semibold text-lg text-center py-2 rounded-l-3xl hover:bg-primary/40 transition-colors duration-200"
+            style={{
+              backgroundColor: url.includes("queue")
+                ? "hsl(var(--primary))"
+                : "",
+            }}
+            replace
+          >
+            Queue
           </Link>
         ) : (
           ""
@@ -137,7 +185,9 @@ export default function Header({}: Props) {
               <DialogTitle>Logout</DialogTitle>
               <DialogDescription>Are you sure to logout?</DialogDescription>
               <DialogFooter>
-                <Button onClick={() => signOut({ callbackUrl: "/login" })}>Logout</Button>
+                <Button onClick={() => signOut({ callbackUrl: "/login" })}>
+                  Logout
+                </Button>
               </DialogFooter>
             </DialogHeader>
           </DialogContent>

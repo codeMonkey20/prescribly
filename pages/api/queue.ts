@@ -46,13 +46,22 @@ export default async function queue(req: NextApiRequest, res: NextApiResponse) {
       return;
     case "DELETE":
       if (req.query.nurse) {
-        await Queue.findOneAndUpdate({}, { $pop: { nurse: 1 } });
+        await Queue.findOneAndUpdate(
+          {},
+          { $pull: { nurse: { idNumber: req.query.nurse } } }
+        );
       }
       if (req.query.doctor) {
-        await Queue.findOneAndUpdate({}, { $pop: { doctor: 1 } });
+        await Queue.findOneAndUpdate(
+          {},
+          { $pull: { doctor: { idNumber: req.query.doctor } } }
+        );
       }
       if (req.query.pharmacist) {
-        await Queue.findOneAndUpdate({}, { $pop: { pharmacist: 1 } });
+        await Queue.findOneAndUpdate(
+          {},
+          { $pull: { pharmacist: { idNumber: req.query.pharmacist } } }
+        );
       }
       res.json({ revalidated: true });
       res.end();

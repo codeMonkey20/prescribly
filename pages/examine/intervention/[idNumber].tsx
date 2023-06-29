@@ -121,7 +121,7 @@ export default function ExamineInterventionPage() {
       healthConditions,
       electronicHealthRecord: { ...vitals },
     });
-    await axios.delete(`/api/queue?nurse=${1}`);
+    await axios.delete(`/api/queue?nurse=${patient?.idNumber}`);
     await axios.post(`/api/queue?doctor=${patient?.idNumber}`);
     router.push(`/examine`);
   };
