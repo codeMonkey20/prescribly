@@ -616,6 +616,16 @@ export default function PrescriptionPage() {
                 <Button
                   onClick={async () => {
                     if (tableData?.length === 0) return;
+                    for (const row of tableData) {
+                      const empty =
+                        row.purpose === "" &&
+                        row.medicationName === "" &&
+                        row.dispense === "";
+                      if (empty) {
+                        alert("There's a row with empty medication.");
+                        return;
+                      }
+                    }
                     setButtonLoad(true);
                     let prescription: Prescription[] = JSON.parse(
                       JSON.stringify(tableData)
