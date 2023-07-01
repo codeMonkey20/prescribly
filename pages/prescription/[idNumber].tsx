@@ -618,10 +618,21 @@ export default function PrescriptionPage() {
                     if (tableData?.length === 0) return;
                     for (const row of tableData) {
                       const empty =
-                        row.purpose === "" &&
-                        row.medicationName === "" &&
-                        row.dispense === "";
-                      if (empty) {
+                        row.purpose === "" ||
+                        row.medicationName === "" ||
+                        row.dispense === "" ||
+                        row.dosage === "" ||
+                        row.duration === "";
+                      const emptyPharm = row.given === "" || row.remarks === "";
+                      log(empty);
+
+                      if (empty && session.data.user.usertype === "Doctor") {
+                        alert("There's a row with empty medication.");
+                        return;
+                      } else if (
+                        emptyPharm &&
+                        session.data.user.usertype === "Pharmacist"
+                      ) {
                         alert("There's a row with empty medication.");
                         return;
                       }
@@ -637,9 +648,11 @@ export default function PrescriptionPage() {
                     // delete empty rows
                     prescription = prescription.filter((e, i) => {
                       const empty =
-                        e.purpose === "" &&
-                        e.medicationName === "" &&
-                        e.dispense === "";
+                        e.purpose === "" ||
+                        e.medicationName === "" ||
+                        e.dispense === "" ||
+                        e.dosage === "" ||
+                        e.duration === "";
                       if (empty) unitTable.splice(i, 1);
                       return !empty;
                     });
